@@ -1,0 +1,400 @@
+magics:
+  # === FEU ===
+  etincelle:
+    name: "Étincelle"
+    element: "feu"
+    tier: 1
+    mana_cost: 2
+    type: "damage"
+    damage_mastery: 1
+    damage_bonus: 2
+    description: "Petite flamme infligeant 1D+2 dégâts."
+
+  boule_de_feu:
+    name: "Boule de feu"
+    element: "feu"
+    tier: 2
+    mana_cost: 4
+    type: "damage_status"
+    damage_mastery: 2
+    damage_bonus: 1
+    inflict_status: "Brûlé"
+    status_chance: 40
+    status_duration: 2
+    description: "2D+1 dégâts, 40% de chance de brûler."
+
+  mur_de_flammes:
+    name: "Mur de flammes"
+    element: "feu"
+    tier: 3
+    mana_cost: 6
+    type: "damage_aoe"
+    damage_mastery: 2
+    damage_bonus: 0
+    inflict_status: "Brûlé"
+    status_chance: 30
+    status_duration: 2
+    description: "2D dégâts à tous les ennemis, chance de brûler."
+
+  explosion_ardente:
+    name: "Explosion ardente"
+    element: "feu"
+    tier: 4
+    mana_cost: 8
+    type: "damage"
+    damage_mastery: 3
+    damage_bonus: 2
+    inflict_status: "Brûlé"
+    status_chance: 60
+    status_duration: 2
+    description: "3D+2 dégâts, forte chance de brûler."
+
+  meteore_mineur:
+    name: "Météore mineur"
+    element: "feu"
+    tier: 5
+    mana_cost: 10
+    type: "damage_aoe"
+    damage_mastery: 3
+    damage_bonus: 1
+    inflict_status: "Brûlé"
+    status_chance: 50
+    status_duration: 3
+    description: "3D+1 dégâts à tous, brûle souvent."
+
+  brasier_purificateur:
+    name: "Brasier purificateur"
+    element: "feu"
+    tier: 6
+    mana_cost: 13
+    type: "damage"
+    damage_mastery: 4
+    damage_bonus: 2
+    inflict_status: "Brûlé"
+    status_chance: 80
+    status_duration: 3
+    description: "4D+2 dégâts dévastateurs."
+
+  incineration:
+    name: "Incinération"
+    element: "feu"
+    tier: 7
+    mana_cost: 16
+    type: "damage_aoe"
+    damage_mastery: 5
+    damage_bonus: 0
+    inflict_status: "Brûlé"
+    status_chance: 100
+    status_duration: 3
+    description: "5D dégâts à tous, brûle toujours."
+
+  # === EAU ===
+  jet_d_eau:
+    name: "Jet d'eau"
+    element: "eau"
+    tier: 1
+    mana_cost: 2
+    type: "damage"
+    damage_mastery: 1
+    damage_bonus: 1
+    description: "1D+1 dégâts d'eau."
+
+  lame_aqueuse:
+    name: "Lame aqueuse"
+    element: "eau"
+    tier: 2
+    mana_cost: 4
+    type: "damage"
+    damage_mastery: 2
+    damage_bonus: 2
+    description: "2D+2 dégâts tranchants d'eau."
+
+  prison_liquide:
+    name: "Prison liquide"
+    element: "eau"
+    tier: 3
+    mana_cost: 5
+    type: "status"
+    inflict_status: "Gelé"
+    status_duration: 2
+    damage_mastery: 1
+    damage_bonus: 0
+    description: "1D dégâts et gèle l'ennemi."
+
+  pluie_regenerante:
+    name: "Pluie régénérante"
+    element: "eau"
+    tier: 4
+    mana_cost: 7
+    type: "heal"
+    heal_mastery: 2
+    heal_bonus: 3
+    description: "Soigne 2D+3 PV."
+
+  vague_ecrasante:
+    name: "Vague écrasante"
+    element: "eau"
+    tier: 5
+    mana_cost: 10
+    type: "damage_aoe"
+    damage_mastery: 3
+    damage_bonus: 0
+    inflict_status: "Gelé"
+    status_chance: 40
+    status_duration: 2
+    description: "3D dégâts à tous, chance de geler."
+
+  maree_protectrice:
+    name: "Marée protectrice"
+    element: "eau"
+    tier: 6
+    mana_cost: 8
+    type: "buff"
+    buff_status: "Protégé"
+    buff_duration: 3
+    heal_mastery: 1
+    heal_bonus: 2
+    description: "Protégé 3 tours et soigne 1D+2."
+
+  deluge_abyssal:
+    name: "Déluge abyssal"
+    element: "eau"
+    tier: 7
+    mana_cost: 15
+    type: "damage_aoe"
+    damage_mastery: 4
+    damage_bonus: 2
+    inflict_status: "Gelé"
+    status_chance: 60
+    status_duration: 2
+    description: "4D+2 dégâts à tous, gèle souvent."
+
+  # === OMBRE ===
+  trait_obscur:
+    name: "Trait obscur"
+    element: "ombre"
+    tier: 1
+    mana_cost: 2
+    type: "damage"
+    damage_mastery: 1
+    damage_bonus: 2
+    description: "1D+2 dégâts d'ombre."
+
+  cecite:
+    name: "Cécité"
+    element: "ombre"
+    tier: 2
+    mana_cost: 4
+    type: "status"
+    inflict_status: "Aveuglé"
+    status_duration: 2
+    damage_mastery: 0
+    damage_bonus: 0
+    description: "Aveugle l'ennemi (-2 mastery précision)."
+
+  drain_vital:
+    name: "Drain vital"
+    element: "ombre"
+    tier: 3
+    mana_cost: 5
+    type: "drain"
+    damage_mastery: 2
+    damage_bonus: 0
+    drain_percent: 50
+    description: "2D dégâts, soigne le lanceur de 50% des dégâts."
+
+  pas_dans_l_ombre:
+    name: "Pas dans l'ombre"
+    element: "ombre"
+    tier: 4
+    mana_cost: 6
+    type: "buff"
+    buff_status: "Invisible"
+    buff_duration: 1
+    description: "Invisible 1 tour (prochaine attaque touche auto)."
+
+  malediction:
+    name: "Malédiction"
+    element: "ombre"
+    tier: 5
+    mana_cost: 8
+    type: "status"
+    inflict_status: "Maudit"
+    status_duration: 3
+    damage_mastery: 1
+    damage_bonus: 0
+    description: "Maudit l'ennemi (-1 à tous les bonus, 3 tours)."
+
+  terreur_nocturne:
+    name: "Terreur nocturne"
+    element: "ombre"
+    tier: 6
+    mana_cost: 10
+    type: "damage_status"
+    damage_mastery: 3
+    damage_bonus: 1
+    inflict_status: "Terrorisé"
+    status_chance: 70
+    status_duration: 2
+    description: "3D+1 dégâts, terrifie souvent."
+
+  eclipse:
+    name: "Éclipse"
+    element: "ombre"
+    tier: 7
+    mana_cost: 15
+    type: "damage_aoe"
+    damage_mastery: 4
+    damage_bonus: 1
+    inflict_status: "Aveuglé"
+    status_chance: 80
+    status_duration: 2
+    description: "4D+1 dégâts à tous, aveugle presque toujours."
+
+  # === LUMIÈRE ===
+  rayon_sacre:
+    name: "Rayon sacré"
+    element: "lumiere"
+    tier: 1
+    mana_cost: 2
+    type: "damage"
+    damage_mastery: 1
+    damage_bonus: 2
+    description: "1D+2 dégâts de lumière."
+
+  soin_leger:
+    name: "Soin léger"
+    element: "lumiere"
+    tier: 2
+    mana_cost: 3
+    type: "heal"
+    heal_mastery: 1
+    heal_bonus: 2
+    description: "Soigne 1D+2 PV."
+
+  dissipation:
+    name: "Dissipation"
+    element: "lumiere"
+    tier: 3
+    mana_cost: 4
+    type: "cure"
+    description: "Retire tous les statuts négatifs."
+
+  bouclier_lumineux:
+    name: "Bouclier lumineux"
+    element: "lumiere"
+    tier: 4
+    mana_cost: 6
+    type: "buff"
+    buff_status: "Protégé"
+    buff_duration: 3
+    description: "Protégé pendant 3 tours (+1 mastery DR)."
+
+  purification:
+    name: "Purification"
+    element: "lumiere"
+    tier: 5
+    mana_cost: 8
+    type: "heal_cure"
+    heal_mastery: 2
+    heal_bonus: 4
+    description: "Soigne 2D+4 PV et retire les statuts négatifs."
+
+  resurrection_mineure:
+    name: "Résurrection mineure"
+    element: "lumiere"
+    tier: 6
+    mana_cost: 12
+    type: "heal"
+    heal_mastery: 3
+    heal_bonus: 5
+    description: "Soigne massivement : 3D+5 PV."
+
+  jugement_celeste:
+    name: "Jugement céleste"
+    element: "lumiere"
+    tier: 7
+    mana_cost: 15
+    type: "damage_aoe"
+    damage_mastery: 4
+    damage_bonus: 2
+    description: "4D+2 dégâts de lumière à tous les ennemis."
+
+  # === NATURE ===
+  racines_entravantes:
+    name: "Racines entravantes"
+    element: "nature"
+    tier: 1
+    mana_cost: 2
+    type: "status"
+    inflict_status: "Paralysé"
+    status_duration: 1
+    damage_mastery: 0
+    damage_bonus: 0
+    description: "Paralyse brièvement l'ennemi."
+
+  ecorce_protectrice:
+    name: "Écorce protectrice"
+    element: "nature"
+    tier: 2
+    mana_cost: 3
+    type: "buff"
+    buff_status: "Protégé"
+    buff_duration: 2
+    description: "Protection naturelle pendant 2 tours."
+
+  spores_toxiques:
+    name: "Spores toxiques"
+    element: "nature"
+    tier: 3
+    mana_cost: 5
+    type: "damage_status"
+    damage_mastery: 1
+    damage_bonus: 1
+    inflict_status: "Empoisonné"
+    status_chance: 70
+    status_duration: 3
+    description: "1D+1 dégâts, empoisonne souvent."
+
+  appel_des_betes:
+    name: "Appel des bêtes"
+    element: "nature"
+    tier: 4
+    mana_cost: 7
+    type: "damage"
+    damage_mastery: 3
+    damage_bonus: 0
+    description: "Invoque des bêtes : 3D dégâts."
+
+  croissance_acceleree:
+    name: "Croissance accélérée"
+    element: "nature"
+    tier: 5
+    mana_cost: 8
+    type: "buff"
+    buff_status: "Régénération"
+    buff_duration: 3
+    description: "Régénération pendant 3 tours."
+
+  regeneration_sauvage:
+    name: "Régénération sauvage"
+    element: "nature"
+    tier: 6
+    mana_cost: 10
+    type: "heal"
+    heal_mastery: 3
+    heal_bonus: 3
+    description: "Soigne 3D+3 PV."
+
+  courroux_sylvestre:
+    name: "Courroux sylvestre"
+    element: "nature"
+    tier: 7
+    mana_cost: 14
+    type: "damage_aoe"
+    damage_mastery: 4
+    damage_bonus: 1
+    inflict_status: "Empoisonné"
+    status_chance: 60
+    status_duration: 3
+    description: "4D+1 dégâts à tous, empoisonne souvent."

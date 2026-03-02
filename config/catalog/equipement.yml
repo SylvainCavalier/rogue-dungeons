@@ -1,0 +1,582 @@
+equipment:
+  weapons_melee:
+    - key: dagger_rusty
+      name: "Dague rouillée"
+      category: "arme_de_melee"
+      weapon_type: "dague"
+      tier: 1
+      price: 20
+      damage_mastery: 0
+      damage_bonus: 1
+      accuracy_bonus: 1
+      notes: "Très précise, dégâts modestes."
+
+    - key: sword_copper
+      name: "Épée de cuivre"
+      category: "arme_de_melee"
+      weapon_type: "epee"
+      tier: 1
+      price: 30
+      damage_mastery: 0
+      damage_bonus: 1
+      accuracy_bonus: 0
+      notes: "Équilibrée."
+
+    - key: axe_crude
+      name: "Hache grossière"
+      category: "arme_de_melee"
+      weapon_type: "hache"
+      tier: 1
+      price: 35
+      damage_mastery: 0
+      damage_bonus: 2
+      accuracy_bonus: -1
+      notes: "Plus violente, moins précise."
+
+    - key: club_primitive
+      name: "Masse primitive"
+      category: "arme_de_melee"
+      weapon_type: "masse"
+      tier: 1
+      price: 35
+      damage_mastery: 0
+      damage_bonus: 2
+      accuracy_bonus: -1
+      notes: "Cogne fort, touche moins bien."
+
+    - key: sword_iron
+      name: "Épée de fer"
+      category: "arme_de_melee"
+      weapon_type: "epee"
+      tier: 2
+      price: 90
+      damage_mastery: 1
+      damage_bonus: 0
+      accuracy_bonus: 0
+      notes: "Standard fiable."
+
+    - key: spear_reinforced
+      name: "Lance renforcée"
+      category: "arme_de_melee"
+      weapon_type: "lance"
+      tier: 2
+      price: 80
+      damage_mastery: 1
+      damage_bonus: 0
+      accuracy_bonus: 1
+      notes: "Plus précise, dégâts sages."
+
+    - key: axe_war
+      name: "Hache de guerre"
+      category: "arme_de_melee"
+      weapon_type: "hache"
+      tier: 2
+      price: 110
+      damage_mastery: 1
+      damage_bonus: 1
+      accuracy_bonus: -1
+      notes: "Dégâts au-dessus, précision en dessous."
+
+    - key: rapier_sharp
+      name: "Rapière affûtée"
+      category: "arme_de_melee"
+      weapon_type: "rapiere"
+      tier: 2
+      price: 110
+      damage_mastery: 1
+      damage_bonus: 1
+      accuracy_bonus: 1
+      notes: "Précise, orientée duel."
+
+    - key: hammer_arms
+      name: "Marteau d’armes"
+      category: "arme_de_melee"
+      weapon_type: "marteau"
+      tier: 2
+      price: 130
+      damage_mastery: 1
+      damage_bonus: 2
+      accuracy_bonus: -2
+      notes: "Très lourd : gros dégâts, gros malus."
+
+    - key: sword_steel
+      name: "Épée d’acier"
+      category: "arme_de_melee"
+      weapon_type: "epee"
+      tier: 3
+      price: 220
+      damage_mastery: 2
+      damage_bonus: 0
+      accuracy_bonus: 0
+      notes: "Équilibrée (milieu/haut jeu)."
+
+    - key: halberd_heavy
+      name: "Hallebarde lourde"
+      category: "arme_de_melee"
+      weapon_type: "arme_d_hast"
+      tier: 3
+      price: 210
+      damage_mastery: 2
+      damage_bonus: 0
+      accuracy_bonus: -1
+      notes: "Allonge utile, mais encombrante."
+
+    - key: blade_veteran
+      name: "Lame du vétéran"
+      category: "arme_de_melee"
+      weapon_type: "epee"
+      tier: 3
+      price: 260
+      damage_mastery: 2
+      damage_bonus: 1
+      accuracy_bonus: 0
+      notes: "Efficace partout."
+
+    - key: axe_berserker
+      name: "Hache berserker"
+      category: "arme_de_melee"
+      weapon_type: "hache"
+      tier: 3
+      price: 290
+      damage_mastery: 2
+      damage_bonus: 2
+      accuracy_bonus: -1
+      notes: "Très gros dégâts."
+
+    - key: sword_runic
+      name: "Épée runique"
+      category: "arme_de_melee"
+      weapon_type: "epee"
+      tier: 4
+      price: 520
+      damage_mastery: 3
+      damage_bonus: 0
+      accuracy_bonus: 1
+      notes: "Runes = meilleur équilibre."
+
+    - key: blade_abyssal
+      name: "Lame abyssale"
+      category: "arme_de_melee"
+      weapon_type: "epee"
+      tier: 5
+      price: 850
+      damage_mastery: 3
+      damage_bonus: 1
+      accuracy_bonus: 0
+      notes: "Puissante, instable."
+
+    - key: executioner_royal
+      name: "Exécuteur royal"
+      category: "arme_de_melee"
+      weapon_type: "hache"
+      tier: 5
+      price: 950
+      damage_mastery: 3
+      damage_bonus: 2
+      accuracy_bonus: -1
+      notes: "Dégâts énormes."
+
+  weapons_ranged:
+    - key: bow_short_crude
+      name: "Arc court rudimentaire"
+      category: "arme_a_distance"
+      weapon_type: "arc"
+      tier: 1
+      price: 25
+      damage_mastery: 0
+      damage_bonus: 1
+      accuracy_bonus: 1
+      notes: "Facile à viser."
+
+    - key: sling
+      name: "Fronde"
+      category: "arme_a_distance"
+      weapon_type: "fronde"
+      tier: 1
+      price: 10
+      damage_mastery: 0
+      damage_bonus: 1
+      accuracy_bonus: 0
+      notes: "Simple et fiable."
+
+    - key: crossbow_light
+      name: "Arbalète légère"
+      category: "arme_a_distance"
+      weapon_type: "arbalete"
+      tier: 1
+      price: 45
+      damage_mastery: 0
+      damage_bonus: 2
+      accuracy_bonus: -1
+      notes: "Puissante, moins fine."
+
+    - key: bow_long
+      name: "Arc long"
+      category: "arme_a_distance"
+      weapon_type: "arc"
+      tier: 2
+      price: 95
+      damage_mastery: 1
+      damage_bonus: 0
+      accuracy_bonus: 1
+      notes: "Très précis."
+
+    - key: crossbow_reinforced
+      name: "Arbalète renforcée"
+      category: "arme_a_distance"
+      weapon_type: "arbalete"
+      tier: 2
+      price: 120
+      damage_mastery: 1
+      damage_bonus: 1
+      accuracy_bonus: -1
+      notes: "Plus de puissance, moins maniable."
+
+    - key: bow_composite
+      name: "Arc composite"
+      category: "arme_a_distance"
+      weapon_type: "arc"
+      tier: 2
+      price: 140
+      damage_mastery: 1
+      damage_bonus: 2
+      accuracy_bonus: 0
+      notes: "Bon compromis."
+
+    - key: bow_elite
+      name: "Arc d’élite"
+      category: "arme_a_distance"
+      weapon_type: "arc"
+      tier: 3
+      price: 280
+      damage_mastery: 2
+      damage_bonus: 0
+      accuracy_bonus: 2
+      notes: "Précision premium."
+
+    - key: crossbow_heavy
+      name: "Arbalète lourde"
+      category: "arme_a_distance"
+      weapon_type: "arbalete"
+      tier: 3
+      price: 340
+      damage_mastery: 2
+      damage_bonus: 1
+      accuracy_bonus: -2
+      notes: "Très puissante, très exigeante."
+
+    - key: bow_runic
+      name: "Arc runique"
+      category: "arme_a_distance"
+      weapon_type: "arc"
+      tier: 3
+      price: 390
+      damage_mastery: 2
+      damage_bonus: 2
+      accuracy_bonus: 1
+      notes: "Runes stabilisantes."
+
+    - key: bow_ancient_winds
+      name: "Arc des vents anciens"
+      category: "arme_a_distance"
+      weapon_type: "arc"
+      tier: 5
+      price: 980
+      damage_mastery: 3
+      damage_bonus: 0
+      accuracy_bonus: 2
+      notes: "Légendaire : très précis."
+
+    - key: crossbow_imperial
+      name: "Arbalète impériale"
+      category: "arme_a_distance"
+      weapon_type: "arbalete"
+      tier: 5
+      price: 1100
+      damage_mastery: 3
+      damage_bonus: 1
+      accuracy_bonus: -1
+      notes: "Puissance extrême."
+
+  armor:
+    - key: tunic_reinforced
+      name: "Tunique renforcée"
+      category: "armure"
+      armor_type: "leger"
+      tier: 1
+      price: 35
+      dr_mastery: 0
+      dr_bonus: 1
+      accuracy_bonus: 0
+      notes: "Peu encombrante."
+
+    - key: leather_armor
+      name: "Armure de cuir"
+      category: "armure"
+      armor_type: "leger"
+      tier: 1
+      price: 60
+      dr_mastery: 0
+      dr_bonus: 2
+      accuracy_bonus: 0
+      notes: "Bon début."
+
+    - key: studded_leather
+      name: "Cuir clouté"
+      category: "armure"
+      armor_type: "leger"
+      tier: 2
+      price: 140
+      dr_mastery: 1
+      dr_bonus: 0
+      accuracy_bonus: 0
+      notes: "Protection solide sans pénalité."
+
+    - key: chainmail
+      name: "Cotte de mailles"
+      category: "armure"
+      armor_type: "intermediaire"
+      tier: 2
+      price: 190
+      dr_mastery: 1
+      dr_bonus: 1
+      accuracy_bonus: -1
+      notes: "Plus lourd : gêne un peu."
+
+    - key: brigandine
+      name: "Brigandine"
+      category: "armure"
+      armor_type: "intermediaire"
+      tier: 3
+      price: 320
+      dr_mastery: 1
+      dr_bonus: 2
+      accuracy_bonus: -1
+      notes: "Rigide mais efficace."
+
+    - key: lamellar
+      name: "Armure lamellaire"
+      category: "armure"
+      armor_type: "intermediaire"
+      tier: 3
+      price: 380
+      dr_mastery: 2
+      dr_bonus: 0
+      accuracy_bonus: -2
+      notes: "Protection forte, gêne notable."
+
+    - key: plate_armor
+      name: "Armure de plaques"
+      category: "armure"
+      armor_type: "lourd"
+      tier: 4
+      price: 700
+      dr_mastery: 2
+      dr_bonus: 1
+      accuracy_bonus: -2
+      notes: "Tank mode."
+
+    - key: champion_armor
+      name: "Armure du champion"
+      category: "armure"
+      armor_type: "lourd"
+      tier: 5
+      price: 980
+      dr_mastery: 2
+      dr_bonus: 2
+      accuracy_bonus: -2
+      notes: "Très lourde, très efficace."
+
+    - key: runic_armor
+      name: "Armure runique"
+      category: "armure"
+      armor_type: "lourd"
+      tier: 6
+      price: 1400
+      dr_mastery: 3
+      dr_bonus: 0
+      accuracy_bonus: -1
+      notes: "Runes = mobilité améliorée."
+
+  helmets:
+    - key: hood_leather
+      name: "Capuche en cuir"
+      category: "casque"
+      tier: 1
+      price: 15
+      dr_mastery: 0
+      dr_bonus: 1
+      accuracy_bonus: 0
+      notes: "Protection minime."
+
+    - key: helmet_iron
+      name: "Casque de fer"
+      category: "casque"
+      tier: 1
+      price: 35
+      dr_mastery: 0
+      dr_bonus: 2
+      accuracy_bonus: 0
+      notes: "Basique."
+
+    - key: helm_steel
+      name: "Heaume d’acier"
+      category: "casque"
+      tier: 2
+      price: 120
+      dr_mastery: 1
+      dr_bonus: 0
+      accuracy_bonus: -1
+      notes: "Réduit la vision périphérique."
+
+    - key: helmet_veteran
+      name: "Casque du vétéran"
+      category: "casque"
+      tier: 3
+      price: 220
+      dr_mastery: 1
+      dr_bonus: 1
+      accuracy_bonus: -1
+      notes: "Bon compromis."
+
+    - key: helm_runic
+      name: "Heaume runique"
+      category: "casque"
+      tier: 5
+      price: 650
+      dr_mastery: 2
+      dr_bonus: 0
+      accuracy_bonus: 0
+      notes: "Runes de clarté : pas de malus."
+
+  boots:
+    - key: boots_reinforced
+      name: "Bottes renforcées"
+      category: "bottes"
+      tier: 1
+      price: 20
+      dr_mastery: 0
+      dr_bonus: 1
+      accuracy_bonus: 0
+      notes: "Protection légère."
+
+    - key: boots_soldier
+      name: "Bottes de soldat"
+      category: "bottes"
+      tier: 1
+      price: 40
+      dr_mastery: 0
+      dr_bonus: 2
+      accuracy_bonus: 0
+      notes: "Stables."
+
+    - key: boots_tracker
+      name: "Bottes du pisteur"
+      category: "bottes"
+      tier: 2
+      price: 140
+      dr_mastery: 1
+      dr_bonus: 0
+      accuracy_bonus: 1
+      notes: "Posture/placement améliorés."
+
+    - key: boots_enchanted
+      name: "Bottes enchantées"
+      category: "bottes"
+      tier: 3
+      price: 260
+      dr_mastery: 1
+      dr_bonus: 1
+      accuracy_bonus: 1
+      notes: "Légèreté magique."
+
+    - key: boots_abyssal_walk
+      name: "Bottes de marche abyssale"
+      category: "bottes"
+      tier: 5
+      price: 720
+      dr_mastery: 2
+      dr_bonus: 0
+      accuracy_bonus: 0
+      notes: "Protection + stabilité surnaturelle."
+
+  shields:
+    - key: shield_wood
+      name: "Bouclier en bois"
+      category: "bouclier"
+      tier: 1
+      price: 25
+      dr_mastery: 0
+      dr_bonus: 1
+      accuracy_bonus: -1
+      notes: "Gêne un peu l’attaque."
+
+    - key: buckler_round
+      name: "Petit bouclier rond"
+      category: "bouclier"
+      tier: 1
+      price: 40
+      dr_mastery: 0
+      dr_bonus: 2
+      accuracy_bonus: 0
+      notes: "Parade agile."
+
+    - key: shield_iron
+      name: "Écu de fer"
+      category: "bouclier"
+      tier: 2
+      price: 150
+      dr_mastery: 1
+      dr_bonus: 0
+      accuracy_bonus: -1
+      notes: "Solide, un peu lourd."
+
+    - key: shield_heavy
+      name: "Bouclier lourd"
+      category: "bouclier"
+      tier: 3
+      price: 260
+      dr_mastery: 1
+      dr_bonus: 1
+      accuracy_bonus: -1
+      notes: "Très bon, pénalise un peu."
+
+    - key: pavise
+      name: "Pavois"
+      category: "bouclier"
+      tier: 3
+      price: 320
+      dr_mastery: 1
+      dr_bonus: 2
+      accuracy_bonus: -2
+      notes: "Rempart mobile : tu touches moins, tu vis plus."
+
+    - key: shield_guardian
+      name: "Bouclier du gardien"
+      category: "bouclier"
+      tier: 4
+      price: 540
+      dr_mastery: 2
+      dr_bonus: 0
+      accuracy_bonus: -1
+      notes: "Bouclier avancé."
+
+    - key: bulwark_royal
+      name: "Rempart royal"
+      category: "bouclier"
+      tier: 5
+      price: 820
+      dr_mastery: 2
+      dr_bonus: 1
+      accuracy_bonus: -1
+      notes: "Très haut niveau."
+
+    - key: aegis_sacred
+      name: "Égide sacrée"
+      category: "bouclier"
+      tier: 6
+      price: 1200
+      dr_mastery: 3
+      dr_bonus: 0
+      accuracy_bonus: 0
+      notes: "Magie protectrice : pas de pénalité."

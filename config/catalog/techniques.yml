@@ -1,0 +1,278 @@
+techniques:
+  # === Offensives ===
+  coup_rapide:
+    name: "Coup rapide"
+    category: "offensive"
+    type: "attack_modifier"
+    accuracy_bonus: 2
+    damage_bonus: -1
+    description: "Attaque rapide, plus précise mais moins puissante."
+
+  coup_charge:
+    name: "Coup chargé"
+    category: "offensive"
+    type: "attack_modifier"
+    accuracy_bonus: -1
+    damage_bonus: 3
+    description: "Attaque chargée, moins précise mais très puissante."
+
+  double_entaille:
+    name: "Double entaille"
+    category: "offensive"
+    type: "multi_attack"
+    hits: 2
+    accuracy_mastery_mod: -1
+    damage_mastery_mod: 0
+    description: "Deux attaques rapides avec un malus de précision."
+
+  frappe_circulaire:
+    name: "Frappe circulaire"
+    category: "offensive"
+    type: "aoe"
+    accuracy_mastery_mod: -1
+    damage_mastery_mod: 0
+    description: "Touche tous les ennemis avec un léger malus."
+
+  estoc_perforant:
+    name: "Estoc perforant"
+    category: "offensive"
+    type: "armor_pierce"
+    dr_reduction_percent: 50
+    accuracy_bonus: 0
+    damage_bonus: 0
+    description: "Ignore la moitié de la réduction de dégâts ennemie."
+
+  brise_garde:
+    name: "Brise-garde"
+    category: "offensive"
+    type: "debuff_attack"
+    accuracy_bonus: 0
+    damage_bonus: 0
+    debuff: "parade_reduction"
+    debuff_value: 2
+    description: "Réduit la parade de l'ennemi de 2 pour le reste du combat."
+
+  execution:
+    name: "Exécution"
+    category: "offensive"
+    type: "execute"
+    hp_threshold: 25
+    damage_multiplier: 2
+    accuracy_bonus: -1
+    description: "Dégâts doublés si l'ennemi a moins de 25% PV."
+
+  percee_brutale:
+    name: "Percée brutale"
+    category: "offensive"
+    type: "attack_modifier"
+    accuracy_bonus: 0
+    damage_bonus: 2
+    damage_mastery_mod: 1
+    description: "Coup dévastateur avec bonus de dégâts massif."
+
+  assaut_furieux:
+    name: "Assaut furieux"
+    category: "offensive"
+    type: "multi_attack"
+    hits: 3
+    accuracy_mastery_mod: -1
+    damage_mastery_mod: -1
+    description: "Trois attaques frénétiques avec malus."
+
+  lame_tourbillonnante:
+    name: "Lame tourbillonnante"
+    category: "offensive"
+    type: "aoe"
+    accuracy_mastery_mod: 0
+    damage_mastery_mod: 0
+    damage_bonus: 1
+    description: "Attaque tournoyante touchant tous les ennemis."
+
+  # === Défensives ===
+  parade_parfaite:
+    name: "Parade parfaite"
+    category: "defensive"
+    type: "counter"
+    parade_bonus: 3
+    counter_on_success: true
+    description: "Parade à +3, contre-attaque automatique si réussie."
+
+  posture_defensive:
+    name: "Posture défensive"
+    category: "defensive"
+    type: "stance"
+    esquive_bonus: 2
+    parade_bonus: 2
+    skip_attack: true
+    description: "+2 esquive et parade ce tour, pas d'attaque."
+
+  contre_attaque:
+    name: "Contre-attaque"
+    category: "defensive"
+    type: "counter"
+    parade_bonus: 0
+    counter_on_success: true
+    description: "Si l'ennemi rate son attaque, riposte automatique."
+
+  mur_acier:
+    name: "Mur d'acier"
+    category: "defensive"
+    type: "stance"
+    dr_bonus: 3
+    skip_attack: true
+    description: "+3 réduction de dégâts ce tour, pas d'attaque."
+
+  deviation:
+    name: "Déviation"
+    category: "defensive"
+    type: "counter"
+    parade_bonus: 1
+    counter_on_success: true
+    counter_damage_bonus: 2
+    description: "Parade habile, contre-attaque bonus si réussie."
+
+  retraite_tactique:
+    name: "Retraite tactique"
+    category: "defensive"
+    type: "stance"
+    esquive_bonus: 4
+    skip_attack: true
+    description: "Grande esquive ce tour, aucune attaque."
+
+  resilience:
+    name: "Résilience"
+    category: "defensive"
+    type: "heal"
+    heal_mastery: 1
+    heal_bonus: 2
+    skip_attack: true
+    description: "Récupère 1D+2 PV, pas d'attaque ce tour."
+
+  # === Techniques à effet ===
+  saignee:
+    name: "Saignée"
+    category: "effect"
+    type: "status_attack"
+    accuracy_bonus: 0
+    damage_bonus: 0
+    inflict_status: "Saignement"
+    status_duration: 3
+    description: "Inflige Saignement (1D dégâts/tour, 3 tours)."
+
+  fracture:
+    name: "Fracture"
+    category: "effect"
+    type: "status_attack"
+    accuracy_bonus: -1
+    damage_bonus: 2
+    inflict_status: "Affaibli"
+    status_duration: 3
+    description: "Coup violent qui affaiblit la cible."
+
+  desarmement:
+    name: "Désarmement"
+    category: "effect"
+    type: "debuff_attack"
+    accuracy_bonus: 1
+    damage_bonus: -2
+    debuff: "attack_reduction"
+    debuff_value: 2
+    description: "Réduit l'attaque ennemie de 2 pour le combat."
+
+  etourdissement:
+    name: "Étourdissement"
+    category: "effect"
+    type: "status_attack"
+    accuracy_bonus: -1
+    damage_bonus: 1
+    inflict_status: "Étourdi"
+    status_duration: 1
+    description: "Chance d'étourdir l'ennemi (perd son tour)."
+
+  provocation:
+    name: "Provocation"
+    category: "effect"
+    type: "status_attack"
+    accuracy_bonus: 2
+    damage_bonus: -2
+    inflict_status: "Enragé"
+    status_duration: 2
+    apply_to: "enemy"
+    description: "L'ennemi devient enragé (+ dégâts, - défense)."
+
+  intimidation_martiale:
+    name: "Intimidation martiale"
+    category: "effect"
+    type: "status_attack"
+    accuracy_bonus: 0
+    damage_bonus: 0
+    inflict_status: "Terrorisé"
+    status_duration: 2
+    description: "Terrorise l'ennemi (-1 mastery à tout)."
+
+  charge_ecrasante:
+    name: "Charge écrasante"
+    category: "effect"
+    type: "attack_modifier"
+    accuracy_bonus: -2
+    damage_bonus: 4
+    inflict_status: "Étourdi"
+    status_duration: 1
+    status_chance: 50
+    description: "Charge puissante, chance d'étourdir."
+
+  coup_affaiblissant:
+    name: "Coup affaiblissant"
+    category: "effect"
+    type: "status_attack"
+    accuracy_bonus: 0
+    damage_bonus: 0
+    inflict_status: "Affaibli"
+    status_duration: 3
+    description: "Affaiblit l'ennemi durablement."
+
+  # === Techniques avancées ===
+  rafale_implacable:
+    name: "Rafale implacable"
+    category: "advanced"
+    type: "multi_attack"
+    hits: 4
+    accuracy_mastery_mod: -1
+    damage_mastery_mod: 0
+    description: "Quatre attaques dévastatrices."
+
+  jugement_guerrier:
+    name: "Jugement du guerrier"
+    category: "advanced"
+    type: "execute"
+    hp_threshold: 50
+    damage_multiplier: 2
+    accuracy_bonus: 1
+    description: "Dégâts doublés si l'ennemi est sous 50% PV."
+
+  deluge_lames:
+    name: "Déluge de lames"
+    category: "advanced"
+    type: "aoe"
+    accuracy_mastery_mod: 0
+    damage_mastery_mod: 1
+    damage_bonus: 2
+    description: "Attaque de zone dévastatrice."
+
+  frappe_transcendante:
+    name: "Frappe transcendante"
+    category: "advanced"
+    type: "attack_modifier"
+    accuracy_bonus: 2
+    damage_bonus: 3
+    damage_mastery_mod: 1
+    description: "L'attaque ultime : précise et dévastatrice."
+
+  instinct_veteran:
+    name: "Instinct du vétéran"
+    category: "advanced"
+    type: "combo"
+    esquive_bonus: 2
+    counter_on_success: true
+    counter_damage_bonus: 3
+    description: "Esquive instinctive + contre-attaque puissante."

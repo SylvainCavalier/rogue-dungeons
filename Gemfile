@@ -65,7 +65,7 @@ group :development, :test do
   gem "faker" # Faker for testing backend
   gem "brakeman", require: false # Brakeman for security
   gem "bundler-audit", require: false # Bundler audit for security
-  gem "annotate" # Annotate models with schema inside the model file
+  # gem "annotate" # Incompatible with Rails 8 for now
   gem "rubocop", require: false # Ruby linter
   gem "rubocop-rails", require: false # Rails-specific RuboCop rules
 end

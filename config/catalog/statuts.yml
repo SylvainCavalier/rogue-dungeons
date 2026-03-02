@@ -1,0 +1,131 @@
+statuses:
+  # === NÉGATIFS ===
+  Empoisonné:
+    type: "negative"
+    default_duration: 3
+    tick_damage_mastery: 1
+    tick_damage_bonus: 0
+    description: "Subit 1D dégâts par tour."
+
+  Brûlé:
+    type: "negative"
+    default_duration: 2
+    tick_damage_mastery: 1
+    tick_damage_bonus: 1
+    description: "Subit 1D+1 dégâts par tour."
+
+  Gelé:
+    type: "negative"
+    default_duration: 2
+    mastery_penalty: 1
+    applies_to: "all"
+    description: "-1 mastery à toutes les actions."
+
+  Paralysé:
+    type: "negative"
+    default_duration: 1
+    skip_turn_chance: 50
+    description: "50% de chance de ne pas agir."
+
+  Aveuglé:
+    type: "negative"
+    default_duration: 2
+    accuracy_mastery_penalty: 2
+    description: "-2 mastery en précision."
+
+  Saignement:
+    type: "negative"
+    default_duration: 3
+    tick_damage_mastery: 1
+    tick_damage_bonus: 0
+    description: "Subit 1D dégâts par tour."
+
+  Confus:
+    type: "negative"
+    default_duration: 2
+    self_hit_chance: 25
+    description: "25% de chance de se frapper."
+
+  Terrorisé:
+    type: "negative"
+    default_duration: 2
+    mastery_penalty: 1
+    applies_to: "all"
+    description: "-1 mastery à tout."
+
+  Maudit:
+    type: "negative"
+    default_duration: 3
+    bonus_penalty: 1
+    applies_to: "all"
+    description: "-1 à tous les bonus."
+
+  Affaibli:
+    type: "negative"
+    default_duration: 3
+    damage_mastery_penalty: 1
+    description: "-1 mastery en dégâts."
+
+  Silencé:
+    type: "negative"
+    default_duration: 2
+    block_magic: true
+    description: "Impossible d'utiliser la magie."
+
+  Étourdi:
+    type: "negative"
+    default_duration: 1
+    skip_turn: true
+    description: "Perd son prochain tour."
+
+  # === POSITIFS ===
+  Régénération:
+    type: "positive"
+    default_duration: 3
+    tick_heal_mastery: 1
+    tick_heal_bonus: 0
+    description: "Récupère 1D PV par tour."
+
+  Enragé:
+    type: "positive"
+    default_duration: 3
+    damage_mastery_bonus: 1
+    defense_mastery_penalty: 1
+    description: "+1 mastery dégâts, -1 mastery défense."
+
+  Inspiré:
+    type: "positive"
+    default_duration: 2
+    bonus_all: 1
+    description: "+1 bonus à tous les jets."
+
+  Concentré:
+    type: "positive"
+    default_duration: 2
+    accuracy_mastery_bonus: 1
+    description: "+1 mastery en précision."
+
+  Protégé:
+    type: "positive"
+    default_duration: 2
+    dr_mastery_bonus: 1
+    description: "+1 mastery réduction de dégâts."
+
+  Accéléré:
+    type: "positive"
+    default_duration: 2
+    esquive_bonus: 1
+    acts_first: true
+    description: "Agit en premier, +1 esquive."
+
+  Béni:
+    type: "positive"
+    default_duration: 3
+    bonus_all: 1
+    description: "+1 à tous les jets."
+
+  Invisible:
+    type: "positive"
+    default_duration: 1
+    auto_hit_next: true
+    description: "Prochaine attaque touche automatiquement."

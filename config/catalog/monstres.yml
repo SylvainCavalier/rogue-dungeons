@@ -1,0 +1,746 @@
+monsters:
+  # === ÉTAGES 1-10 : Fondations ===
+  rat_geant:
+    name: "Rat géant"
+    hp: 4
+    vigueur: { mastery: 1, bonus: 0 }
+    attack: { mastery: 1, bonus: 0 }
+    damage: { mastery: 1, bonus: 0 }
+    esquive: { mastery: 1, bonus: 0 }
+    dr: { mastery: 0, bonus: 0 }
+    xp_value: 3
+    gold_value: 2
+    abilities: []
+
+  gobelin:
+    name: "Gobelin"
+    hp: 6
+    vigueur: { mastery: 1, bonus: 0 }
+    attack: { mastery: 1, bonus: 1 }
+    damage: { mastery: 1, bonus: 0 }
+    esquive: { mastery: 1, bonus: 1 }
+    dr: { mastery: 0, bonus: 0 }
+    xp_value: 4
+    gold_value: 3
+    abilities: []
+
+  archer_gobelin:
+    name: "Archer gobelin"
+    hp: 5
+    vigueur: { mastery: 1, bonus: 0 }
+    attack: { mastery: 1, bonus: 2 }
+    damage: { mastery: 1, bonus: 1 }
+    esquive: { mastery: 1, bonus: 0 }
+    dr: { mastery: 0, bonus: 0 }
+    xp_value: 5
+    gold_value: 4
+    abilities: []
+
+  loup_affame:
+    name: "Loup affamé"
+    hp: 7
+    vigueur: { mastery: 1, bonus: 1 }
+    attack: { mastery: 1, bonus: 2 }
+    damage: { mastery: 1, bonus: 1 }
+    esquive: { mastery: 1, bonus: 2 }
+    dr: { mastery: 0, bonus: 0 }
+    xp_value: 5
+    gold_value: 3
+    abilities: []
+
+  # Boss étage 10
+  chef_gobelin:
+    name: "Chef gobelin brutal"
+    hp: 18
+    vigueur: { mastery: 2, bonus: 0 }
+    attack: { mastery: 2, bonus: 1 }
+    damage: { mastery: 2, bonus: 0 }
+    esquive: { mastery: 2, bonus: 0 }
+    dr: { mastery: 0, bonus: 1 }
+    xp_value: 25
+    gold_value: 20
+    abilities: ["coup_charge"]
+
+  # === ÉTAGES 11-20 : Pression ===
+  bandit:
+    name: "Bandit"
+    hp: 10
+    vigueur: { mastery: 1, bonus: 2 }
+    attack: { mastery: 2, bonus: 0 }
+    damage: { mastery: 1, bonus: 2 }
+    esquive: { mastery: 1, bonus: 2 }
+    dr: { mastery: 0, bonus: 1 }
+    xp_value: 7
+    gold_value: 8
+    abilities: []
+
+  mage_apprenti:
+    name: "Mage apprenti"
+    hp: 7
+    vigueur: { mastery: 1, bonus: 0 }
+    attack: { mastery: 2, bonus: 0 }
+    damage: { mastery: 2, bonus: 0 }
+    esquive: { mastery: 1, bonus: 1 }
+    dr: { mastery: 0, bonus: 0 }
+    xp_value: 8
+    gold_value: 6
+    abilities: ["etincelle"]
+
+  ogre_mineur:
+    name: "Ogre mineur"
+    hp: 16
+    vigueur: { mastery: 2, bonus: 1 }
+    attack: { mastery: 2, bonus: 0 }
+    damage: { mastery: 2, bonus: 1 }
+    esquive: { mastery: 1, bonus: 0 }
+    dr: { mastery: 0, bonus: 2 }
+    xp_value: 10
+    gold_value: 10
+    abilities: []
+
+  # Boss étage 20
+  ogre_des_profondeurs:
+    name: "Ogre des profondeurs"
+    hp: 30
+    vigueur: { mastery: 3, bonus: 0 }
+    attack: { mastery: 2, bonus: 1 }
+    damage: { mastery: 3, bonus: 0 }
+    esquive: { mastery: 1, bonus: 0 }
+    dr: { mastery: 1, bonus: 1 }
+    xp_value: 40
+    gold_value: 35
+    abilities: ["coup_charge"]
+
+  # === ÉTAGES 21-30 : Brutalité ===
+  assassin:
+    name: "Assassin"
+    hp: 11
+    vigueur: { mastery: 1, bonus: 2 }
+    attack: { mastery: 2, bonus: 2 }
+    damage: { mastery: 2, bonus: 1 }
+    esquive: { mastery: 2, bonus: 1 }
+    dr: { mastery: 0, bonus: 1 }
+    xp_value: 12
+    gold_value: 12
+    abilities: ["saignee"]
+
+  loup_noir:
+    name: "Loup noir"
+    hp: 12
+    vigueur: { mastery: 2, bonus: 0 }
+    attack: { mastery: 2, bonus: 1 }
+    damage: { mastery: 2, bonus: 0 }
+    esquive: { mastery: 2, bonus: 1 }
+    dr: { mastery: 0, bonus: 1 }
+    xp_value: 10
+    gold_value: 6
+    abilities: []
+
+  sorcier_renegat:
+    name: "Sorcier renégat"
+    hp: 10
+    vigueur: { mastery: 1, bonus: 1 }
+    attack: { mastery: 2, bonus: 1 }
+    damage: { mastery: 2, bonus: 1 }
+    esquive: { mastery: 2, bonus: 0 }
+    dr: { mastery: 0, bonus: 1 }
+    xp_value: 13
+    gold_value: 10
+    abilities: ["boule_de_feu"]
+
+  golem_argile:
+    name: "Golem d'argile"
+    hp: 20
+    vigueur: { mastery: 2, bonus: 2 }
+    attack: { mastery: 2, bonus: 0 }
+    damage: { mastery: 2, bonus: 2 }
+    esquive: { mastery: 1, bonus: 0 }
+    dr: { mastery: 1, bonus: 1 }
+    xp_value: 15
+    gold_value: 12
+    abilities: []
+
+  # Boss étage 30
+  maitre_assassin:
+    name: "Maître assassin"
+    hp: 24
+    vigueur: { mastery: 2, bonus: 1 }
+    attack: { mastery: 3, bonus: 1 }
+    damage: { mastery: 3, bonus: 0 }
+    esquive: { mastery: 3, bonus: 0 }
+    dr: { mastery: 0, bonus: 2 }
+    xp_value: 55
+    gold_value: 50
+    abilities: ["saignee", "coup_rapide"]
+
+  # === ÉTAGES 31-40 : Magie et contrôle ===
+  bandit_veteran:
+    name: "Bandit vétéran"
+    hp: 15
+    vigueur: { mastery: 2, bonus: 1 }
+    attack: { mastery: 2, bonus: 2 }
+    damage: { mastery: 2, bonus: 1 }
+    esquive: { mastery: 2, bonus: 1 }
+    dr: { mastery: 1, bonus: 0 }
+    xp_value: 14
+    gold_value: 14
+    abilities: []
+
+  elementaire_feu:
+    name: "Élémentaire de feu"
+    hp: 16
+    vigueur: { mastery: 2, bonus: 1 }
+    attack: { mastery: 3, bonus: 0 }
+    damage: { mastery: 3, bonus: 0 }
+    esquive: { mastery: 2, bonus: 0 }
+    dr: { mastery: 1, bonus: 0 }
+    xp_value: 18
+    gold_value: 15
+    abilities: ["boule_de_feu"]
+
+  elementaire_mineur:
+    name: "Élémentaire mineur"
+    hp: 12
+    vigueur: { mastery: 2, bonus: 0 }
+    attack: { mastery: 2, bonus: 1 }
+    damage: { mastery: 2, bonus: 1 }
+    esquive: { mastery: 2, bonus: 0 }
+    dr: { mastery: 0, bonus: 2 }
+    xp_value: 13
+    gold_value: 10
+    abilities: ["etincelle"]
+
+  chevalier_dechu:
+    name: "Chevalier déchu"
+    hp: 18
+    vigueur: { mastery: 2, bonus: 2 }
+    attack: { mastery: 3, bonus: 0 }
+    damage: { mastery: 2, bonus: 2 }
+    esquive: { mastery: 2, bonus: 0 }
+    dr: { mastery: 1, bonus: 1 }
+    xp_value: 16
+    gold_value: 16
+    abilities: ["coup_charge"]
+
+  minotaure:
+    name: "Minotaure"
+    hp: 22
+    vigueur: { mastery: 3, bonus: 0 }
+    attack: { mastery: 3, bonus: 0 }
+    damage: { mastery: 3, bonus: 1 }
+    esquive: { mastery: 1, bonus: 2 }
+    dr: { mastery: 1, bonus: 0 }
+    xp_value: 20
+    gold_value: 18
+    abilities: ["coup_charge"]
+
+  # Boss étage 40
+  seigneur_elementaire:
+    name: "Seigneur élémentaire"
+    hp: 35
+    vigueur: { mastery: 3, bonus: 1 }
+    attack: { mastery: 3, bonus: 1 }
+    damage: { mastery: 3, bonus: 1 }
+    esquive: { mastery: 2, bonus: 1 }
+    dr: { mastery: 1, bonus: 2 }
+    xp_value: 70
+    gold_value: 60
+    abilities: ["boule_de_feu", "mur_de_flammes"]
+
+  # === ÉTAGES 41-50 : Armés jusqu'aux dents ===
+  assassin_elite:
+    name: "Assassin d'élite"
+    hp: 16
+    vigueur: { mastery: 2, bonus: 2 }
+    attack: { mastery: 3, bonus: 1 }
+    damage: { mastery: 3, bonus: 0 }
+    esquive: { mastery: 3, bonus: 1 }
+    dr: { mastery: 1, bonus: 0 }
+    xp_value: 20
+    gold_value: 18
+    abilities: ["saignee", "coup_rapide"]
+
+  golem_pierre:
+    name: "Golem de pierre"
+    hp: 28
+    vigueur: { mastery: 3, bonus: 1 }
+    attack: { mastery: 3, bonus: 0 }
+    damage: { mastery: 3, bonus: 1 }
+    esquive: { mastery: 1, bonus: 0 }
+    dr: { mastery: 2, bonus: 0 }
+    xp_value: 22
+    gold_value: 16
+    abilities: []
+
+  sorcier_noir:
+    name: "Sorcier noir"
+    hp: 15
+    vigueur: { mastery: 2, bonus: 0 }
+    attack: { mastery: 3, bonus: 1 }
+    damage: { mastery: 3, bonus: 1 }
+    esquive: { mastery: 2, bonus: 2 }
+    dr: { mastery: 1, bonus: 0 }
+    xp_value: 22
+    gold_value: 18
+    abilities: ["trait_obscur", "drain_vital"]
+
+  chevalier_noir:
+    name: "Chevalier noir"
+    hp: 22
+    vigueur: { mastery: 3, bonus: 1 }
+    attack: { mastery: 3, bonus: 1 }
+    damage: { mastery: 3, bonus: 1 }
+    esquive: { mastery: 2, bonus: 0 }
+    dr: { mastery: 2, bonus: 0 }
+    xp_value: 24
+    gold_value: 22
+    abilities: ["coup_charge"]
+
+  # Boss étage 50
+  champion_tour:
+    name: "Champion de la Tour"
+    hp: 45
+    vigueur: { mastery: 4, bonus: 0 }
+    attack: { mastery: 3, bonus: 2 }
+    damage: { mastery: 3, bonus: 2 }
+    esquive: { mastery: 2, bonus: 1 }
+    dr: { mastery: 2, bonus: 1 }
+    xp_value: 90
+    gold_value: 80
+    abilities: ["coup_charge", "contre_attaque"]
+
+  # === ÉTAGES 51-60 : Ombres et corruption ===
+  ombre:
+    name: "Ombre"
+    hp: 14
+    vigueur: { mastery: 2, bonus: 0 }
+    attack: { mastery: 3, bonus: 1 }
+    damage: { mastery: 3, bonus: 0 }
+    esquive: { mastery: 3, bonus: 1 }
+    dr: { mastery: 1, bonus: 0 }
+    xp_value: 22
+    gold_value: 14
+    abilities: ["trait_obscur"]
+
+  spectre:
+    name: "Spectre"
+    hp: 16
+    vigueur: { mastery: 2, bonus: 1 }
+    attack: { mastery: 3, bonus: 1 }
+    damage: { mastery: 3, bonus: 1 }
+    esquive: { mastery: 3, bonus: 2 }
+    dr: { mastery: 1, bonus: 1 }
+    xp_value: 26
+    gold_value: 18
+    abilities: ["cecite"]
+
+  vampire_mineur:
+    name: "Vampire mineur"
+    hp: 20
+    vigueur: { mastery: 3, bonus: 0 }
+    attack: { mastery: 3, bonus: 1 }
+    damage: { mastery: 3, bonus: 1 }
+    esquive: { mastery: 3, bonus: 0 }
+    dr: { mastery: 1, bonus: 1 }
+    xp_value: 28
+    gold_value: 22
+    abilities: ["drain_vital"]
+
+  demon_eclaireur:
+    name: "Démon éclaireur"
+    hp: 20
+    vigueur: { mastery: 3, bonus: 0 }
+    attack: { mastery: 3, bonus: 2 }
+    damage: { mastery: 3, bonus: 1 }
+    esquive: { mastery: 3, bonus: 0 }
+    dr: { mastery: 1, bonus: 1 }
+    xp_value: 28
+    gold_value: 20
+    abilities: ["boule_de_feu"]
+
+  # Boss étage 60
+  vampire_ancestral:
+    name: "Vampire ancestral"
+    hp: 48
+    vigueur: { mastery: 4, bonus: 0 }
+    attack: { mastery: 4, bonus: 0 }
+    damage: { mastery: 3, bonus: 2 }
+    esquive: { mastery: 3, bonus: 1 }
+    dr: { mastery: 2, bonus: 0 }
+    xp_value: 110
+    gold_value: 100
+    abilities: ["drain_vital", "cecite"]
+
+  # === ÉTAGES 61-70 : Infernal ===
+  demon:
+    name: "Démon"
+    hp: 22
+    vigueur: { mastery: 3, bonus: 1 }
+    attack: { mastery: 3, bonus: 2 }
+    damage: { mastery: 3, bonus: 2 }
+    esquive: { mastery: 3, bonus: 0 }
+    dr: { mastery: 1, bonus: 2 }
+    xp_value: 30
+    gold_value: 24
+    abilities: ["boule_de_feu"]
+
+  diablotin_majeur:
+    name: "Diablotin majeur"
+    hp: 20
+    vigueur: { mastery: 3, bonus: 0 }
+    attack: { mastery: 4, bonus: 0 }
+    damage: { mastery: 3, bonus: 1 }
+    esquive: { mastery: 3, bonus: 1 }
+    dr: { mastery: 1, bonus: 1 }
+    xp_value: 28
+    gold_value: 20
+    abilities: ["etincelle"]
+
+  bete_infernale:
+    name: "Bête infernale"
+    hp: 26
+    vigueur: { mastery: 3, bonus: 2 }
+    attack: { mastery: 4, bonus: 0 }
+    damage: { mastery: 4, bonus: 0 }
+    esquive: { mastery: 2, bonus: 2 }
+    dr: { mastery: 1, bonus: 2 }
+    xp_value: 34
+    gold_value: 26
+    abilities: []
+
+  titan_mineur:
+    name: "Titan mineur"
+    hp: 30
+    vigueur: { mastery: 4, bonus: 0 }
+    attack: { mastery: 3, bonus: 2 }
+    damage: { mastery: 4, bonus: 0 }
+    esquive: { mastery: 2, bonus: 0 }
+    dr: { mastery: 2, bonus: 0 }
+    xp_value: 36
+    gold_value: 28
+    abilities: ["coup_charge"]
+
+  # Boss étage 70
+  seigneur_infernal:
+    name: "Seigneur infernal"
+    hp: 55
+    vigueur: { mastery: 4, bonus: 2 }
+    attack: { mastery: 4, bonus: 1 }
+    damage: { mastery: 4, bonus: 2 }
+    esquive: { mastery: 3, bonus: 0 }
+    dr: { mastery: 2, bonus: 1 }
+    xp_value: 130
+    gold_value: 120
+    abilities: ["boule_de_feu", "mur_de_flammes", "explosion_ardente"]
+
+  # === ÉTAGES 71-80 : Anciens monstres ===
+  golem_antique:
+    name: "Golem antique"
+    hp: 32
+    vigueur: { mastery: 4, bonus: 0 }
+    attack: { mastery: 3, bonus: 2 }
+    damage: { mastery: 4, bonus: 0 }
+    esquive: { mastery: 1, bonus: 2 }
+    dr: { mastery: 2, bonus: 2 }
+    xp_value: 36
+    gold_value: 28
+    abilities: []
+
+  chimere:
+    name: "Chimère"
+    hp: 28
+    vigueur: { mastery: 3, bonus: 2 }
+    attack: { mastery: 4, bonus: 1 }
+    damage: { mastery: 4, bonus: 0 }
+    esquive: { mastery: 3, bonus: 1 }
+    dr: { mastery: 1, bonus: 2 }
+    xp_value: 38
+    gold_value: 30
+    abilities: ["boule_de_feu"]
+
+  dragonnet:
+    name: "Dragonnet"
+    hp: 30
+    vigueur: { mastery: 4, bonus: 0 }
+    attack: { mastery: 4, bonus: 1 }
+    damage: { mastery: 4, bonus: 1 }
+    esquive: { mastery: 3, bonus: 0 }
+    dr: { mastery: 2, bonus: 0 }
+    xp_value: 40
+    gold_value: 34
+    abilities: ["boule_de_feu"]
+
+  titan_ancien:
+    name: "Titan ancien"
+    hp: 36
+    vigueur: { mastery: 4, bonus: 2 }
+    attack: { mastery: 4, bonus: 0 }
+    damage: { mastery: 4, bonus: 2 }
+    esquive: { mastery: 2, bonus: 1 }
+    dr: { mastery: 2, bonus: 1 }
+    xp_value: 44
+    gold_value: 36
+    abilities: ["coup_charge"]
+
+  dragon_jeune:
+    name: "Dragon jeune"
+    hp: 40
+    vigueur: { mastery: 4, bonus: 2 }
+    attack: { mastery: 4, bonus: 2 }
+    damage: { mastery: 4, bonus: 2 }
+    esquive: { mastery: 3, bonus: 0 }
+    dr: { mastery: 2, bonus: 1 }
+    xp_value: 50
+    gold_value: 42
+    abilities: ["boule_de_feu", "mur_de_flammes"]
+
+  # Boss étage 80
+  dragon_ancien:
+    name: "Dragon ancien"
+    hp: 65
+    vigueur: { mastery: 5, bonus: 0 }
+    attack: { mastery: 5, bonus: 0 }
+    damage: { mastery: 5, bonus: 1 }
+    esquive: { mastery: 3, bonus: 1 }
+    dr: { mastery: 3, bonus: 0 }
+    xp_value: 160
+    gold_value: 150
+    abilities: ["explosion_ardente", "mur_de_flammes"]
+
+  # === ÉTAGES 81-90 : Élites ===
+  champion_dechu:
+    name: "Champion déchu"
+    hp: 30
+    vigueur: { mastery: 4, bonus: 1 }
+    attack: { mastery: 4, bonus: 1 }
+    damage: { mastery: 4, bonus: 1 }
+    esquive: { mastery: 3, bonus: 1 }
+    dr: { mastery: 2, bonus: 1 }
+    xp_value: 44
+    gold_value: 36
+    abilities: ["coup_charge", "contre_attaque"]
+
+  vampire_superieur:
+    name: "Vampire supérieur"
+    hp: 28
+    vigueur: { mastery: 4, bonus: 0 }
+    attack: { mastery: 4, bonus: 2 }
+    damage: { mastery: 4, bonus: 0 }
+    esquive: { mastery: 4, bonus: 0 }
+    dr: { mastery: 2, bonus: 0 }
+    xp_value: 42
+    gold_value: 34
+    abilities: ["drain_vital"]
+
+  archimage_noir:
+    name: "Archimage noir"
+    hp: 24
+    vigueur: { mastery: 3, bonus: 0 }
+    attack: { mastery: 5, bonus: 0 }
+    damage: { mastery: 5, bonus: 0 }
+    esquive: { mastery: 3, bonus: 2 }
+    dr: { mastery: 1, bonus: 2 }
+    xp_value: 48
+    gold_value: 38
+    abilities: ["explosion_ardente", "drain_vital"]
+
+  behemoth:
+    name: "Béhémoth"
+    hp: 42
+    vigueur: { mastery: 5, bonus: 0 }
+    attack: { mastery: 4, bonus: 1 }
+    damage: { mastery: 5, bonus: 0 }
+    esquive: { mastery: 2, bonus: 0 }
+    dr: { mastery: 3, bonus: 0 }
+    xp_value: 52
+    gold_value: 42
+    abilities: ["coup_charge"]
+
+  dragon_noir:
+    name: "Dragon noir"
+    hp: 48
+    vigueur: { mastery: 5, bonus: 1 }
+    attack: { mastery: 5, bonus: 0 }
+    damage: { mastery: 5, bonus: 1 }
+    esquive: { mastery: 3, bonus: 1 }
+    dr: { mastery: 3, bonus: 0 }
+    xp_value: 58
+    gold_value: 48
+    abilities: ["explosion_ardente", "mur_de_flammes"]
+
+  ombre_majeure:
+    name: "Ombre majeure"
+    hp: 22
+    vigueur: { mastery: 3, bonus: 2 }
+    attack: { mastery: 4, bonus: 2 }
+    damage: { mastery: 4, bonus: 1 }
+    esquive: { mastery: 4, bonus: 2 }
+    dr: { mastery: 2, bonus: 0 }
+    xp_value: 40
+    gold_value: 30
+    abilities: ["cecite", "trait_obscur"]
+
+  # Boss étage 90
+  avatar_chaos:
+    name: "Avatar du Chaos"
+    hp: 75
+    vigueur: { mastery: 5, bonus: 2 }
+    attack: { mastery: 5, bonus: 1 }
+    damage: { mastery: 5, bonus: 2 }
+    esquive: { mastery: 4, bonus: 0 }
+    dr: { mastery: 3, bonus: 0 }
+    xp_value: 200
+    gold_value: 180
+    abilities: ["explosion_ardente", "drain_vital", "cecite"]
+
+  # === ÉTAGES 91-100 : L'ultime épreuve ===
+  titan_primordial:
+    name: "Titan primordial"
+    hp: 50
+    vigueur: { mastery: 5, bonus: 2 }
+    attack: { mastery: 5, bonus: 0 }
+    damage: { mastery: 5, bonus: 2 }
+    esquive: { mastery: 3, bonus: 0 }
+    dr: { mastery: 3, bonus: 1 }
+    xp_value: 60
+    gold_value: 50
+    abilities: ["coup_charge"]
+
+  archidemon:
+    name: "Archidémon"
+    hp: 52
+    vigueur: { mastery: 5, bonus: 1 }
+    attack: { mastery: 5, bonus: 2 }
+    damage: { mastery: 5, bonus: 2 }
+    esquive: { mastery: 4, bonus: 0 }
+    dr: { mastery: 3, bonus: 0 }
+    xp_value: 65
+    gold_value: 55
+    abilities: ["explosion_ardente", "drain_vital"]
+
+  gardien_celeste:
+    name: "Gardien céleste"
+    hp: 55
+    vigueur: { mastery: 5, bonus: 2 }
+    attack: { mastery: 5, bonus: 1 }
+    damage: { mastery: 5, bonus: 1 }
+    esquive: { mastery: 4, bonus: 1 }
+    dr: { mastery: 3, bonus: 1 }
+    xp_value: 70
+    gold_value: 60
+    abilities: ["rayon_sacre", "soin_leger"]
+
+  heraut_neant:
+    name: "Héraut du Néant"
+    hp: 60
+    vigueur: { mastery: 5, bonus: 2 }
+    attack: { mastery: 6, bonus: 0 }
+    damage: { mastery: 5, bonus: 2 }
+    esquive: { mastery: 4, bonus: 1 }
+    dr: { mastery: 3, bonus: 1 }
+    xp_value: 80
+    gold_value: 70
+    abilities: ["drain_vital", "cecite", "explosion_ardente"]
+
+  # Boss final étage 100
+  maitre_tour:
+    name: "Le Maître de la Tour"
+    hp: 100
+    vigueur: { mastery: 6, bonus: 0 }
+    attack: { mastery: 6, bonus: 1 }
+    damage: { mastery: 6, bonus: 0 }
+    esquive: { mastery: 5, bonus: 0 }
+    dr: { mastery: 3, bonus: 2 }
+    xp_value: 500
+    gold_value: 1000
+    abilities: ["explosion_ardente", "drain_vital", "soin_leger", "mur_de_flammes"]
+
+# Mapping des noms dans tour.md vers les clés monstres
+name_to_key:
+  "Rat géant": rat_geant
+  "Rats géants": rat_geant
+  "Gobelin": gobelin
+  "Gobelins": gobelin
+  "Archer gobelin": archer_gobelin
+  "Archer": archer_gobelin
+  "Loup affamé": loup_affame
+  "Loups affamés": loup_affame
+  "Loups": loup_affame
+  "Chef gobelin brutal": chef_gobelin
+  "Bandit": bandit
+  "Bandits": bandit
+  "Mage apprenti": mage_apprenti
+  "Ogre mineur": ogre_mineur
+  "Ogre des profondeurs": ogre_des_profondeurs
+  "Assassin": assassin
+  "Assassins": assassin
+  "Loup noir": loup_noir
+  "Loups noirs": loup_noir
+  "Sorcier renégat": sorcier_renegat
+  "Sorciers renégats": sorcier_renegat
+  "Sorcier": sorcier_renegat
+  "Sorciers": sorcier_renegat
+  "Golem d'argile": golem_argile
+  "Maître assassin": maitre_assassin
+  "Bandits vétérans": bandit_veteran
+  "Élémentaire de feu": elementaire_feu
+  "Élémentaires mineurs": elementaire_mineur
+  "Élémentaire": elementaire_feu
+  "Chevalier déchu": chevalier_dechu
+  "Chevaliers déchus": chevalier_dechu
+  "Minotaure": minotaure
+  "Minotaures": minotaure
+  "Seigneur élémentaire": seigneur_elementaire
+  "Assassins d'élite": assassin_elite
+  "Golem de pierre": golem_pierre
+  "Golem": golem_pierre
+  "Sorcier noir": sorcier_noir
+  "Sorciers noirs": sorcier_noir
+  "Chevaliers noirs": chevalier_noir
+  "Champion de la Tour": champion_tour
+  "Ombres": ombre
+  "Spectre": spectre
+  "Spectres": spectre
+  "Vampire mineur": vampire_mineur
+  "Vampires mineurs": vampire_mineur
+  "Démon éclaireur": demon_eclaireur
+  "Démon": demon
+  "Vampire": vampire_mineur
+  "Vampire ancestral": vampire_ancestral
+  "Démons": demon
+  "Diablotin majeur": diablotin_majeur
+  "Diablotins": diablotin_majeur
+  "Bête infernale": bete_infernale
+  "Bêtes infernales": bete_infernale
+  "Titan mineur": titan_mineur
+  "Titan": titan_mineur
+  "Seigneur infernal": seigneur_infernal
+  "Golems antiques": golem_antique
+  "Chimère": chimere
+  "Chimères": chimere
+  "Dragonnet": dragonnet
+  "Dragonets": dragonnet
+  "Titan ancien": titan_ancien
+  "Titans mineurs": titan_mineur
+  "Dragon jeune": dragon_jeune
+  "Dragon ancien": dragon_ancien
+  "Champions déchus": champion_dechu
+  "Vampires supérieurs": vampire_superieur
+  "Archimage noir": archimage_noir
+  "Archimages": archimage_noir
+  "Béhémoth": behemoth
+  "Béhémoths": behemoth
+  "Dragon noir": dragon_noir
+  "Ombres majeures": ombre_majeure
+  "Avatar du Chaos": avatar_chaos
+  "Dragons": dragon_jeune
+  "Titan primordial": titan_primordial
+  "Titans primordiaux": titan_primordial
+  "Archidémon": archidemon
+  "Archidémons": archidemon
+  "Archimage": archimage_noir
+  "Gardien céleste": gardien_celeste
+  "Gardiens célestes": gardien_celeste
+  "Héraut du Néant": heraut_neant
+  "Le Maître de la Tour": maitre_tour
+  "Ogre": ogre_mineur

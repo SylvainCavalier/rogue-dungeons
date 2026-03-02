@@ -1,0 +1,222 @@
+items:
+  consumables:
+
+    - key: potion_healing_minor
+      name: "Potion de soin mineure"
+      category: "consumable"
+      price: 25
+      effect_type: "heal"
+      value: 1
+      heal_mastery: 1
+      target: "self"
+      consumable: true
+      notes: "Rend 1D6 + 1 PV."
+
+    - key: potion_healing_major
+      name: "Potion de soin majeure"
+      category: "consumable"
+      price: 90
+      effect_type: "heal"
+      value: 3
+      heal_mastery: 2
+      target: "self"
+      consumable: true
+      notes: "Rend 2D6 + 3 PV."
+
+    - key: potion_mana_minor
+      name: "Potion de mana mineure"
+      category: "consumable"
+      price: 35
+      effect_type: "restore_mana"
+      value: 1
+      heal_mastery: 1
+      target: "self"
+      consumable: true
+      notes: "Rend 1D6 + 1 mana."
+
+    - key: antidote
+      name: "Antidote"
+      category: "consumable"
+      price: 20
+      effect_type: "cure_status"
+      status_removed: "Empoisonné"
+      target: "self"
+      consumable: true
+      notes: "Retire le statut Empoisonné."
+
+    - key: remedy_universal
+      name: "Remède universel"
+      category: "consumable"
+      price: 120
+      effect_type: "cure_status"
+      status_removed: "any_negative"
+      target: "self"
+      consumable: true
+      notes: "Retire tous les statuts négatifs."
+
+    - key: elixir_vigor
+      name: "Élixir de vigueur"
+      category: "consumable"
+      price: 150
+      effect_type: "buff"
+      stat: "vigueur"
+      value: 1
+      duration_days: 3
+      target: "self"
+      consumable: true
+      notes: "+1 Vigueur pendant 3 jours."
+
+    - key: elixir_intelligence
+      name: "Élixir d’intelligence"
+      category: "consumable"
+      price: 150
+      effect_type: "buff"
+      stat: "intelligence"
+      value: 1
+      duration_days: 3
+      target: "self"
+      consumable: true
+      notes: "+1 Intelligence pendant 3 jours."
+
+    - key: elixir_dexterity
+      name: "Élixir de rapidité"
+      category: "consumable"
+      price: 150
+      effect_type: "buff"
+      stat: "dexterite"
+      value: 1
+      duration_days: 3
+      target: "self"
+      consumable: true
+      notes: "+1 Dextérité pendant 3 jours."
+
+    - key: smoke_bomb
+      name: "Fumigène"
+      category: "consumable"
+      price: 60
+      effect_type: "utility"
+      utility_type: "escape_bonus"
+      value: 2
+      target: "self"
+      consumable: true
+      notes: "Bonus de +2 pour fuir un combat."
+
+    - key: explosive_vial
+      name: "Fiole explosive"
+      category: "consumable"
+      price: 80
+      effect_type: "damage"
+      damage_mastery: 1
+      damage_bonus: 2
+      target: "enemy"
+      consumable: true
+      notes: "Inflige 1D6 + 2 dégâts directs."
+
+  utilities:
+
+    - key: torch
+      name: "Torche"
+      category: "utility"
+      price: 10
+      effect_type: "utility"
+      utility_type: "reveal_hidden"
+      value: 1
+      consumable: true
+      notes: "Permet de révéler certains événements cachés."
+
+    - key: rope
+      name: "Corde solide"
+      category: "utility"
+      price: 15
+      effect_type: "utility"
+      utility_type: "exploration_bonus"
+      value: 1
+      consumable: false
+      notes: "Peut débloquer certains passages."
+
+    - key: lockpick
+      name: "Crochet de voleur"
+      category: "utility"
+      price: 25
+      effect_type: "utility"
+      utility_type: "unlock_bonus"
+      value: 2
+      consumable: false
+      notes: "Bonus pour ouvrir des coffres."
+
+    - key: teleport_stone
+      name: "Pierre de téléportation"
+      category: "utility"
+      price: 300
+      effect_type: "utility"
+      utility_type: "return_town"
+      consumable: true
+      notes: "Permet de quitter la tour instantanément."
+
+    - key: compass_enchanted
+      name: "Boussole enchantée"
+      category: "utility"
+      price: 180
+      effect_type: "utility"
+      utility_type: "navigation_bonus"
+      value: 2
+      consumable: false
+      notes: "Réduit les risques d’embuscade."
+
+    - key: protective_talisman
+      name: "Talisman protecteur"
+      category: "utility"
+      price: 220
+      effect_type: "buff"
+      stat: "resistance"
+      value: 1
+      duration_days: 5
+      consumable: true
+      notes: "+1 résistance pendant 5 jours."
+
+  special:
+
+    - key: soul_fragment
+      name: "Fragment d’âme"
+      category: "special"
+      price: 500
+      effect_type: "xp"
+      value: 50
+      consumable: true
+      notes: "Donne 50 points d’expérience."
+
+    - key: experience_crystal
+      name: "Cristal d’expérience"
+      category: "special"
+      price: 900
+      effect_type: "xp"
+      value: 120
+      consumable: true
+      notes: "Donne 120 points d’expérience."
+
+    - key: mysterious_key
+      name: "Clé mystérieuse"
+      category: "special"
+      price: 200
+      effect_type: "utility"
+      utility_type: "unlock_special"
+      consumable: false
+      notes: "Ouvre un passage rare de la tour."
+
+    - key: ancient_relic
+      name: "Relique ancienne"
+      category: "special"
+      price: 1200
+      effect_type: "special"
+      consumable: false
+      notes: "Objet rare utilisé dans certains événements."
+
+    - key: incomplete_map
+      name: "Carte incomplète"
+      category: "special"
+      price: 150
+      effect_type: "utility"
+      utility_type: "reduce_unknown_event"
+      value: 1
+      consumable: false
+      notes: "Réduit les risques d’événements aléatoires dangereux."
