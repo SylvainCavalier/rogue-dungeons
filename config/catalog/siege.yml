@@ -1,0 +1,297 @@
+# === Système de siège hebdomadaire ===
+
+traps:
+  pieges_pointes:
+    name: "Pièges à pointes"
+    description: "Des pointes acérées dissimulées au sol"
+    cost: 20
+    workshop_level: 0
+    type: "damage"
+    damage: 3
+
+  barricade:
+    name: "Barricade"
+    description: "Une barricade en bois qui réduit les dégâts ennemis"
+    cost: 30
+    workshop_level: 0
+    type: "barrier"
+    dr_bonus: 2
+
+  fosse_goudron:
+    name: "Fosse de goudron"
+    description: "Du goudron brûlant qui ralentit les ennemis"
+    cost: 40
+    workshop_level: 1
+    type: "slow"
+    esquive_penalty: 2
+
+  meurtrieres:
+    name: "Meurtrières"
+    description: "Des fentes dans les murs pour tirer à couvert"
+    cost: 60
+    workshop_level: 1
+    type: "damage"
+    damage: 5
+
+  fosse_pieux:
+    name: "Fosse à pieux"
+    description: "Une large fosse remplie de pieux empoisonnés"
+    cost: 75
+    workshop_level: 2
+    type: "damage"
+    damage: 8
+
+  mur_renforce:
+    name: "Mur renforcé"
+    description: "Un mur épais en pierre qui absorbe beaucoup de dégâts"
+    cost: 100
+    workshop_level: 2
+    type: "barrier"
+    dr_bonus: 4
+
+  piege_feu:
+    name: "Piège de feu"
+    description: "Un mécanisme qui déverse de l'huile enflammée"
+    cost: 120
+    workshop_level: 3
+    type: "damage"
+    damage: 12
+
+  sceau_magique:
+    name: "Sceau magique"
+    description: "Un glyphe qui affaiblit les ennemis qui le traversent"
+    cost: 140
+    workshop_level: 3
+    type: "weaken"
+    attack_penalty: 2
+    damage_penalty: 1
+
+  tour_archers:
+    name: "Tour d'archers"
+    description: "Une tour avec des archers alliés qui bombardent l'ennemi"
+    cost: 180
+    workshop_level: 4
+    type: "damage"
+    damage: 16
+
+  rempart_enchante:
+    name: "Rempart enchanté"
+    description: "Un rempart magique qui protège et affaiblit les assaillants"
+    cost: 200
+    workshop_level: 4
+    type: "barrier"
+    dr_bonus: 6
+
+# Monstres spécifiques au siège
+siege_monsters:
+  gobelin_eclaireur:
+    name: "Gobelin éclaireur"
+    hp: 5
+    vigueur: { mastery: 1, bonus: 0 }
+    attack: { mastery: 1, bonus: 1 }
+    damage: { mastery: 1, bonus: 0 }
+    esquive: { mastery: 1, bonus: 1 }
+    dr: { mastery: 0, bonus: 0 }
+    xp_value: 4
+    gold_value: 3
+    abilities: []
+
+  bandit_pillard:
+    name: "Bandit pillard"
+    hp: 8
+    vigueur: { mastery: 1, bonus: 1 }
+    attack: { mastery: 2, bonus: 0 }
+    damage: { mastery: 1, bonus: 1 }
+    esquive: { mastery: 1, bonus: 1 }
+    dr: { mastery: 0, bonus: 1 }
+    xp_value: 6
+    gold_value: 5
+    abilities: []
+
+  loup_enrage:
+    name: "Loup enragé"
+    hp: 10
+    vigueur: { mastery: 2, bonus: 0 }
+    attack: { mastery: 2, bonus: 1 }
+    damage: { mastery: 2, bonus: 0 }
+    esquive: { mastery: 2, bonus: 1 }
+    dr: { mastery: 0, bonus: 0 }
+    xp_value: 8
+    gold_value: 5
+    abilities: []
+
+  orc_guerrier:
+    name: "Orc guerrier"
+    hp: 15
+    vigueur: { mastery: 2, bonus: 1 }
+    attack: { mastery: 2, bonus: 2 }
+    damage: { mastery: 2, bonus: 1 }
+    esquive: { mastery: 1, bonus: 1 }
+    dr: { mastery: 1, bonus: 1 }
+    xp_value: 12
+    gold_value: 8
+    abilities: []
+
+  troll_assiegeant:
+    name: "Troll assiégeant"
+    hp: 22
+    vigueur: { mastery: 3, bonus: 1 }
+    attack: { mastery: 3, bonus: 1 }
+    damage: { mastery: 3, bonus: 1 }
+    esquive: { mastery: 1, bonus: 0 }
+    dr: { mastery: 2, bonus: 1 }
+    xp_value: 18
+    gold_value: 12
+    abilities: []
+
+  chef_orc:
+    name: "Chef orc"
+    hp: 28
+    vigueur: { mastery: 3, bonus: 2 }
+    attack: { mastery: 3, bonus: 2 }
+    damage: { mastery: 3, bonus: 2 }
+    esquive: { mastery: 2, bonus: 1 }
+    dr: { mastery: 2, bonus: 2 }
+    xp_value: 25
+    gold_value: 18
+    abilities: []
+
+  golem_siege:
+    name: "Golem de siège"
+    hp: 35
+    vigueur: { mastery: 4, bonus: 2 }
+    attack: { mastery: 4, bonus: 1 }
+    damage: { mastery: 4, bonus: 2 }
+    esquive: { mastery: 1, bonus: 0 }
+    dr: { mastery: 3, bonus: 2 }
+    xp_value: 35
+    gold_value: 25
+    abilities: []
+
+  dragon_mineur:
+    name: "Dragon mineur"
+    hp: 45
+    vigueur: { mastery: 5, bonus: 2 }
+    attack: { mastery: 5, bonus: 3 }
+    damage: { mastery: 5, bonus: 2 }
+    esquive: { mastery: 3, bonus: 2 }
+    dr: { mastery: 3, bonus: 3 }
+    xp_value: 50
+    gold_value: 40
+    abilities: []
+
+# Vagues de siège par semaine totale écoulée
+waves:
+  - week_range: [1, 2]
+    enemies:
+      - { key: "gobelin_eclaireur", count: 2 }
+
+  - week_range: [3, 4]
+    enemies:
+      - { key: "gobelin_eclaireur", count: 2 }
+      - { key: "bandit_pillard", count: 1 }
+
+  - week_range: [5, 8]
+    enemies:
+      - { key: "bandit_pillard", count: 2 }
+      - { key: "loup_enrage", count: 1 }
+
+  - week_range: [9, 12]
+    enemies:
+      - { key: "loup_enrage", count: 2 }
+      - { key: "orc_guerrier", count: 1 }
+
+  - week_range: [13, 16]
+    enemies:
+      - { key: "orc_guerrier", count: 2 }
+      - { key: "troll_assiegeant", count: 1 }
+
+  - week_range: [17, 24]
+    enemies:
+      - { key: "orc_guerrier", count: 2 }
+      - { key: "troll_assiegeant", count: 1 }
+      - { key: "chef_orc", count: 1 }
+
+  - week_range: [25, 36]
+    enemies:
+      - { key: "troll_assiegeant", count: 2 }
+      - { key: "chef_orc", count: 1 }
+      - { key: "golem_siege", count: 1 }
+
+  - week_range: [37, 999]
+    enemies:
+      - { key: "chef_orc", count: 2 }
+      - { key: "golem_siege", count: 1 }
+      - { key: "dragon_mineur", count: 1 }
+
+# Niveaux de la vigie
+watchtower_levels:
+  0:
+    name: "Pas de vigie"
+    description: "Aucune information sur la direction d'attaque"
+    info: "none"
+    upgrade_cost: 0
+  1:
+    name: "Vigie basique"
+    description: "Un guetteur scrute l'horizon"
+    info: "vague"
+    upgrade_cost: 100
+  2:
+    name: "Vigie améliorée"
+    description: "Des éclaireurs patrouillent les environs"
+    info: "partial"
+    upgrade_cost: 250
+  3:
+    name: "Vigie avancée"
+    description: "Un réseau d'espions couvre toutes les directions"
+    info: "precise"
+    upgrade_cost: 500
+
+# Niveaux de l'atelier
+workshop_levels:
+  0:
+    name: "Pas d'atelier"
+    description: "Défenses très limitées"
+    max_traps_per_direction: 1
+    upgrade_cost: 0
+  1:
+    name: "Atelier basique"
+    description: "Outils simples pour construire des défenses"
+    max_traps_per_direction: 2
+    upgrade_cost: 150
+  2:
+    name: "Atelier amélioré"
+    description: "Des artisans qualifiés améliorent vos défenses"
+    max_traps_per_direction: 3
+    upgrade_cost: 350
+  3:
+    name: "Atelier avancé"
+    description: "Un atelier complet avec des matériaux rares"
+    max_traps_per_direction: 4
+    upgrade_cost: 600
+  4:
+    name: "Atelier de maître"
+    description: "Les meilleurs artisans du royaume à votre service"
+    max_traps_per_direction: 5
+    upgrade_cost: 1000
+
+# Coûts de réparation des bâtiments
+building_repair_costs:
+  shop:
+    name: "Magasin"
+    cost_per_level: 50
+  academy:
+    name: "Académie des mages"
+    cost_per_level: 75
+  guild:
+    name: "Guilde des guerriers"
+    cost_per_level: 75
+  forge:
+    name: "La Forge"
+    cost_per_level: 60
+  watchtower:
+    name: "Vigie"
+    cost_per_level: 80
+  workshop:
+    name: "Atelier"
+    cost_per_level: 80

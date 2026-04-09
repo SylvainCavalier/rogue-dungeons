@@ -5,6 +5,8 @@ class Character < ApplicationRecord
   has_many :learned_techniques, dependent: :destroy
   has_many :learned_magics, dependent: :destroy
   has_many :combat_logs, dependent: :destroy
+  has_many :fortress_defenses, dependent: :destroy
+  has_many :siege_logs, dependent: :destroy
 
   CHARACTERISTICS = %w[vigueur dexterite intelligence charisme perception].freeze
   TOTAL_POINTS = 12
@@ -34,10 +36,13 @@ class Character < ApplicationRecord
   # --- Temps ---
 
   def advance_day(n = 1)
+    siege_triggered = false
     n.times do
       self.day += 1
       if day > DAYS_PER_WEEK
         self.day = 1
+        trigger_siege_preparation unless siege_triggered
+        siege_triggered = true
         self.week += 1
         if week > WEEKS_PER_MONTH
           self.week = 1
@@ -52,6 +57,7 @@ class Character < ApplicationRecord
       tick_activity
     end
     save!
+    siege_triggered
   end
 
   def formatted_date
@@ -70,6 +76,26 @@ class Character < ApplicationRecord
 
   def in_combat?
     combat_state.present?
+  end
+
+  def in_siege?
+    siege_state.present?
+  end
+
+  def siege_pending?
+    siege_state.is_a?(Hash) && siege_state["pending"] == true
+  end
+
+  def building_damaged?(building_key)
+    (building_damage[building_key] || 0) > 0
+  end
+
+  def building_destroyed?(building_key)
+    (building_damage[building_key] || 0) >= 2
+  end
+
+  def total_weeks_elapsed
+    ((year - 1) * MONTHS_PER_YEAR * WEEKS_PER_MONTH) + ((month - 1) * WEEKS_PER_MONTH) + week
   end
 
   def busy?
@@ -142,6 +168,13 @@ class Character < ApplicationRecord
         skills.create!(name: skill_name, category: category, mastery: base_mastery, bonus: 0)
       end
     end
+  end
+
+  def trigger_siege_preparation
+    self.siege_state = {
+      "pending" => true,
+      "siege_week" => total_weeks_elapsed + 1
+    }
   end
 
   def tick_status

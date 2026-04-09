@@ -126,6 +126,41 @@ class GameCatalog
       all_techniques.select { |t| t["category"] == category }
     end
 
+    # --- Siège ---
+
+    def siege_trap(key)
+      siege_traps_index[key]
+    end
+
+    def siege_monster(key)
+      siege_monsters_index[key]
+    end
+
+    def all_siege_traps
+      @all_siege_traps ||= load_siege_data["traps"] || {}
+    end
+
+    def all_siege_monsters
+      @all_siege_monsters ||= load_siege_data["siege_monsters"] || {}
+    end
+
+    def siege_waves
+      @siege_waves ||= load_siege_data["waves"] || []
+    end
+
+    def watchtower_level_data(level)
+      watchtower_levels_data[level.to_i] || watchtower_levels_data[level.to_s]
+    end
+
+    def workshop_level_data(level)
+      workshop_levels_data[level.to_i] || workshop_levels_data[level.to_s]
+    end
+
+    def building_repair_cost(building_key)
+      repair_costs = load_siege_data["building_repair_costs"] || {}
+      repair_costs[building_key]
+    end
+
     def reload!
       @all_equipment = @all_items = @all_techniques = @all_magics = nil
       @all_skills = @all_statuses = @all_floors = @all_monsters = nil
@@ -133,6 +168,9 @@ class GameCatalog
       @equipment_index = @items_index = @techniques_index = @magics_index = nil
       @statuses_index = @floors_data = @monsters_index = @name_to_key_map = nil
       @techniques_data_index = @magics_data_index = nil
+      @siege_data = @all_siege_traps = @all_siege_monsters = @siege_waves = nil
+      @siege_traps_index = @siege_monsters_index = nil
+      @watchtower_levels_data = @workshop_levels_data = nil
     end
 
     private
@@ -335,6 +373,26 @@ class GameCatalog
       when "nature" then "nature"
       else name.downcase.parameterize(separator: "_")
       end
+    end
+
+    def siege_traps_index
+      @siege_traps_index ||= all_siege_traps
+    end
+
+    def siege_monsters_index
+      @siege_monsters_index ||= all_siege_monsters
+    end
+
+    def watchtower_levels_data
+      @watchtower_levels_data ||= load_siege_data["watchtower_levels"] || {}
+    end
+
+    def workshop_levels_data
+      @workshop_levels_data ||= load_siege_data["workshop_levels"] || {}
+    end
+
+    def load_siege_data
+      @siege_data ||= YAML.load_file(CATALOG_PATH.join("siege.yml"))
     end
 
     def load_monsters

@@ -6,18 +6,24 @@ module Api
       char = current_character
       render json: {
         date: char.formatted_date,
+        day: char.day,
+        week: char.week,
         activity: char.activity,
         activity_days_left: char.activity_days_left,
         activity_data: char.activity_data,
         busy: char.busy?,
         in_combat: char.in_combat?,
+        in_siege: char.in_siege?,
+        siege_pending: char.siege_pending?,
         current_hp: char.current_hp,
         max_hp: char.max_hp,
         current_mana: char.current_mana,
         max_mana: char.max_mana,
         gold: char.gold,
         xp: char.xp,
-        current_floor: char.current_floor
+        current_floor: char.current_floor,
+        building_damage: char.building_damage,
+        days_until_siege: Character::DAYS_PER_WEEK - char.day
       }
     end
 
@@ -34,10 +40,11 @@ module Api
       char = current_character
       return render json: { error: "Votre personnage est occupé" }, status: :unprocessable_entity if char.busy?
       return render json: { error: "Vous êtes en combat" }, status: :unprocessable_entity if char.in_combat?
+      return render json: { error: "Un siège est en cours !" }, status: :unprocessable_entity if char.in_siege?
 
       old_hp = char.current_hp
       char.full_heal
-      char.advance_day
+      siege_triggered = char.advance_day
       healed = char.current_hp - old_hp
 
       render json: {
@@ -46,7 +53,8 @@ module Api
         max_hp: char.max_hp,
         current_mana: char.current_mana,
         max_mana: char.max_mana,
-        date: char.formatted_date
+        date: char.formatted_date,
+        siege_pending: siege_triggered || false
       }
     end
 

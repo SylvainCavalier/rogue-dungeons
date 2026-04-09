@@ -118,6 +118,47 @@
             </svg>
           </template>
         </TownCard>
+
+        <TownCard to="/town/fortress" :delay="9"
+          label="Forteresse" :subtitle="siegeSubtitle"
+          icon-color="text-cyan-400">
+          <template #icon>
+            <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z" />
+            </svg>
+          </template>
+        </TownCard>
+
+        <TownCard to="/town/watchtower" :delay="10"
+          label="Vigie" subtitle="Renseignements ennemis"
+          icon-color="text-teal-400">
+          <template #icon>
+            <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </template>
+        </TownCard>
+
+        <TownCard to="/town/workshop" :delay="11"
+          label="Atelier" subtitle="Améliorer les défenses"
+          icon-color="text-orange-400">
+          <template #icon>
+            <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17l-5.658 3.286a.75.75 0 01-1.079-.79l1.266-6.052L.992 6.815a.75.75 0 01.428-1.317l6.12-.638L10.2.649a.75.75 0 011.348 0L14.21 4.86l6.12.638a.75.75 0 01.428 1.317l-4.957 4.799 1.266 6.052a.75.75 0 01-1.079.79l-5.658-3.286z" />
+            </svg>
+          </template>
+        </TownCard>
+
+        <TownCard v-if="hasBuildingDamage" to="/town/buildings" :delay="12"
+          label="Bâtiments" subtitle="Réparations nécessaires"
+          icon-color="text-red-400" variant="danger">
+          <template #icon>
+            <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+            </svg>
+          </template>
+        </TownCard>
       </div>
     </div>
   </div>
@@ -125,14 +166,29 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { useGameStore } from '../stores/game'
 import StatusBar from '../components/game/StatusBar.vue'
 import TownCard from '../components/game/TownCard.vue'
 
 const gameStore = useGameStore()
+const router = useRouter()
 const advancing = ref(false)
 
 const nextFloor = computed(() => (gameStore.character?.current_floor || 0) + 1)
+
+const siegeSubtitle = computed(() => {
+  const days = gameStore.townStatus?.days_until_siege
+  if (days !== undefined && days <= 1) return 'Siège imminent !'
+  if (days !== undefined) return `Siège dans ${days} jours`
+  return 'Défenses de la ville'
+})
+
+const hasBuildingDamage = computed(() => {
+  const dmg = gameStore.character?.building_damage || gameStore.townStatus?.building_damage
+  if (!dmg) return false
+  return Object.values(dmg).some(v => v > 0)
+})
 
 const activityLabel = computed(() => {
   const a = gameStore.character?.activity
@@ -143,25 +199,34 @@ const activityLabel = computed(() => {
 
 onMounted(async () => {
   if (!gameStore.character) await gameStore.fetchCharacter()
-  gameStore.fetchTownStatus()
+  await gameStore.fetchTownStatus()
+
+  // Redirect if siege is pending
+  if (gameStore.character?.siege_pending || gameStore.townStatus?.siege_pending) {
+    router.push('/siege')
+  }
 })
 
 async function handleWork() {
   if (gameStore.isBusy) return
-  await gameStore.work()
+  const result = await gameStore.work()
+  if (result?.siege_pending) router.push('/siege')
 }
 
 async function handleRest() {
   if (gameStore.isBusy) return
-  await gameStore.rest()
+  const result = await gameStore.rest()
+  if (result?.siege_pending) router.push('/siege')
 }
 
 async function advanceActivity() {
   advancing.value = true
   try {
     const a = gameStore.character?.activity
-    if (a === 'academie') await gameStore.advanceAcademy()
-    else if (a === 'guilde') await gameStore.advanceGuild()
+    let result
+    if (a === 'academie') result = await gameStore.advanceAcademy()
+    else if (a === 'guilde') result = await gameStore.advanceGuild()
+    if (result?.siege_pending) router.push('/siege')
   } finally {
     advancing.value = false
   }

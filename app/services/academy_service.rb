@@ -6,6 +6,8 @@ class AcademyService
   def start(magic_key)
     return { success: false, error: "Votre personnage est occupé" } if @character.busy?
     return { success: false, error: "Vous êtes en combat" } if @character.in_combat?
+    return { success: false, error: "Un siège est en cours !" } if @character.in_siege?
+    return { success: false, error: "L'académie est détruite, réparez-la d'abord" } if @character.building_destroyed?("academy")
 
     magic = GameCatalog.magic(magic_key)
     return { success: false, error: "Magie inconnue" } unless magic
@@ -29,6 +31,7 @@ class AcademyService
     end
 
     days_needed = [(magic["tier"] * 3) - @character.intelligence, 1].max
+    days_needed += 2 if @character.building_damaged?("academy")
 
     @character.update!(
       activity: "academie",
@@ -48,7 +51,7 @@ class AcademyService
       return { success: false, error: "Vous n'êtes pas en apprentissage à l'académie" }
     end
 
-    @character.advance_day
+    siege_triggered = @character.advance_day
 
     if @character.activity_days_left&.positive?
       return {
@@ -56,7 +59,8 @@ class AcademyService
         completed: false,
         message: "Jour d'étude passé. Encore #{@character.activity_days_left} jour(s)",
         days_left: @character.activity_days_left,
-        date: @character.formatted_date
+        date: @character.formatted_date,
+        siege_pending: siege_triggered || false
       }
     end
 

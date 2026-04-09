@@ -10,6 +10,10 @@ module Api
     end
 
     def buy
+      if current_character.building_destroyed?("shop")
+        return render json: { error: "Le magasin est détruit, réparez-le d'abord" }, status: :unprocessable_entity
+      end
+
       key = params[:item_key]
       quantity = (params[:quantity] || 1).to_i
       item_type = params[:item_type]
@@ -19,7 +23,9 @@ module Api
         return render json: { error: "Objet inconnu" }, status: :not_found
       end
 
-      total_price = catalog["price"] * quantity
+      base_price = catalog["price"]
+      base_price = (base_price * 1.25).ceil if current_character.building_damaged?("shop")
+      total_price = base_price * quantity
       if current_character.gold < total_price
         return render json: { error: "Or insuffisant (#{current_character.gold}/#{total_price} nécessaires)" }, status: :unprocessable_entity
       end

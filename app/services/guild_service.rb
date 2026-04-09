@@ -6,6 +6,8 @@ class GuildService
   def start(technique_key)
     return { success: false, error: "Votre personnage est occupé" } if @character.busy?
     return { success: false, error: "Vous êtes en combat" } if @character.in_combat?
+    return { success: false, error: "Un siège est en cours !" } if @character.in_siege?
+    return { success: false, error: "La guilde est détruite, réparez-la d'abord" } if @character.building_destroyed?("guild")
 
     technique = GameCatalog.technique(technique_key)
     return { success: false, error: "Technique inconnue" } unless technique
@@ -18,6 +20,7 @@ class GuildService
     rank = all_in_category.index { |t| t["key"] == technique_key }.to_i + 1
 
     days_needed = [(rank * 2) - @character.vigueur, 1].max
+    days_needed += 2 if @character.building_damaged?("guild")
 
     @character.update!(
       activity: "guilde",
@@ -37,7 +40,7 @@ class GuildService
       return { success: false, error: "Vous n'êtes pas en entraînement à la guilde" }
     end
 
-    @character.advance_day
+    siege_triggered = @character.advance_day
 
     if @character.activity_days_left&.positive?
       return {
@@ -45,7 +48,8 @@ class GuildService
         completed: false,
         message: "Jour d'entraînement passé. Encore #{@character.activity_days_left} jour(s)",
         days_left: @character.activity_days_left,
-        date: @character.formatted_date
+        date: @character.formatted_date,
+        siege_pending: siege_triggered || false
       }
     end
 

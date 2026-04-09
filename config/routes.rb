@@ -54,6 +54,21 @@ Rails.application.routes.draw do
     post "tower/combat/action", to: "tower#action"
     post "tower/flee", to: "tower#flee"
 
+    # Siege
+    get "siege/status", to: "siege#status"
+    get "siege/fortress", to: "siege#fortress"
+    post "siege/fortress/place", to: "siege#place_trap"
+    delete "siege/fortress/remove", to: "siege#remove_trap"
+    get "siege/watchtower", to: "siege#watchtower"
+    post "siege/watchtower/upgrade", to: "siege#upgrade_watchtower"
+    get "siege/workshop", to: "siege#workshop"
+    post "siege/workshop/upgrade", to: "siege#upgrade_workshop"
+    post "siege/start", to: "siege#start"
+    get "siege/combat", to: "siege#combat"
+    post "siege/combat/action", to: "siege#action"
+    get "siege/buildings", to: "siege#buildings"
+    post "siege/buildings/repair", to: "siege#repair"
+
     # Test
     get "test", to: "test#index"
   end

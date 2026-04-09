@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_02_21_031112) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_09_213520) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -41,6 +41,11 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_21_031112) do
     t.jsonb "combat_state"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "watchtower_level", default: 0, null: false
+    t.integer "workshop_level", default: 0, null: false
+    t.jsonb "building_damage", default: {}, null: false
+    t.jsonb "siege_state"
+    t.integer "total_sieges_won", default: 0, null: false
     t.index ["user_id"], name: "index_characters_on_user_id", unique: true
   end
 
@@ -55,6 +60,17 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_21_031112) do
     t.datetime "updated_at", null: false
     t.index ["character_id", "floor"], name: "index_combat_logs_on_character_id_and_floor"
     t.index ["character_id"], name: "index_combat_logs_on_character_id"
+  end
+
+  create_table "fortress_defenses", force: :cascade do |t|
+    t.bigint "character_id", null: false
+    t.string "trap_key", null: false
+    t.string "direction", null: false
+    t.integer "position", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["character_id", "direction"], name: "index_fortress_defenses_on_character_id_and_direction"
+    t.index ["character_id"], name: "index_fortress_defenses_on_character_id"
   end
 
   create_table "good_job_batches", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -183,6 +199,21 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_21_031112) do
     t.index ["character_id"], name: "index_learned_techniques_on_character_id"
   end
 
+  create_table "siege_logs", force: :cascade do |t|
+    t.bigint "character_id", null: false
+    t.integer "siege_week", null: false
+    t.string "attack_direction", null: false
+    t.string "result", null: false
+    t.integer "xp_gained", default: 0, null: false
+    t.integer "gold_gained", default: 0, null: false
+    t.jsonb "log_data", default: []
+    t.jsonb "damage_dealt", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["character_id", "siege_week"], name: "index_siege_logs_on_character_id_and_siege_week"
+    t.index ["character_id"], name: "index_siege_logs_on_character_id"
+  end
+
   create_table "skills", force: :cascade do |t|
     t.bigint "character_id", null: false
     t.string "name", null: false
@@ -211,8 +242,10 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_21_031112) do
 
   add_foreign_key "characters", "users"
   add_foreign_key "combat_logs", "characters"
+  add_foreign_key "fortress_defenses", "characters"
   add_foreign_key "inventory_items", "characters"
   add_foreign_key "learned_magics", "characters"
   add_foreign_key "learned_techniques", "characters"
+  add_foreign_key "siege_logs", "characters"
   add_foreign_key "skills", "characters"
 end

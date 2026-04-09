@@ -51,13 +51,43 @@ export default [
     component: () => import('../pages/Guild.vue'),
   },
   {
+    path: '/town/fortress',
+    name: 'Fortress',
+    component: () => import('../pages/Fortress.vue'),
+  },
+  {
+    path: '/town/watchtower',
+    name: 'Watchtower',
+    component: () => import('../pages/Watchtower.vue'),
+  },
+  {
+    path: '/town/workshop',
+    name: 'Workshop',
+    component: () => import('../pages/Workshop.vue'),
+  },
+  {
+    path: '/town/buildings',
+    name: 'Buildings',
+    component: () => import('../pages/Buildings.vue'),
+  },
+  {
     path: '/tower',
     name: 'Tower',
     component: () => import('../pages/Tower.vue'),
   },
   {
+    path: '/siege',
+    name: 'SiegeCombat',
+    component: () => import('../pages/SiegeCombat.vue'),
+  },
+  {
     path: '/combat',
     name: 'Combat',
     component: () => import('../pages/Combat.vue'),
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'NotFound',
+    component: () => import('../pages/NotFound.vue'),
   },
 ]

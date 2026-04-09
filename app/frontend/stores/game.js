@@ -13,6 +13,12 @@ export const useGameStore = defineStore('game', {
     townStatus: null,
     towerInfo: null,
     combatState: null,
+    siegeState: null,
+    fortressData: null,
+    watchtowerData: null,
+    workshopData: null,
+    buildingsData: null,
+    siegeStatus: null,
     loading: false,
     notification: null,
   }),
@@ -180,6 +186,8 @@ export const useGameStore = defineStore('game', {
           gold: data.gold, xp: data.xp, current_floor: data.current_floor,
           activity: data.activity, activity_days_left: data.activity_days_left,
           activity_data: data.activity_data, date: data.date,
+          siege_pending: data.siege_pending, in_siege: data.in_siege,
+          building_damage: data.building_damage,
         })
       }
       return data
@@ -342,6 +350,145 @@ export const useGameStore = defineStore('game', {
           this.notify('Défaite...', 'error')
           await this.fetchCharacter()
         }
+        return data
+      } catch (e) {
+        this.notify(e.response?.data?.error || 'Erreur', 'error')
+        throw e
+      }
+    },
+
+    // --- Siege ---
+    async fetchSiegeStatus() {
+      const { data } = await apiClient.get('/siege/status')
+      this.siegeStatus = data
+      return data
+    },
+
+    async fetchFortress() {
+      const { data } = await apiClient.get('/siege/fortress')
+      this.fortressData = data
+      return data
+    },
+
+    async placeTrap(trapKey, direction) {
+      try {
+        const { data } = await apiClient.post('/siege/fortress/place', { trap_key: trapKey, direction })
+        if (this.character) this.character.gold = data.gold
+        this.notify(data.message, 'success')
+        await this.fetchFortress()
+        return data
+      } catch (e) {
+        this.notify(e.response?.data?.error || 'Erreur', 'error')
+        throw e
+      }
+    },
+
+    async removeTrap(defenseId) {
+      try {
+        const { data } = await apiClient.delete('/siege/fortress/remove', { data: { id: defenseId } })
+        if (this.character) this.character.gold = data.gold
+        this.notify(data.message, 'success')
+        await this.fetchFortress()
+        return data
+      } catch (e) {
+        this.notify(e.response?.data?.error || 'Erreur', 'error')
+        throw e
+      }
+    },
+
+    async fetchWatchtower() {
+      const { data } = await apiClient.get('/siege/watchtower')
+      this.watchtowerData = data
+      return data
+    },
+
+    async upgradeWatchtower() {
+      try {
+        const { data } = await apiClient.post('/siege/watchtower/upgrade')
+        if (this.character) this.character.gold = data.gold
+        this.notify(data.message, 'success')
+        await this.fetchWatchtower()
+        return data
+      } catch (e) {
+        this.notify(e.response?.data?.error || 'Erreur', 'error')
+        throw e
+      }
+    },
+
+    async fetchWorkshop() {
+      const { data } = await apiClient.get('/siege/workshop')
+      this.workshopData = data
+      return data
+    },
+
+    async upgradeWorkshop() {
+      try {
+        const { data } = await apiClient.post('/siege/workshop/upgrade')
+        if (this.character) this.character.gold = data.gold
+        this.notify(data.message, 'success')
+        await this.fetchWorkshop()
+        return data
+      } catch (e) {
+        this.notify(e.response?.data?.error || 'Erreur', 'error')
+        throw e
+      }
+    },
+
+    async startSiege() {
+      try {
+        const { data } = await apiClient.post('/siege/start')
+        this.siegeState = data
+        return data
+      } catch (e) {
+        this.notify(e.response?.data?.error || 'Erreur', 'error')
+        throw e
+      }
+    },
+
+    async fetchSiegeCombat() {
+      try {
+        const { data } = await apiClient.get('/siege/combat')
+        this.siegeState = data
+        return data
+      } catch (e) {
+        this.siegeState = null
+        throw e
+      }
+    },
+
+    async siegeAction(actionType, params = {}) {
+      try {
+        const { data } = await apiClient.post('/siege/combat/action', {
+          action_type: actionType,
+          ...params
+        })
+        this.siegeState = data
+        if (data.status === 'victory') {
+          this.notify(`Siège repoussé ! +${data.rewards?.xp || 0} XP, +${data.rewards?.gold || 0} or`, 'success')
+          await this.fetchCharacter()
+        } else if (data.status === 'defeat') {
+          this.notify('Les monstres ont submergé vos défenses...', 'error')
+          await this.fetchCharacter()
+        }
+        return data
+      } catch (e) {
+        this.notify(e.response?.data?.error || 'Erreur', 'error')
+        throw e
+      }
+    },
+
+    async fetchBuildings() {
+      const { data } = await apiClient.get('/siege/buildings')
+      this.buildingsData = data
+      return data
+    },
+
+    async repairBuilding(buildingKey) {
+      try {
+        const { data } = await apiClient.post('/siege/buildings/repair', { building_key: buildingKey })
+        if (this.character) this.character.gold = data.gold
+        this.notify(data.message, 'success')
+        await this.fetchBuildings()
         return data
       } catch (e) {
         this.notify(e.response?.data?.error || 'Erreur', 'error')

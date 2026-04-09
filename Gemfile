@@ -24,7 +24,8 @@ gem "vite_rails"
 # Generally not compatible with Vite !
 # gem "sprockets-rails"
 
-# Ostruct for handling nested attributes
+# Required explicitly since Ruby 3.3.5 to avoid deprecation warnings
+# (ostruct was moved from stdlib to bundled gem)
 gem "ostruct"
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
@@ -35,6 +36,9 @@ gem "bootsnap", require: false
 
 # .env file support
 gem "dotenv-rails"
+
+# Action Cable without Redis (PostgreSQL-based)
+gem "solid_cable"
 
 # Better jobs without Redis
 gem "good_job"

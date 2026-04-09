@@ -1160,8 +1160,8 @@ class CombatService
 
     case result
     when :victory
-      xp_reward = @state[:floor] * 3 + 5
-      gold_reward = @state[:floor] * 2 + rand(1..[@state[:floor], 1].max)
+      xp_reward = @state[:enemies].sum { |e| e[:xp_value].to_i }
+      gold_reward = @state[:enemies].sum { |e| e[:gold_value].to_i }
       character.update!(
         xp: character.xp + xp_reward,
         gold: character.gold + gold_reward,
