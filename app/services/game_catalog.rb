@@ -161,6 +161,14 @@ class GameCatalog
       repair_costs[building_key]
     end
 
+    def siege_synergies
+      load_siege_data["synergies"] || {}
+    end
+
+    def defense_repair_ratio
+      load_siege_data["defense_repair_ratio"] || 0.4
+    end
+
     def reload!
       @all_equipment = @all_items = @all_techniques = @all_magics = nil
       @all_skills = @all_statuses = @all_floors = @all_monsters = nil

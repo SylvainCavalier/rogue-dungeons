@@ -4,19 +4,19 @@ module Api
 
     def index
       render json: {
-        equipment: GameCatalog.shop_equipment.map { |e| shop_item(e, "equipment") },
         items: GameCatalog.shop_items.map { |i| shop_item(i, "item") }
       }
     end
 
     def buy
-      if current_character.building_destroyed?("shop")
-        return render json: { error: "Le magasin est détruit, réparez-le d'abord" }, status: :unprocessable_entity
-      end
-
       key = params[:item_key]
       quantity = (params[:quantity] || 1).to_i
       item_type = params[:item_type]
+      building = building_for(item_type)
+
+      if current_character.building_destroyed?(building)
+        return render json: { error: destroyed_message(building) }, status: :unprocessable_entity
+      end
 
       catalog = item_type == "equipment" ? GameCatalog.equipment(key) : GameCatalog.item(key)
       unless catalog
@@ -24,7 +24,7 @@ module Api
       end
 
       base_price = catalog["price"]
-      base_price = (base_price * 1.25).ceil if current_character.building_damaged?("shop")
+      base_price = (base_price * 1.25).ceil if current_character.building_damaged?(building)
       total_price = base_price * quantity
       if current_character.gold < total_price
         return render json: { error: "Or insuffisant (#{current_character.gold}/#{total_price} nécessaires)" }, status: :unprocessable_entity
@@ -33,21 +33,28 @@ module Api
       current_character.update!(gold: current_character.gold - total_price)
 
       existing = current_character.inventory_items.find_by(item_key: key, equipped: false)
+      auto_equipped = false
       if existing && item_type == "item"
         existing.update!(quantity: existing.quantity + quantity)
       else
         slot = item_type == "equipment" ? (catalog["slot"] || slot_for(catalog["category"])) : nil
+        auto_equip = item_type == "equipment" && quantity == 1 && slot.present? &&
+                     !current_character.inventory_items.exists?(slot: slot, equipped: true)
         current_character.inventory_items.create!(
           item_key: key,
           item_type: item_type,
           quantity: quantity,
-          equipped: false,
+          equipped: auto_equip,
           slot: slot
         )
+        auto_equipped = auto_equip
       end
 
+      message = "#{catalog['name']} acheté(e) (x#{quantity}) pour #{total_price} pièces d'or"
+      message += " et équipé(e)" if auto_equipped
+
       render json: {
-        message: "#{catalog['name']} acheté(e) (x#{quantity}) pour #{total_price} pièces d'or",
+        message: message,
         gold: current_character.gold
       }
     end
@@ -98,6 +105,14 @@ module Api
       when "bottes" then "boots"
       when "bouclier" then "shield"
       end
+    end
+
+    def building_for(item_type)
+      item_type == "equipment" ? "forge" : "shop"
+    end
+
+    def destroyed_message(building)
+      building == "forge" ? "La forge est détruite, réparez-la d'abord" : "Le magasin est détruit, réparez-le d'abord"
     end
   end
 end

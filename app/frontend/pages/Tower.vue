@@ -5,8 +5,8 @@
       <!-- Header with image -->
       <div class="relative rounded-2xl overflow-hidden mb-6 animate-fade-in-up">
         <img :src="'/images/tour-ascension.webp'" alt="Tour d'ascension" loading="lazy"
-          class="w-full h-44 object-cover opacity-50" />
-        <div class="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/50 to-transparent"></div>
+          class="w-full h-64 md:h-80 object-cover opacity-65" />
+        <div class="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/40 to-transparent"></div>
         <div class="absolute bottom-4 left-6 right-6 flex items-end justify-between">
           <h1 class="text-2xl font-bold text-red-400 drop-shadow-lg">Tour d'ascension</h1>
           <router-link to="/town" class="text-stone-400 hover:text-amber-400 text-sm">Retour</router-link>

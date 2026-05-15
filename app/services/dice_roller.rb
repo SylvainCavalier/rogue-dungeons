@@ -12,6 +12,7 @@ class DiceRoller
       margin = attack[:total] - defense[:total]
       {
         hit: margin > 0,
+        graze: margin == 0,
         attack: attack,
         defense: defense,
         margin: margin

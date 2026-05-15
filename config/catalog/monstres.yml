@@ -1,5 +1,6 @@
 monsters:
   # === ÉTAGES 1-10 : Fondations ===
+  # Monstres faibles : beaucoup de faiblesses, pas de résistances
   rat_geant:
     name: "Rat géant"
     hp: 7
@@ -11,6 +12,7 @@ monsters:
     xp_value: 2
     gold_value: 1
     abilities: []
+    resistances: { feu: -50, lumiere: -25 }
 
   gobelin:
     name: "Gobelin"
@@ -23,6 +25,7 @@ monsters:
     xp_value: 3
     gold_value: 2
     abilities: []
+    resistances: { feu: -25, lumiere: -25 }
 
   archer_gobelin:
     name: "Archer gobelin"
@@ -35,6 +38,7 @@ monsters:
     xp_value: 4
     gold_value: 3
     abilities: []
+    resistances: { feu: -25, lumiere: -25 }
 
   loup_affame:
     name: "Loup affamé"
@@ -47,6 +51,7 @@ monsters:
     xp_value: 4
     gold_value: 2
     abilities: []
+    resistances: { feu: -50, ombre: -25 }
 
   # Boss étage 10
   chef_gobelin:
@@ -60,6 +65,7 @@ monsters:
     xp_value: 18
     gold_value: 12
     abilities: ["coup_charge"]
+    resistances: { feu: -25, lumiere: -25 }
 
   # === ÉTAGES 11-20 : Pression ===
   bandit:
@@ -73,6 +79,7 @@ monsters:
     xp_value: 5
     gold_value: 5
     abilities: []
+    resistances: { feu: -25 }
 
   mage_apprenti:
     name: "Mage apprenti"
@@ -85,6 +92,7 @@ monsters:
     xp_value: 6
     gold_value: 4
     abilities: ["etincelle"]
+    resistances: { physical: -25, feu: 25 }
 
   ogre_mineur:
     name: "Ogre mineur"
@@ -97,6 +105,7 @@ monsters:
     xp_value: 7
     gold_value: 6
     abilities: []
+    resistances: { physical: 25, feu: -50 }
 
   # Boss étage 20
   ogre_des_profondeurs:
@@ -110,6 +119,7 @@ monsters:
     xp_value: 28
     gold_value: 20
     abilities: ["coup_charge"]
+    resistances: { physical: 25, feu: -50, lumiere: -25 }
 
   # === ÉTAGES 21-30 : Brutalité ===
   assassin:
@@ -123,6 +133,7 @@ monsters:
     xp_value: 8
     gold_value: 7
     abilities: ["saignee"]
+    resistances: { physical: -25, lumiere: -25, ombre: 25 }
 
   loup_noir:
     name: "Loup noir"
@@ -135,6 +146,7 @@ monsters:
     xp_value: 7
     gold_value: 4
     abilities: []
+    resistances: { feu: -25, ombre: 25, lumiere: -25 }
 
   sorcier_renegat:
     name: "Sorcier renégat"
@@ -147,6 +159,7 @@ monsters:
     xp_value: 9
     gold_value: 6
     abilities: ["boule_de_feu"]
+    resistances: { physical: -25, feu: 50, eau: -25 }
 
   golem_argile:
     name: "Golem d'argile"
@@ -159,6 +172,7 @@ monsters:
     xp_value: 10
     gold_value: 7
     abilities: []
+    resistances: { physical: 50, feu: 25, eau: -75, ombre: 25 }
 
   # Boss étage 30
   maitre_assassin:
@@ -172,6 +186,7 @@ monsters:
     xp_value: 38
     gold_value: 30
     abilities: ["saignee", "coup_rapide"]
+    resistances: { physical: -25, ombre: 50, lumiere: -50 }
 
   # === ÉTAGES 31-40 : Magie et contrôle ===
   bandit_veteran:
@@ -185,6 +200,7 @@ monsters:
     xp_value: 10
     gold_value: 8
     abilities: []
+    resistances: { physical: 25, feu: -25 }
 
   elementaire_feu:
     name: "Élémentaire de feu"
@@ -197,6 +213,7 @@ monsters:
     xp_value: 12
     gold_value: 9
     abilities: ["boule_de_feu"]
+    resistances: { physical: 25, feu: 100, eau: -100, nature: -50 }
 
   elementaire_mineur:
     name: "Élémentaire mineur"
@@ -209,6 +226,7 @@ monsters:
     xp_value: 9
     gold_value: 6
     abilities: ["etincelle"]
+    resistances: { physical: 25, feu: 75, eau: -75 }
 
   chevalier_dechu:
     name: "Chevalier déchu"
@@ -221,6 +239,7 @@ monsters:
     xp_value: 11
     gold_value: 9
     abilities: ["coup_charge"]
+    resistances: { physical: 50, lumiere: -50, ombre: 25 }
 
   minotaure:
     name: "Minotaure"
@@ -233,6 +252,7 @@ monsters:
     xp_value: 14
     gold_value: 10
     abilities: ["coup_charge"]
+    resistances: { physical: 25, feu: -25, ombre: 25 }
 
   # Boss étage 40
   seigneur_elementaire:
@@ -246,6 +266,7 @@ monsters:
     xp_value: 48
     gold_value: 35
     abilities: ["boule_de_feu", "mur_de_flammes"]
+    resistances: { physical: 25, feu: 100, eau: -75, nature: -25 }
 
   # === ÉTAGES 41-50 : Armés jusqu'aux dents ===
   assassin_elite:
@@ -259,6 +280,7 @@ monsters:
     xp_value: 14
     gold_value: 10
     abilities: ["saignee", "coup_rapide"]
+    resistances: { physical: -25, ombre: 50, lumiere: -50 }
 
   golem_pierre:
     name: "Golem de pierre"
@@ -271,6 +293,7 @@ monsters:
     xp_value: 15
     gold_value: 9
     abilities: []
+    resistances: { physical: 75, feu: 50, eau: -25, nature: -50 }
 
   sorcier_noir:
     name: "Sorcier noir"
@@ -283,6 +306,7 @@ monsters:
     xp_value: 15
     gold_value: 10
     abilities: ["trait_obscur", "drain_vital"]
+    resistances: { physical: -25, ombre: 75, lumiere: -75 }
 
   chevalier_noir:
     name: "Chevalier noir"
@@ -295,6 +319,7 @@ monsters:
     xp_value: 16
     gold_value: 12
     abilities: ["coup_charge"]
+    resistances: { physical: 50, ombre: 50, lumiere: -50 }
 
   # Boss étage 50
   champion_tour:
@@ -308,6 +333,7 @@ monsters:
     xp_value: 60
     gold_value: 45
     abilities: ["coup_charge", "contre_attaque"]
+    resistances: { physical: 50, magical: 25, lumiere: -25 }
 
   # === ÉTAGES 51-60 : Ombres et corruption ===
   ombre:
@@ -321,6 +347,7 @@ monsters:
     xp_value: 15
     gold_value: 8
     abilities: ["trait_obscur"]
+    resistances: { physical: 75, ombre: 100, lumiere: -100 }
 
   spectre:
     name: "Spectre"
@@ -333,6 +360,7 @@ monsters:
     xp_value: 18
     gold_value: 10
     abilities: ["cecite"]
+    resistances: { physical: 75, ombre: 75, lumiere: -75, nature: -25 }
 
   vampire_mineur:
     name: "Vampire mineur"
@@ -345,6 +373,7 @@ monsters:
     xp_value: 20
     gold_value: 12
     abilities: ["drain_vital"]
+    resistances: { physical: 50, ombre: 50, lumiere: -100, feu: -25 }
 
   demon_eclaireur:
     name: "Démon éclaireur"
@@ -357,6 +386,7 @@ monsters:
     xp_value: 20
     gold_value: 12
     abilities: ["boule_de_feu"]
+    resistances: { physical: 25, feu: 75, eau: -25, lumiere: -50 }
 
   # Boss étage 60
   vampire_ancestral:
@@ -370,6 +400,7 @@ monsters:
     xp_value: 75
     gold_value: 55
     abilities: ["drain_vital", "cecite"]
+    resistances: { physical: 75, ombre: 75, lumiere: -100, feu: -25 }
 
   # === ÉTAGES 61-70 : Infernal ===
   demon:
@@ -383,6 +414,7 @@ monsters:
     xp_value: 22
     gold_value: 14
     abilities: ["boule_de_feu"]
+    resistances: { physical: 50, feu: 75, eau: -25, lumiere: -75 }
 
   diablotin_majeur:
     name: "Diablotin majeur"
@@ -395,6 +427,7 @@ monsters:
     xp_value: 20
     gold_value: 12
     abilities: ["etincelle"]
+    resistances: { physical: 25, feu: 50, eau: -50, lumiere: -50 }
 
   bete_infernale:
     name: "Bête infernale"
@@ -407,6 +440,7 @@ monsters:
     xp_value: 24
     gold_value: 16
     abilities: []
+    resistances: { physical: 50, feu: 50, eau: -50, lumiere: -25 }
 
   titan_mineur:
     name: "Titan mineur"
@@ -419,6 +453,7 @@ monsters:
     xp_value: 26
     gold_value: 16
     abilities: ["coup_charge"]
+    resistances: { physical: 75, magical: 25, nature: -50 }
 
   # Boss étage 70
   seigneur_infernal:
@@ -432,6 +467,7 @@ monsters:
     xp_value: 90
     gold_value: 65
     abilities: ["boule_de_feu", "mur_de_flammes", "explosion_ardente"]
+    resistances: { physical: 50, feu: 100, eau: -100, lumiere: -50 }
 
   # === ÉTAGES 71-80 : Anciens monstres ===
   golem_antique:
@@ -445,6 +481,7 @@ monsters:
     xp_value: 26
     gold_value: 16
     abilities: []
+    resistances: { physical: 75, feu: 50, ombre: 50, nature: -75, eau: -25 }
 
   chimere:
     name: "Chimère"
@@ -457,6 +494,7 @@ monsters:
     xp_value: 28
     gold_value: 18
     abilities: ["boule_de_feu"]
+    resistances: { physical: 50, feu: 50, eau: -50, nature: -25 }
 
   dragonnet:
     name: "Dragonnet"
@@ -469,6 +507,7 @@ monsters:
     xp_value: 30
     gold_value: 20
     abilities: ["boule_de_feu"]
+    resistances: { physical: 50, feu: 75, eau: -75 }
 
   titan_ancien:
     name: "Titan ancien"
@@ -481,6 +520,7 @@ monsters:
     xp_value: 32
     gold_value: 22
     abilities: ["coup_charge"]
+    resistances: { physical: 75, magical: 50, nature: -50 }
 
   dragon_jeune:
     name: "Dragon jeune"
@@ -493,6 +533,7 @@ monsters:
     xp_value: 36
     gold_value: 26
     abilities: ["boule_de_feu", "mur_de_flammes"]
+    resistances: { physical: 75, feu: 100, eau: -75 }
 
   # Boss étage 80
   dragon_ancien:
@@ -506,6 +547,7 @@ monsters:
     xp_value: 110
     gold_value: 80
     abilities: ["explosion_ardente", "mur_de_flammes"]
+    resistances: { physical: 75, feu: 100, eau: -100, lumiere: -25 }
 
   # === ÉTAGES 81-90 : Élites ===
   champion_dechu:
@@ -519,6 +561,7 @@ monsters:
     xp_value: 32
     gold_value: 22
     abilities: ["coup_charge", "contre_attaque"]
+    resistances: { physical: 50, magical: 25, ombre: 25, lumiere: -50 }
 
   vampire_superieur:
     name: "Vampire supérieur"
@@ -531,6 +574,7 @@ monsters:
     xp_value: 30
     gold_value: 20
     abilities: ["drain_vital"]
+    resistances: { physical: 75, ombre: 75, lumiere: -100, feu: -25 }
 
   archimage_noir:
     name: "Archimage noir"
@@ -543,6 +587,7 @@ monsters:
     xp_value: 34
     gold_value: 24
     abilities: ["explosion_ardente", "drain_vital"]
+    resistances: { physical: -25, magical: 50, feu: 50, ombre: 50, lumiere: -25 }
 
   behemoth:
     name: "Béhémoth"
@@ -555,6 +600,7 @@ monsters:
     xp_value: 38
     gold_value: 26
     abilities: ["coup_charge"]
+    resistances: { physical: 75, feu: 25, nature: -50, lumiere: -25 }
 
   dragon_noir:
     name: "Dragon noir"
@@ -567,6 +613,7 @@ monsters:
     xp_value: 42
     gold_value: 30
     abilities: ["explosion_ardente", "mur_de_flammes"]
+    resistances: { physical: 75, feu: 75, ombre: 50, lumiere: -75, eau: -25 }
 
   ombre_majeure:
     name: "Ombre majeure"
@@ -579,6 +626,7 @@ monsters:
     xp_value: 30
     gold_value: 18
     abilities: ["cecite", "trait_obscur"]
+    resistances: { physical: 100, ombre: 100, lumiere: -100, feu: -25 }
 
   # Boss étage 90
   avatar_chaos:
@@ -592,6 +640,7 @@ monsters:
     xp_value: 140
     gold_value: 100
     abilities: ["explosion_ardente", "drain_vital", "cecite"]
+    resistances: { physical: 75, magical: 50, ombre: 50, lumiere: -50, nature: -25 }
 
   # === ÉTAGES 91-100 : L'ultime épreuve ===
   titan_primordial:
@@ -605,6 +654,7 @@ monsters:
     xp_value: 44
     gold_value: 30
     abilities: ["coup_charge"]
+    resistances: { physical: 75, magical: 50, feu: 50, nature: -50 }
 
   archidemon:
     name: "Archidémon"
@@ -617,6 +667,7 @@ monsters:
     xp_value: 48
     gold_value: 34
     abilities: ["explosion_ardente", "drain_vital"]
+    resistances: { physical: 75, feu: 100, eau: -50, lumiere: -75 }
 
   gardien_celeste:
     name: "Gardien céleste"
@@ -629,6 +680,7 @@ monsters:
     xp_value: 52
     gold_value: 38
     abilities: ["rayon_sacre", "soin_leger"]
+    resistances: { physical: 75, lumiere: 100, ombre: -75, feu: -25 }
 
   heraut_neant:
     name: "Héraut du Néant"
@@ -641,6 +693,7 @@ monsters:
     xp_value: 60
     gold_value: 44
     abilities: ["drain_vital", "cecite", "explosion_ardente"]
+    resistances: { physical: 75, magical: 25, ombre: 75, lumiere: -75, nature: -25 }
 
   # Boss final étage 100
   maitre_tour:
@@ -654,6 +707,7 @@ monsters:
     xp_value: 300
     gold_value: 500
     abilities: ["explosion_ardente", "drain_vital", "soin_leger", "mur_de_flammes"]
+    resistances: { physical: 75, magical: 50, feu: 75, ombre: 50, lumiere: -25, nature: -25 }
 
 # Mapping des noms dans tour.md vers les clés monstres
 name_to_key:

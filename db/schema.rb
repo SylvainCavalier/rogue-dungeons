@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_09_213520) do
+ActiveRecord::Schema[8.0].define(version: 2026_05_15_025436) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -46,6 +46,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_09_213520) do
     t.jsonb "building_damage", default: {}, null: false
     t.jsonb "siege_state"
     t.integer "total_sieges_won", default: 0, null: false
+    t.boolean "tower_session_active", default: false, null: false
+    t.integer "bonus_max_hp", default: 0, null: false
+    t.integer "bonus_max_mana", default: 0, null: false
     t.index ["user_id"], name: "index_characters_on_user_id", unique: true
   end
 
@@ -69,6 +72,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_09_213520) do
     t.integer "position", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "durability", default: 5, null: false
+    t.integer "max_durability", default: 5, null: false
     t.index ["character_id", "direction"], name: "index_fortress_defenses_on_character_id_and_direction"
     t.index ["character_id"], name: "index_fortress_defenses_on_character_id"
   end
@@ -199,6 +204,16 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_09_213520) do
     t.index ["character_id"], name: "index_learned_techniques_on_character_id"
   end
 
+  create_table "monster_knowledges", force: :cascade do |t|
+    t.bigint "character_id", null: false
+    t.string "monster_key", null: false
+    t.jsonb "revealed_keys", default: [], null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["character_id", "monster_key"], name: "index_monster_knowledges_on_character_id_and_monster_key", unique: true
+    t.index ["character_id"], name: "index_monster_knowledges_on_character_id"
+  end
+
   create_table "siege_logs", force: :cascade do |t|
     t.bigint "character_id", null: false
     t.integer "siege_week", null: false
@@ -246,6 +261,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_09_213520) do
   add_foreign_key "inventory_items", "characters"
   add_foreign_key "learned_magics", "characters"
   add_foreign_key "learned_techniques", "characters"
+  add_foreign_key "monster_knowledges", "characters"
   add_foreign_key "siege_logs", "characters"
   add_foreign_key "skills", "characters"
 end

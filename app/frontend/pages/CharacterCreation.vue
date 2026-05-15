@@ -20,7 +20,7 @@
             <span class="w-8 text-center font-bold text-lg text-amber-400">{{ form[stat.key] }}</span>
             <button type="button" @click="increment(stat.key)"
               class="w-8 h-8 rounded bg-stone-700 hover:bg-stone-600 text-stone-300 font-bold transition disabled:opacity-30"
-              :disabled="remaining <= 0 || form[stat.key] >= 8">+</button>
+              :disabled="remaining <= 0 || form[stat.key] >= 4">+</button>
             <span class="text-xs text-stone-500">{{ stat.desc }}</span>
           </div>
         </div>
@@ -71,7 +71,7 @@ const stats = [
 const total = computed(() => Object.values(form).reduce((a, b) => a + b, 0))
 const remaining = computed(() => TOTAL_POINTS - total.value)
 
-function increment(key) { if (remaining.value > 0 && form[key] < 8) form[key]++ }
+function increment(key) { if (remaining.value > 0 && form[key] < 4) form[key]++ }
 function decrement(key) { if (form[key] > 1) form[key]-- }
 
 async function create() {

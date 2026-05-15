@@ -34,6 +34,7 @@ class MonsterFactory
         xp_value: template["xp_value"] || 5,
         gold_value: template["gold_value"] || 3,
         abilities: template["abilities"] || [],
+        resistances: template["resistances"] || {},
         statuses: [],
         debuffs: {}
       }
@@ -63,6 +64,7 @@ class MonsterFactory
         xp_value: 5,
         gold_value: 3,
         abilities: [],
+        resistances: {},
         statuses: [],
         debuffs: {}
       }

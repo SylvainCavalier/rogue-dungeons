@@ -7,11 +7,12 @@ class Character < ApplicationRecord
   has_many :combat_logs, dependent: :destroy
   has_many :fortress_defenses, dependent: :destroy
   has_many :siege_logs, dependent: :destroy
+  has_many :monster_knowledges, dependent: :destroy
 
   CHARACTERISTICS = %w[vigueur dexterite intelligence charisme perception].freeze
   TOTAL_POINTS = 12
   MIN_PER_STAT = 1
-  MAX_PER_STAT = 8
+  MAX_PER_STAT = 4
   DAYS_PER_WEEK = 7
   WEEKS_PER_MONTH = 4
   MONTHS_PER_YEAR = 12
@@ -27,7 +28,10 @@ class Character < ApplicationRecord
   validates :name, presence: true
   validates :vigueur, :dexterite, :intelligence, :charisme, :perception,
             presence: true,
-            numericality: { only_integer: true, greater_than_or_equal_to: MIN_PER_STAT, less_than_or_equal_to: MAX_PER_STAT }
+            numericality: { only_integer: true, greater_than_or_equal_to: MIN_PER_STAT }
+  validates :vigueur, :dexterite, :intelligence, :charisme, :perception,
+            numericality: { only_integer: true, less_than_or_equal_to: MAX_PER_STAT },
+            on: :create
   validate :total_characteristics_must_equal_twelve, on: :create
 
   before_validation :compute_derived_stats
@@ -145,14 +149,28 @@ class Character < ApplicationRecord
     end
   end
 
+  # --- Upgrades XP -> PV/PM ---
+
+  def hp_upgrade_cost
+    self.class.stat_upgrade_cost(max_hp)
+  end
+
+  def mana_upgrade_cost
+    self.class.stat_upgrade_cost(max_mana)
+  end
+
+  def self.stat_upgrade_cost(current_max)
+    current_max < 20 ? 1 : current_max / 10
+  end
+
   private
 
   def compute_derived_stats
     return unless vigueur.present? && intelligence.present?
 
-    self.max_hp = vigueur * 3
+    self.max_hp = (vigueur * 3) + (bonus_max_hp || 0)
     self.current_hp = max_hp if current_hp.nil? || new_record?
-    self.max_mana = intelligence * 3
+    self.max_mana = (intelligence * 3) + (bonus_max_mana || 0)
     self.current_mana = max_mana if current_mana.nil? || new_record?
   end
 

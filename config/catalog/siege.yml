@@ -7,6 +7,8 @@ traps:
     cost: 20
     workshop_level: 0
     type: "damage"
+    role: "front"
+    max_durability: 4
     damage: 3
 
   barricade:
@@ -15,6 +17,8 @@ traps:
     cost: 30
     workshop_level: 0
     type: "barrier"
+    role: "front"
+    max_durability: 5
     dr_bonus: 2
 
   fosse_goudron:
@@ -23,6 +27,8 @@ traps:
     cost: 40
     workshop_level: 1
     type: "slow"
+    role: "back"
+    max_durability: 5
     esquive_penalty: 2
 
   meurtrieres:
@@ -31,6 +37,8 @@ traps:
     cost: 60
     workshop_level: 1
     type: "damage"
+    role: "front"
+    max_durability: 6
     damage: 5
 
   fosse_pieux:
@@ -39,6 +47,8 @@ traps:
     cost: 75
     workshop_level: 2
     type: "damage"
+    role: "front"
+    max_durability: 5
     damage: 8
 
   mur_renforce:
@@ -47,6 +57,8 @@ traps:
     cost: 100
     workshop_level: 2
     type: "barrier"
+    role: "front"
+    max_durability: 7
     dr_bonus: 4
 
   piege_feu:
@@ -55,6 +67,8 @@ traps:
     cost: 120
     workshop_level: 3
     type: "damage"
+    role: "front"
+    max_durability: 5
     damage: 12
 
   sceau_magique:
@@ -63,6 +77,8 @@ traps:
     cost: 140
     workshop_level: 3
     type: "weaken"
+    role: "back"
+    max_durability: 6
     attack_penalty: 2
     damage_penalty: 1
 
@@ -72,6 +88,8 @@ traps:
     cost: 180
     workshop_level: 4
     type: "damage"
+    role: "back"
+    max_durability: 6
     damage: 16
 
   rempart_enchante:
@@ -80,7 +98,46 @@ traps:
     cost: 200
     workshop_level: 4
     type: "barrier"
+    role: "front"
+    max_durability: 8
     dr_bonus: 6
+
+# Synergies entre pièges placés dans la même direction
+# Déclenchées par la présence simultanée des types requis
+synergies:
+  embuscade:
+    name: "Embuscade"
+    description: "Les ralentisseurs préparent la cible, les dégâts redoublent"
+    requires_types: ["slow", "damage"]
+    effects:
+      damage_multiplier: 1.5
+  fortification:
+    name: "Fortification"
+    description: "Murs renforcés et glyphes affaiblissent l'élan ennemi"
+    requires_types: ["barrier", "weaken"]
+    effects:
+      dr_bonus: 1
+  feu_croise:
+    name: "Feu croisé"
+    description: "Plusieurs pièges offensifs en chaîne (2+ pièges de dégâts)"
+    requires_count:
+      damage: 2
+    effects:
+      damage_bonus: 1
+  defense_totale:
+    name: "Défense totale"
+    description: "Tous les types de défenses présents : 4 angles couverts"
+    requires_types: ["damage", "barrier", "slow", "weaken"]
+    effects:
+      damage_multiplier: 1.2
+      dr_bonus: 1
+      esquive_bonus: 1
+      attack_bonus: 1
+
+# Coût de réparation d'un piège : ratio appliqué au cost d'origine,
+# proportionnel à la part de durabilité manquante.
+# repair_cost = ceil(cost * ratio * missing / max)
+defense_repair_ratio: 0.4
 
 # Monstres spécifiques au siège
 siege_monsters:

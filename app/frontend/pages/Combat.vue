@@ -91,6 +91,13 @@
                   {{ s.name }} ({{ s.remaining }})
                 </span>
               </div>
+              <div v-if="enemy.alive && hasRevealedResistances(enemy)" class="flex flex-wrap gap-1 mt-1.5">
+                <span v-for="entry in resistanceEntries(enemy)" :key="entry.key"
+                  class="text-[10px] px-1.5 py-0.5 rounded font-medium"
+                  :class="resistanceClass(entry.value)">
+                  {{ resistanceLabel(entry.key) }} {{ formatResistance(entry.value) }}
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -161,6 +168,35 @@
               <span class="font-semibold">{{ item.name }}</span>
               <span class="text-stone-500 ml-2">x{{ item.quantity }}</span>
             </button>
+          </div>
+
+          <!-- Analyze tab -->
+          <div v-if="activeTab === 'analyze'" class="space-y-3">
+            <p class="text-stone-400 text-sm">
+              Jet d'<span class="text-amber-300 font-semibold">Observation</span> pour déceler les résistances et faiblesses
+              de l'ennemi. Difficulté croissante avec l'étage. L'action consomme un tour.
+            </p>
+
+            <div v-for="(enemy, i) in livingEnemies" :key="i"
+              class="bg-stone-800/50 rounded-lg p-3">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-semibold text-stone-200">{{ enemy.name }}</span>
+                <button @click="doAction('analyze', { target: enemy.index })" :disabled="acting"
+                  class="bg-amber-700 hover:bg-amber-600 text-white px-3 py-1 rounded text-xs font-medium transition disabled:opacity-50">
+                  Analyser
+                </button>
+              </div>
+              <div v-if="hasRevealedResistances(enemy)" class="flex flex-wrap gap-1">
+                <span v-for="entry in resistanceEntries(enemy)" :key="entry.key"
+                  class="text-xs px-2 py-0.5 rounded font-medium"
+                  :class="resistanceClass(entry.value)">
+                  {{ resistanceLabel(entry.key) }} {{ formatResistance(entry.value) }}
+                </span>
+              </div>
+              <div v-else class="text-stone-500 text-xs italic">
+                Aucune résistance révélée.
+              </div>
+            </div>
           </div>
 
           <!-- Flee -->
@@ -235,7 +271,45 @@ const actionTabs = [
   { id: 'techniques', label: 'Techniques' },
   { id: 'magic', label: 'Magie' },
   { id: 'items', label: 'Objets' },
+  { id: 'analyze', label: 'Analyse' },
 ]
+
+const RESISTANCE_LABELS = {
+  physical: 'Physique',
+  magical: 'Magique',
+  feu: 'Feu',
+  eau: 'Eau',
+  ombre: 'Ombre',
+  lumiere: 'Lumière',
+  nature: 'Nature',
+}
+
+const livingEnemies = computed(() => (combat.value?.enemies || []).filter(e => e.alive))
+
+function hasRevealedResistances(enemy) {
+  return enemy.revealed_resistances && Object.keys(enemy.revealed_resistances).length > 0
+}
+
+function resistanceEntries(enemy) {
+  return Object.entries(enemy.revealed_resistances || {}).map(([key, value]) => ({ key, value }))
+}
+
+function resistanceLabel(key) {
+  return RESISTANCE_LABELS[key] || key
+}
+
+function formatResistance(value) {
+  if (value >= 100) return 'IMMUNITÉ'
+  if (value <= -100) return '×2'
+  return value > 0 ? `+${value}%` : `${value}%`
+}
+
+function resistanceClass(value) {
+  if (value >= 100) return 'bg-sky-900/60 text-sky-200 border border-sky-700'
+  if (value > 0) return 'bg-blue-900/40 text-blue-300'
+  if (value <= -75) return 'bg-red-900/60 text-red-200 border border-red-700'
+  return 'bg-orange-900/40 text-orange-300'
+}
 
 async function doAction(type, params = {}) {
   acting.value = true

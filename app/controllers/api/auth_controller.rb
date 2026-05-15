@@ -35,6 +35,18 @@ module Api
       render json: { message: "Déconnecté" }
     end
 
+    def update_password
+      unless current_user.valid_password?(password_params[:current_password])
+        return render json: { error: "Mot de passe actuel incorrect" }, status: :unprocessable_entity
+      end
+
+      if current_user.update(password: password_params[:password], password_confirmation: password_params[:password_confirmation])
+        render json: { message: "Mot de passe mis à jour" }
+      else
+        render json: { errors: current_user.errors.full_messages }, status: :unprocessable_entity
+      end
+    end
+
     def me
       render json: {
         user: user_json(current_user),
@@ -50,6 +62,10 @@ module Api
 
     def login_params
       params.require(:user).permit(:email, :password)
+    end
+
+    def password_params
+      params.require(:user).permit(:current_password, :password, :password_confirmation)
     end
 
     def user_json(user)

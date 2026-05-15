@@ -25,6 +25,42 @@
           </div>
         </section>
 
+        <!-- Santé & Mana -->
+        <section class="card p-5 animate-fade-in-up stagger-1">
+          <h2 class="text-lg font-semibold text-amber-400 mb-4 flex items-center gap-2">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+            </svg>
+            Santé &amp; Mana
+          </h2>
+          <div class="space-y-2">
+            <div class="flex items-center justify-between bg-stone-800 rounded-lg px-4 py-2.5 border border-stone-700/50">
+              <div class="flex items-center gap-3">
+                <span class="text-xs text-stone-500 uppercase tracking-wider w-8">PV</span>
+                <span class="text-red-400 font-mono font-bold">{{ gameStore.character.current_hp }} / {{ gameStore.character.max_hp }}</span>
+              </div>
+              <button @click="upgradeStat('hp')"
+                :disabled="gameStore.character.xp < gameStore.character.hp_upgrade_cost"
+                class="text-xs bg-purple-800 hover:bg-purple-700 text-purple-200 px-2.5 py-1 rounded-lg transition disabled:opacity-30 active:scale-95"
+                :title="`Coût : ${gameStore.character.hp_upgrade_cost} XP`">
+                +{{ gameStore.character.hp_upgrade_cost }} XP
+              </button>
+            </div>
+            <div class="flex items-center justify-between bg-stone-800 rounded-lg px-4 py-2.5 border border-stone-700/50">
+              <div class="flex items-center gap-3">
+                <span class="text-xs text-stone-500 uppercase tracking-wider w-8">PM</span>
+                <span class="text-blue-400 font-mono font-bold">{{ gameStore.character.current_mana }} / {{ gameStore.character.max_mana }}</span>
+              </div>
+              <button @click="upgradeStat('mana')"
+                :disabled="gameStore.character.xp < gameStore.character.mana_upgrade_cost"
+                class="text-xs bg-purple-800 hover:bg-purple-700 text-purple-200 px-2.5 py-1 rounded-lg transition disabled:opacity-30 active:scale-95"
+                :title="`Coût : ${gameStore.character.mana_upgrade_cost} XP`">
+                +{{ gameStore.character.mana_upgrade_cost }} XP
+              </button>
+            </div>
+          </div>
+        </section>
+
         <!-- Compétences par catégorie -->
         <section v-for="(skills, category) in gameStore.skillsByCategory" :key="category"
           class="card p-5 animate-fade-in-up stagger-2">
@@ -116,6 +152,10 @@ function magicClass(element) {
 
 async function upgrade(skill) {
   await gameStore.upgradeSkill(skill.id)
+}
+
+async function upgradeStat(stat) {
+  await gameStore.upgradeStat(stat)
 }
 
 onMounted(async () => {

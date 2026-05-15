@@ -8,24 +8,41 @@ module Api
       workshop_data = GameCatalog.workshop_level_data(char.workshop_level)
       max_traps = workshop_data ? (workshop_data["max_traps_per_direction"] || 1) : 1
 
-      defenses = char.fortress_defenses.group_by(&:direction)
+      grouped = char.fortress_defenses.order(:direction, :position).group_by(&:direction)
       defenses_json = FortressDefense::DIRECTIONS.index_with do |dir|
-        (defenses[dir] || []).map do |d|
+        defenses = (grouped[dir] || []).sort_by(&:position)
+        synergies = predicted_synergies(defenses)
+        defenses.map.with_index do |d, idx|
           trap_data = GameCatalog.siege_trap(d.trap_key)
-          { id: d.id, trap_key: d.trap_key, position: d.position, trap: trap_data }
-        end
+          {
+            id: d.id,
+            trap_key: d.trap_key,
+            position: idx,
+            durability: d.durability,
+            max_durability: d.max_durability,
+            broken: d.broken?,
+            damaged: d.damaged?,
+            repair_cost: d.repair_cost,
+            well_placed: well_placed?(d, trap_data, defenses),
+            trap: trap_data
+          }
+        end.then { |list| { defenses: list, synergies: synergies } }
       end
 
       available_traps = GameCatalog.all_siege_traps.select do |_key, trap|
         trap["workshop_level"] <= char.workshop_level
       end
 
+      total_repair = char.fortress_defenses.sum(&:repair_cost)
+
       render json: {
         defenses: defenses_json,
         available_traps: available_traps,
+        synergies_catalog: GameCatalog.siege_synergies,
         gold: char.gold,
         workshop_level: char.workshop_level,
-        max_traps_per_direction: max_traps
+        max_traps_per_direction: max_traps,
+        total_repair_cost: total_repair
       }
     end
 
@@ -59,17 +76,90 @@ module Api
         return render json: { error: "Pas assez d'or (#{char.gold}/#{cost})" }, status: :unprocessable_entity
       end
 
+      max_dur = trap_data["max_durability"] || 5
       char.update!(gold: char.gold - cost)
       char.fortress_defenses.create!(
         trap_key: trap_key,
         direction: direction,
-        position: current_count
+        position: current_count,
+        durability: max_dur,
+        max_durability: max_dur
       )
 
       render json: {
         message: "#{trap_data["name"]} placé(e) au #{direction} !",
         gold: char.gold
       }
+    end
+
+    # POST /api/siege/fortress/repair
+    def repair_defense
+      char = current_character
+      defense = char.fortress_defenses.find_by(id: params[:id])
+      return render json: { error: "Défense introuvable" }, status: :not_found unless defense
+      return render json: { error: "Cette défense est intacte" }, status: :unprocessable_entity unless defense.damaged?
+
+      cost = defense.repair_cost
+      if char.gold < cost
+        return render json: { error: "Pas assez d'or (#{char.gold}/#{cost})" }, status: :unprocessable_entity
+      end
+
+      char.update!(gold: char.gold - cost)
+      defense.update!(durability: defense.max_durability)
+
+      trap = GameCatalog.siege_trap(defense.trap_key)
+      render json: {
+        message: "#{trap ? trap['name'] : defense.trap_key} réparé(e) ! (-#{cost} or)",
+        gold: char.gold
+      }
+    end
+
+    # POST /api/siege/fortress/repair_all
+    def repair_all_defenses
+      char = current_character
+      damaged = char.fortress_defenses.select(&:damaged?)
+      return render json: { error: "Aucune défense à réparer" }, status: :unprocessable_entity if damaged.empty?
+
+      total_cost = damaged.sum(&:repair_cost)
+      if char.gold < total_cost
+        return render json: { error: "Pas assez d'or (#{char.gold}/#{total_cost})" }, status: :unprocessable_entity
+      end
+
+      FortressDefense.transaction do
+        char.update!(gold: char.gold - total_cost)
+        damaged.each { |d| d.update!(durability: d.max_durability) }
+      end
+
+      render json: {
+        message: "#{damaged.size} défense(s) réparée(s) ! (-#{total_cost} or)",
+        gold: char.gold
+      }
+    end
+
+    # POST /api/siege/fortress/reorder
+    # body: { id, direction: "up" | "down" }
+    def reorder_defense
+      char = current_character
+      defense = char.fortress_defenses.find_by(id: params[:id])
+      return render json: { error: "Défense introuvable" }, status: :not_found unless defense
+
+      siblings = char.fortress_defenses.where(direction: defense.direction).order(:position).to_a
+      idx = siblings.index(defense)
+      return render json: { error: "Position invalide" }, status: :unprocessable_entity unless idx
+
+      neighbor_idx = params[:move] == "up" ? idx - 1 : idx + 1
+      return render json: { error: "Déjà à l'extrémité" }, status: :unprocessable_entity if neighbor_idx < 0 || neighbor_idx >= siblings.size
+
+      neighbor = siblings[neighbor_idx]
+      FortressDefense.transaction do
+        a, b = defense.position, neighbor.position
+        # éviter conflit d'index unique éventuel via valeur tampon
+        defense.update!(position: -1)
+        neighbor.update!(position: a)
+        defense.update!(position: b)
+      end
+
+      render json: { message: "Défense déplacée" }
     end
 
     # DELETE /api/siege/fortress/remove
@@ -319,6 +409,34 @@ module Api
 
     def days_until_siege(char)
       Character::DAYS_PER_WEEK - char.day
+    end
+
+    def predicted_synergies(defenses)
+      active_defenses = defenses.reject(&:broken?)
+      return [] if active_defenses.empty?
+
+      type_counts = active_defenses.map { |d| GameCatalog.siege_trap(d.trap_key)&.dig("type") }.compact.tally
+      GameCatalog.siege_synergies.filter_map do |key, syn|
+        required_types = syn["requires_types"] || []
+        required_counts = syn["requires_count"] || {}
+        next nil if required_types.any? && !required_types.all? { |t| type_counts[t].to_i >= 1 }
+        next nil if required_counts.any? { |t, n| type_counts[t].to_i < n }
+
+        { key: key, name: syn["name"], description: syn["description"] }
+      end
+    end
+
+    def well_placed?(defense, trap_data, siblings)
+      return false unless trap_data
+      role = trap_data["role"]
+      return false if role.nil? || role == "flex"
+
+      sorted = siblings.sort_by(&:position)
+      case role
+      when "front" then defense.id == sorted.first.id
+      when "back"  then defense.id == sorted.last.id
+      else false
+      end
     end
   end
 end

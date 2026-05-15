@@ -1,6 +1,8 @@
 module Api
   class CharactersController < BaseController
-    before_action :require_character!, only: [:show, :stats]
+    before_action :require_character!, only: [:show, :stats, :upgrade_stat]
+
+    UPGRADABLE_STATS = %w[hp mana].freeze
 
     def show
       render json: character_full(current_character)
@@ -20,6 +22,15 @@ module Api
       end
     end
 
+    def destroy
+      if current_character.nil?
+        return render json: { error: "Aucun personnage à supprimer" }, status: :not_found
+      end
+
+      current_character.destroy!
+      render json: { message: "Personnage réinitialisé" }
+    end
+
     def stats
       char = current_character
       skills_by_category = char.skills.order(:name).group_by(&:category)
@@ -34,6 +45,8 @@ module Api
         },
         hp: { current: char.current_hp, max: char.max_hp },
         mana: { current: char.current_mana, max: char.max_mana },
+        hp_upgrade_cost: char.hp_upgrade_cost,
+        mana_upgrade_cost: char.mana_upgrade_cost,
         xp: char.xp,
         gold: char.gold,
         status: char.status,
@@ -42,6 +55,43 @@ module Api
           skills.map { |s| skill_json(s) }
         },
         equipment: equipped_json(char)
+      }
+    end
+
+    def upgrade_stat
+      stat = params[:stat].to_s
+      unless UPGRADABLE_STATS.include?(stat)
+        return render json: { error: "Caractéristique invalide" }, status: :unprocessable_entity
+      end
+
+      char = current_character
+      cost = stat == "hp" ? char.hp_upgrade_cost : char.mana_upgrade_cost
+
+      if char.xp < cost
+        return render json: { error: "Pas assez d'XP (#{cost} requis)" }, status: :unprocessable_entity
+      end
+
+      char.xp -= cost
+      if stat == "hp"
+        char.bonus_max_hp += 1
+        char.current_hp += 1
+      else
+        char.bonus_max_mana += 1
+        char.current_mana += 1
+      end
+      char.save!
+
+      label = stat == "hp" ? "PV" : "PM"
+      render json: {
+        stat: stat,
+        max_hp: char.max_hp,
+        current_hp: char.current_hp,
+        max_mana: char.max_mana,
+        current_mana: char.current_mana,
+        xp: char.xp,
+        hp_upgrade_cost: char.hp_upgrade_cost,
+        mana_upgrade_cost: char.mana_upgrade_cost,
+        message: "+1 #{label} (#{cost} XP)"
       }
     end
 
@@ -64,6 +114,8 @@ module Api
         max_hp: char.max_hp,
         current_mana: char.current_mana,
         max_mana: char.max_mana,
+        hp_upgrade_cost: char.hp_upgrade_cost,
+        mana_upgrade_cost: char.mana_upgrade_cost,
         xp: char.xp,
         gold: char.gold,
         current_floor: char.current_floor,

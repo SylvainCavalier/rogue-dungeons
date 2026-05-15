@@ -1,6 +1,8 @@
 <template>
   <div v-if="gameStore.character" class="bg-stone-900 border-b border-amber-900/50 px-4 py-2 flex items-center gap-6 text-sm">
-    <span class="font-bold text-amber-400">{{ gameStore.character.name }}</span>
+    <router-link to="/account" class="font-bold text-amber-400 hover:text-amber-300 transition" title="Mon compte">
+      {{ gameStore.character.name }}
+    </router-link>
 
     <div class="flex items-center gap-1">
       <span class="text-red-400">PV</span>

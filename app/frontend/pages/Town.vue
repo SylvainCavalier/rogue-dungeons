@@ -63,8 +63,8 @@
           </template>
         </TownCard>
 
-        <TownCard :delay="4" @click="handleWork" :disabled="gameStore.isBusy"
-          label="La Forge" subtitle="Travailler pour de l'or"
+        <TownCard to="/town/forge" :delay="4"
+          label="La Forge" subtitle="Armes, armures et travail"
           icon-color="text-orange-400"
           image="/images/forge.webp">
           <template #icon>
@@ -97,8 +97,8 @@
           </template>
         </TownCard>
 
-        <TownCard :delay="7" @click="handleRest" :disabled="gameStore.isBusy"
-          label="Se reposer" subtitle="Récupérer PV et mana"
+        <TownCard to="/town/inn" :delay="7" :disabled="gameStore.isBusy"
+          label="Auberge" subtitle="Passer la nuit (10 or)"
           icon-color="text-green-400"
           image="/images/apothicaire.webp">
           <template #icon>
@@ -206,18 +206,6 @@ onMounted(async () => {
     router.push('/siege')
   }
 })
-
-async function handleWork() {
-  if (gameStore.isBusy) return
-  const result = await gameStore.work()
-  if (result?.siege_pending) router.push('/siege')
-}
-
-async function handleRest() {
-  if (gameStore.isBusy) return
-  const result = await gameStore.rest()
-  if (result?.siege_pending) router.push('/siege')
-}
 
 async function advanceActivity() {
   advancing.value = true

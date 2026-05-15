@@ -9,10 +9,12 @@ Rails.application.routes.draw do
     post "auth/login",    to: "auth#login"
     delete "auth/logout", to: "auth#logout"
     get "auth/me",        to: "auth#me"
+    patch "auth/password", to: "auth#update_password"
 
     # Character
-    resource :character, only: [:show, :create] do
+    resource :character, only: [:show, :create, :destroy] do
       get :stats
+      patch :upgrade_stat
     end
 
     # Skills
@@ -36,10 +38,13 @@ Rails.application.routes.draw do
     post "shop/buy", to: "shop#buy"
     post "shop/sell", to: "shop#sell"
 
+    # Forge
+    get "forge", to: "forge#index"
+
     # Town
     get "town/status", to: "town#status"
     post "town/work", to: "town#work"
-    post "town/rest", to: "town#rest"
+    post "town/inn", to: "town#inn"
     post "town/academy/start", to: "town#academy_start"
     post "town/academy/advance", to: "town#academy_advance"
     post "town/guild/start", to: "town#guild_start"
@@ -59,6 +64,9 @@ Rails.application.routes.draw do
     get "siege/fortress", to: "siege#fortress"
     post "siege/fortress/place", to: "siege#place_trap"
     delete "siege/fortress/remove", to: "siege#remove_trap"
+    post "siege/fortress/repair", to: "siege#repair_defense"
+    post "siege/fortress/repair_all", to: "siege#repair_all_defenses"
+    post "siege/fortress/reorder", to: "siege#reorder_defense"
     get "siege/watchtower", to: "siege#watchtower"
     post "siege/watchtower/upgrade", to: "siege#upgrade_watchtower"
     get "siege/workshop", to: "siege#workshop"

@@ -7,7 +7,8 @@ export const useGameStore = defineStore('game', {
     skills: [],
     inventory: [],
     equipment: {},
-    shop: { equipment: [], items: [] },
+    shop: { items: [] },
+    forge: { equipment: [], work: null },
     availableMagics: {},
     availableTechniques: {},
     townStatus: null,
@@ -95,6 +96,26 @@ export const useGameStore = defineStore('game', {
       }
     },
 
+    async upgradeStat(stat) {
+      try {
+        const { data } = await apiClient.patch('/character/upgrade_stat', { stat })
+        if (this.character) {
+          this.character.max_hp = data.max_hp
+          this.character.current_hp = data.current_hp
+          this.character.max_mana = data.max_mana
+          this.character.current_mana = data.current_mana
+          this.character.xp = data.xp
+          this.character.hp_upgrade_cost = data.hp_upgrade_cost
+          this.character.mana_upgrade_cost = data.mana_upgrade_cost
+        }
+        this.notify(data.message, 'success')
+        return data
+      } catch (e) {
+        this.notify(e.response?.data?.error || 'Erreur', 'error')
+        throw e
+      }
+    },
+
     // --- Inventory ---
     async fetchInventory() {
       const { data } = await apiClient.get('/inventory')
@@ -146,6 +167,13 @@ export const useGameStore = defineStore('game', {
     async fetchShop() {
       const { data } = await apiClient.get('/shop')
       this.shop = data
+      return data
+    },
+
+    // --- Forge ---
+    async fetchForge() {
+      const { data } = await apiClient.get('/forge')
+      this.forge = data
       return data
     },
 
@@ -209,14 +237,15 @@ export const useGameStore = defineStore('game', {
       }
     },
 
-    async rest() {
+    async sleepAtInn() {
       try {
-        const { data } = await apiClient.post('/town/rest')
+        const { data } = await apiClient.post('/town/inn')
         if (this.character) {
           this.character.current_hp = data.current_hp
           this.character.max_hp = data.max_hp
           this.character.current_mana = data.current_mana
           this.character.max_mana = data.max_mana
+          this.character.gold = data.gold
           this.character.date = data.date
         }
         this.notify(data.message, 'success')
@@ -388,6 +417,43 @@ export const useGameStore = defineStore('game', {
         const { data } = await apiClient.delete('/siege/fortress/remove', { data: { id: defenseId } })
         if (this.character) this.character.gold = data.gold
         this.notify(data.message, 'success')
+        await this.fetchFortress()
+        return data
+      } catch (e) {
+        this.notify(e.response?.data?.error || 'Erreur', 'error')
+        throw e
+      }
+    },
+
+    async repairDefense(defenseId) {
+      try {
+        const { data } = await apiClient.post('/siege/fortress/repair', { id: defenseId })
+        if (this.character) this.character.gold = data.gold
+        this.notify(data.message, 'success')
+        await this.fetchFortress()
+        return data
+      } catch (e) {
+        this.notify(e.response?.data?.error || 'Erreur', 'error')
+        throw e
+      }
+    },
+
+    async repairAllDefenses() {
+      try {
+        const { data } = await apiClient.post('/siege/fortress/repair_all')
+        if (this.character) this.character.gold = data.gold
+        this.notify(data.message, 'success')
+        await this.fetchFortress()
+        return data
+      } catch (e) {
+        this.notify(e.response?.data?.error || 'Erreur', 'error')
+        throw e
+      }
+    },
+
+    async reorderDefense(defenseId, move) {
+      try {
+        const { data } = await apiClient.post('/siege/fortress/reorder', { id: defenseId, move })
         await this.fetchFortress()
         return data
       } catch (e) {

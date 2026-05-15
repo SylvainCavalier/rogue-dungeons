@@ -1,9 +1,12 @@
 module Api
   class TownController < BaseController
+    INN_COST = 10
+
     before_action :require_character!
 
     def status
       char = current_character
+      char.update!(tower_session_active: false) if char.tower_session_active
       render json: {
         date: char.formatted_date,
         day: char.day,
@@ -36,23 +39,26 @@ module Api
       end
     end
 
-    def rest
+    def inn
       char = current_character
       return render json: { error: "Votre personnage est occupé" }, status: :unprocessable_entity if char.busy?
       return render json: { error: "Vous êtes en combat" }, status: :unprocessable_entity if char.in_combat?
       return render json: { error: "Un siège est en cours !" }, status: :unprocessable_entity if char.in_siege?
+      return render json: { error: "Or insuffisant (#{char.gold}/#{INN_COST} nécessaires)" }, status: :unprocessable_entity if char.gold < INN_COST
 
+      char.update!(gold: char.gold - INN_COST)
       old_hp = char.current_hp
       char.full_heal
       siege_triggered = char.advance_day
       healed = char.current_hp - old_hp
 
       render json: {
-        message: "Vous vous reposez et récupérez #{healed} PV et toute votre mana",
+        message: "Vous passez la nuit à l'auberge (-#{INN_COST} or) et récupérez #{healed} PV et toute votre mana",
         current_hp: char.current_hp,
         max_hp: char.max_hp,
         current_mana: char.current_mana,
         max_mana: char.max_mana,
+        gold: char.gold,
         date: char.formatted_date,
         siege_pending: siege_triggered || false
       }
@@ -97,21 +103,47 @@ module Api
     def available_magics
       all = GameCatalog.all_magics
       learned_keys = current_character.learned_magics.pluck(:magic_key)
-      render json: {
-        magics: all.map { |m|
-          m.merge("learned" => learned_keys.include?(m["key"]))
-        }.group_by { |m| m["element"] }
-      }
+      intelligence = current_character.intelligence
+      damaged = current_character.building_damaged?("academy")
+
+      magics = all.map do |m|
+        details = GameCatalog.magic_data(m["key"]) || {}
+        tier = m["tier"].to_i
+        days = [(tier * 3) - intelligence, 1].max
+        days += 2 if damaged
+        m.merge(
+          "learned" => learned_keys.include?(m["key"]),
+          "description" => details["description"],
+          "mana_cost" => details["mana_cost"],
+          "days_needed" => days
+        )
+      end
+
+      render json: { magics: magics.group_by { |m| m["element"] } }
     end
 
     def available_techniques
       all = GameCatalog.all_techniques
       learned_keys = current_character.learned_techniques.pluck(:technique_key)
-      render json: {
-        techniques: all.map { |t|
-          t.merge("learned" => learned_keys.include?(t["key"]))
-        }.group_by { |t| t["category"] }
-      }
+      vigueur = current_character.vigueur
+      damaged = current_character.building_damaged?("guild")
+
+      grouped = all.group_by { |t| t["category"] }.transform_values do |techs|
+        techs.each_with_index.map do |t, idx|
+          details = GameCatalog.technique_data(t["key"]) || {}
+          rank = idx + 1
+          days = [(rank * 2) - vigueur, 1].max
+          days += 2 if damaged
+          t.merge(
+            "learned" => learned_keys.include?(t["key"]),
+            "description" => details["description"],
+            "rank" => rank,
+            "days_needed" => days
+          )
+        end
+      end
+
+      render json: { techniques: grouped }
     end
   end
 end

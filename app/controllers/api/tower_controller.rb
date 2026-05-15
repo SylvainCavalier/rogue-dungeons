@@ -42,6 +42,11 @@ module Api
         return render json: { error: "Vous avez déjà conquis la tour !" }, status: :unprocessable_entity
       end
 
+      unless char.tower_session_active
+        char.advance_day
+        char.update!(tower_session_active: true)
+      end
+
       service = CombatService.new(char)
       result = service.start_combat(next_floor)
 

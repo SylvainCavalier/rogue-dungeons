@@ -21,6 +21,11 @@ export default [
     component: () => import('../pages/CharacterCreation.vue'),
   },
   {
+    path: '/account',
+    name: 'Account',
+    component: () => import('../pages/Account.vue'),
+  },
+  {
     path: '/town',
     name: 'Town',
     component: () => import('../pages/Town.vue'),
@@ -39,6 +44,16 @@ export default [
     path: '/town/shop',
     name: 'Shop',
     component: () => import('../pages/Shop.vue'),
+  },
+  {
+    path: '/town/forge',
+    name: 'Forge',
+    component: () => import('../pages/Forge.vue'),
+  },
+  {
+    path: '/town/inn',
+    name: 'Inn',
+    component: () => import('../pages/Inn.vue'),
   },
   {
     path: '/town/academy',

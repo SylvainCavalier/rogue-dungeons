@@ -45,6 +45,8 @@ class CombatService
         resolve_magic(params[:key])
       when "item"
         resolve_item(params[:item_id])
+      when "analyze"
+        resolve_analyze(params)
       else
         @log << "Action inconnue."
       end
@@ -112,7 +114,8 @@ class CombatService
           hp: e[:hp],
           max_hp: e[:max_hp],
           alive: e[:hp] > 0,
-          statuses: e[:statuses] || []
+          statuses: e[:statuses] || [],
+          revealed_resistances: revealed_resistances_for(e)
         }
       },
       log: @state[:log].last(20),
@@ -148,6 +151,72 @@ class CombatService
   end
 
   # ═══════════════════════════════════════════
+  # Monster knowledge / Analyze
+  # ═══════════════════════════════════════════
+
+  def monster_knowledge_for(monster_key)
+    return nil unless monster_key
+    @monster_knowledges_cache ||= {}
+    @monster_knowledges_cache[monster_key] ||=
+      character.monster_knowledges.find_or_initialize_by(monster_key: monster_key)
+  end
+
+  def revealed_resistances_for(enemy)
+    return {} if enemy[:key].blank?
+    resistances = (enemy[:resistances] || {}).transform_keys(&:to_s)
+    return {} if resistances.empty?
+
+    knowledge = monster_knowledge_for(enemy[:key])
+    return {} unless knowledge
+    resistances.select { |k, _| knowledge.revealed?(k) }
+  end
+
+  def resolve_analyze(params)
+    target_idx = (params[:target] || 0).to_i
+    target = living_enemies[target_idx] || living_enemies.first
+    return @log << "Aucune cible à analyser." unless target
+
+    if target[:key].blank? || (target[:resistances] || {}).empty?
+      @log << "#{target[:name]} ne semble avoir aucune résistance notable."
+      return
+    end
+
+    skill = character.skills.find_by(name: "Observation")
+    obs_m = skill ? skill.mastery : character.perception
+    obs_b = skill ? skill.bonus : 0
+
+    dc = 8 + (@state[:floor].to_i / 5)
+    roll = DiceRoller.roll(obs_m, obs_b)
+    notation = DiceRoller.notation(obs_m, obs_b)
+
+    knowledge = monster_knowledge_for(target[:key])
+    present_keys = target[:resistances].keys.map(&:to_s)
+    unknown_keys = present_keys - knowledge.revealed_keys
+
+    if unknown_keys.empty?
+      @log << "Observation (#{notation}) : vous connaissez déjà toutes les résistances de #{target[:name]}."
+      return
+    end
+
+    if roll[:total] < dc
+      @log << "Observation (#{notation}) : #{roll[:total]} vs DC #{dc} — vous n'apprenez rien sur #{target[:name]}."
+      return
+    end
+
+    margin = roll[:total] - dc
+    if margin >= 10
+      knowledge.reveal!(unknown_keys)
+      @log << "Observation (#{notation}) : #{roll[:total]} vs DC #{dc} — analyse complète ! Toutes les résistances de #{target[:name]} sont percées à jour."
+    else
+      reveal_count = margin >= 5 ? [2, unknown_keys.size].min : 1
+      revealed = unknown_keys.sample(reveal_count)
+      knowledge.reveal!(revealed)
+      labels = revealed.map { |k| ELEMENT_LABELS[k] || k }.join(", ")
+      @log << "Observation (#{notation}) : #{roll[:total]} vs DC #{dc} — vous décelez la #{revealed.size > 1 ? "résistance" : "résistance"} #{labels} de #{target[:name]}."
+    end
+  end
+
+  # ═══════════════════════════════════════════
   # Attack resolution
   # ═══════════════════════════════════════════
 
@@ -164,17 +233,22 @@ class CombatService
 
     hit_result = DiceRoller.opposed_roll(acc_mastery, acc_bonus, def_mastery, def_bonus)
 
-    if hit_result[:hit]
+    if hit_result[:hit] || hit_result[:graze]
       dmg_mastery, dmg_bonus = player_damage(weapon_data)
+      dmg_mastery = graze_mastery(dmg_mastery, hit_result)
       res_mastery, res_bonus = enemy_resistance(target)
 
       dmg_roll = DiceRoller.roll(dmg_mastery, dmg_bonus)
       res_roll = DiceRoller.roll(res_mastery, res_bonus)
-      final_damage = [dmg_roll[:total] - res_roll[:total], 1].max
+      raw = [dmg_roll[:total] - res_roll[:total], 1].max
+      mod = apply_target_resistance(raw, target, "physical")
+      final_damage = mod[:immune] ? 0 : [mod[:damage], 1].max
 
       target[:hp] = [target[:hp] - final_damage, 0].max
-      @log << "Vous attaquez #{target[:name]} : touché ! (#{hit_result[:attack][:total]} vs #{hit_result[:defense][:total]})"
-      @log << "Dégâts : #{dmg_roll[:total]} - #{res_roll[:total]} résistance = #{final_damage} (#{target[:hp]}/#{target[:max_hp]} PV)"
+      hit_label = hit_result[:graze] ? "touché de peu" : "touché"
+      @log << "Vous attaquez #{target[:name]} : #{hit_label} ! (#{hit_result[:attack][:total]} vs #{hit_result[:defense][:total]})"
+      tail = mod[:descriptor].present? ? "#{mod[:descriptor]} → #{final_damage}" : ""
+      @log << "Dégâts : #{dmg_roll[:total]} - #{res_roll[:total]} résistance = #{raw}#{tail} (#{target[:hp]}/#{target[:max_hp]} PV)"
       @log << "#{target[:name]} est vaincu !" if target[:hp] <= 0
     else
       @log << "Vous attaquez #{target[:name]} : raté ! (#{hit_result[:attack][:total]} vs #{hit_result[:defense][:total]})"
@@ -326,21 +400,25 @@ class CombatService
 
     hit = DiceRoller.opposed_roll(acc_m, acc_b, def_m, def_b)
 
-    if hit[:hit]
+    if hit[:hit] || hit[:graze]
       dmg_m, dmg_b = player_damage(weapon_data)
       dmg_b += (tech["damage_bonus"] || 0)
       dmg_m += (tech["damage_mastery_mod"] || 0)
       dmg_m = [dmg_m, 1].max
+      dmg_m = graze_mastery(dmg_m, hit)
       res_m, res_b = enemy_resistance(target)
 
       dmg = DiceRoller.roll(dmg_m, dmg_b)
       res = DiceRoller.roll(res_m, res_b)
-      final = [dmg[:total] - res[:total], 1].max
+      raw = [dmg[:total] - res[:total], 1].max
+      mod = apply_target_resistance(raw, target, "physical")
+      final = mod[:immune] ? 0 : [mod[:damage], 1].max
 
       target[:hp] = [target[:hp] - final, 0].max
-      @log << "#{tech["name"]} sur #{target[:name]} : touché ! #{final} dégâts (#{target[:hp]}/#{target[:max_hp]} PV)"
+      hit_label = hit[:graze] ? "touché de peu" : "touché"
+      @log << "#{tech["name"]} sur #{target[:name]} : #{hit_label} ! #{final} dégâts#{mod[:descriptor]} (#{target[:hp]}/#{target[:max_hp]} PV)"
 
-      if tech["inflict_status"]
+      if hit[:hit] && tech["inflict_status"]
         chance = tech["status_chance"] || 100
         if rand(100) < chance
           apply_status_to_enemy(target, tech["inflict_status"], tech["status_duration"] || 2)
@@ -367,18 +445,22 @@ class CombatService
       def_m, def_b = enemy_defense(target)
 
       hit = DiceRoller.opposed_roll(acc_m, acc_b, def_m, def_b)
-      if hit[:hit]
+      if hit[:hit] || hit[:graze]
         dmg_m, dmg_b = player_damage(weapon_data)
         dmg_m += (tech["damage_mastery_mod"] || 0)
         dmg_m = [dmg_m, 1].max
+        dmg_m = graze_mastery(dmg_m, hit)
         res_m, res_b = enemy_resistance(target)
 
         dmg = DiceRoller.roll(dmg_m, dmg_b)
         res = DiceRoller.roll(res_m, res_b)
-        final = [dmg[:total] - res[:total], 1].max
+        raw = [dmg[:total] - res[:total], 1].max
+        mod = apply_target_resistance(raw, target, "physical")
+        final = mod[:immune] ? 0 : [mod[:damage], 1].max
 
         target[:hp] = [target[:hp] - final, 0].max
-        @log << "#{tech["name"]} (frappe #{i + 1}) sur #{target[:name]} : #{final} dégâts (#{target[:hp]}/#{target[:max_hp]})"
+        suffix = hit[:graze] ? " (touché de peu)" : ""
+        @log << "#{tech["name"]} (frappe #{i + 1}) sur #{target[:name]} : #{final} dégâts#{suffix}#{mod[:descriptor]} (#{target[:hp]}/#{target[:max_hp]})"
         @log << "#{target[:name]} est vaincu !" if target[:hp] <= 0
       else
         @log << "#{tech["name"]} (frappe #{i + 1}) : raté !"
@@ -396,19 +478,23 @@ class CombatService
       def_m, def_b = enemy_defense(target)
 
       hit = DiceRoller.opposed_roll(acc_m, acc_b, def_m, def_b)
-      if hit[:hit]
+      if hit[:hit] || hit[:graze]
         dmg_m, dmg_b = player_damage(weapon_data)
         dmg_m += (tech["damage_mastery_mod"] || 0)
         dmg_b += (tech["damage_bonus"] || 0)
         dmg_m = [dmg_m, 1].max
+        dmg_m = graze_mastery(dmg_m, hit)
         res_m, res_b = enemy_resistance(target)
 
         dmg = DiceRoller.roll(dmg_m, dmg_b)
         res = DiceRoller.roll(res_m, res_b)
-        final = [dmg[:total] - res[:total], 1].max
+        raw = [dmg[:total] - res[:total], 1].max
+        mod = apply_target_resistance(raw, target, "physical")
+        final = mod[:immune] ? 0 : [mod[:damage], 1].max
 
         target[:hp] = [target[:hp] - final, 0].max
-        @log << "#{tech["name"]} → #{target[:name]} : #{final} dégâts (#{target[:hp]}/#{target[:max_hp]})"
+        suffix = hit[:graze] ? " (touché de peu)" : ""
+        @log << "#{tech["name"]} → #{target[:name]} : #{final} dégâts#{suffix}#{mod[:descriptor]} (#{target[:hp]}/#{target[:max_hp]})"
         @log << "#{target[:name]} est vaincu !" if target[:hp] <= 0
       else
         @log << "#{tech["name"]} → #{target[:name]} : raté !"
@@ -425,8 +511,9 @@ class CombatService
     def_m, def_b = enemy_defense(target)
 
     hit = DiceRoller.opposed_roll(acc_m, acc_b, def_m, def_b)
-    if hit[:hit]
+    if hit[:hit] || hit[:graze]
       dmg_m, dmg_b = player_damage(weapon_data)
+      dmg_m = graze_mastery(dmg_m, hit)
       res_m, res_b = enemy_resistance(target)
       reduction_pct = tech["dr_reduction_percent"] || 50
       res_m = (res_m * (100 - reduction_pct) / 100.0).ceil
@@ -434,10 +521,13 @@ class CombatService
 
       dmg = DiceRoller.roll(dmg_m, dmg_b)
       res = DiceRoller.roll(res_m, res_b)
-      final = [dmg[:total] - res[:total], 1].max
+      raw = [dmg[:total] - res[:total], 1].max
+      mod = apply_target_resistance(raw, target, "physical")
+      final = mod[:immune] ? 0 : [mod[:damage], 1].max
 
       target[:hp] = [target[:hp] - final, 0].max
-      @log << "#{tech["name"]} perce la défense de #{target[:name]} : #{final} dégâts ! (#{target[:hp]}/#{target[:max_hp]})"
+      suffix = hit[:graze] ? " (touché de peu)" : ""
+      @log << "#{tech["name"]} perce la défense de #{target[:name]} : #{final} dégâts !#{suffix}#{mod[:descriptor]} (#{target[:hp]}/#{target[:max_hp]})"
       @log << "#{target[:name]} est vaincu !" if target[:hp] <= 0
     else
       @log << "#{tech["name"]} : raté !"
@@ -457,18 +547,21 @@ class CombatService
     def_m, def_b = enemy_defense(target)
 
     hit = DiceRoller.opposed_roll(acc_m, acc_b, def_m, def_b)
-    if hit[:hit]
+    if hit[:hit] || hit[:graze]
       dmg_m, dmg_b = player_damage(weapon_data)
+      dmg_m = graze_mastery(dmg_m, hit)
       res_m, res_b = enemy_resistance(target)
 
       dmg = DiceRoller.roll(dmg_m, dmg_b)
       res = DiceRoller.roll(res_m, res_b)
-      final = [dmg[:total] - res[:total], 1].max
-      final *= (tech["damage_multiplier"] || 2) if low_hp
+      raw = [dmg[:total] - res[:total], 1].max
+      raw *= (tech["damage_multiplier"] || 2) if low_hp && hit[:hit]
+      mod = apply_target_resistance(raw, target, "physical")
+      final = mod[:immune] ? 0 : [mod[:damage], 1].max
 
       target[:hp] = [target[:hp] - final, 0].max
-      bonus_text = low_hp ? " (EXÉCUTION !)" : ""
-      @log << "#{tech["name"]} sur #{target[:name]}#{bonus_text} : #{final} dégâts (#{target[:hp]}/#{target[:max_hp]})"
+      bonus_text = (low_hp && hit[:hit]) ? " (EXÉCUTION !)" : (hit[:graze] ? " (touché de peu)" : "")
+      @log << "#{tech["name"]} sur #{target[:name]}#{bonus_text} : #{final} dégâts#{mod[:descriptor]} (#{target[:hp]}/#{target[:max_hp]})"
       @log << "#{target[:name]} est vaincu !" if target[:hp] <= 0
     else
       @log << "#{tech["name"]} : raté !"
@@ -485,23 +578,29 @@ class CombatService
     def_m, def_b = enemy_defense(target)
 
     hit = DiceRoller.opposed_roll(acc_m, acc_b, def_m, def_b)
-    if hit[:hit]
+    if hit[:hit] || hit[:graze]
       dmg_m, dmg_b = player_damage(weapon_data)
       dmg_b += (tech["damage_bonus"] || 0)
+      dmg_m = graze_mastery(dmg_m, hit)
       res_m, res_b = enemy_resistance(target)
 
       dmg = DiceRoller.roll(dmg_m, dmg_b)
       res = DiceRoller.roll(res_m, res_b)
-      final = [dmg[:total] - res[:total], 0].max
+      raw = [dmg[:total] - res[:total], 0].max
+      mod = apply_target_resistance(raw, target, "physical")
+      final = mod[:immune] ? 0 : [mod[:damage], 0].max
 
       target[:hp] = [target[:hp] - final, 0].max
 
-      debuff_type = tech["debuff"]
-      debuff_val = tech["debuff_value"] || 1
-      target[:debuffs] ||= {}
-      target[:debuffs][debuff_type] = (target[:debuffs][debuff_type] || 0) + debuff_val
-
-      @log << "#{tech["name"]} : #{final} dégâts + #{debuff_type} (#{target[:name]})"
+      if hit[:hit]
+        debuff_type = tech["debuff"]
+        debuff_val = tech["debuff_value"] || 1
+        target[:debuffs] ||= {}
+        target[:debuffs][debuff_type] = (target[:debuffs][debuff_type] || 0) + debuff_val
+        @log << "#{tech["name"]} : #{final} dégâts#{mod[:descriptor]} + #{debuff_type} (#{target[:name]})"
+      else
+        @log << "#{tech["name"]} : #{final} dégâts#{mod[:descriptor]} (touché de peu, pas de debuff) (#{target[:name]})"
+      end
       @log << "#{target[:name]} est vaincu !" if target[:hp] <= 0
     else
       @log << "#{tech["name"]} : raté !"
@@ -518,18 +617,25 @@ class CombatService
     def_m, def_b = enemy_defense(target)
 
     hit = DiceRoller.opposed_roll(acc_m, acc_b, def_m, def_b)
-    if hit[:hit]
+    if hit[:hit] || hit[:graze]
       dmg_m, dmg_b = player_damage(weapon_data)
       dmg_b += (tech["damage_bonus"] || 0)
+      dmg_m = graze_mastery(dmg_m, hit)
       res_m, res_b = enemy_resistance(target)
 
       dmg = DiceRoller.roll(dmg_m, dmg_b)
       res = DiceRoller.roll(res_m, res_b)
-      final = [dmg[:total] - res[:total], 0].max
+      raw = [dmg[:total] - res[:total], 0].max
+      mod = apply_target_resistance(raw, target, "physical")
+      final = mod[:immune] ? 0 : [mod[:damage], 0].max
 
       target[:hp] = [target[:hp] - final, 0].max
-      apply_status_to_enemy(target, tech["inflict_status"], tech["status_duration"] || 2)
-      @log << "#{tech["name"]} : #{final} dégâts + #{tech["inflict_status"]} sur #{target[:name]} (#{target[:hp]}/#{target[:max_hp]})"
+      if hit[:hit]
+        apply_status_to_enemy(target, tech["inflict_status"], tech["status_duration"] || 2)
+        @log << "#{tech["name"]} : #{final} dégâts#{mod[:descriptor]} + #{tech["inflict_status"]} sur #{target[:name]} (#{target[:hp]}/#{target[:max_hp]})"
+      else
+        @log << "#{tech["name"]} : #{final} dégâts#{mod[:descriptor]} (touché de peu, pas de statut) sur #{target[:name]} (#{target[:hp]}/#{target[:max_hp]})"
+      end
       @log << "#{target[:name]} est vaincu !" if target[:hp] <= 0
     else
       @log << "#{tech["name"]} : raté !"
@@ -578,12 +684,17 @@ class CombatService
     def_m, def_b = enemy_defense(target)
 
     hit = DiceRoller.opposed_roll(acc_m, acc_b, def_m, def_b)
-    if hit[:hit]
-      dmg = DiceRoller.roll(magic["damage_mastery"] || 1, magic["damage_bonus"] || 0)
-      target[:hp] = [target[:hp] - dmg[:total], 0].max
-      @log << "#{magic["name"]} sur #{target[:name]} : #{dmg[:total]} dégâts ! (#{target[:hp]}/#{target[:max_hp]})"
+    if hit[:hit] || hit[:graze]
+      dmg_m = magic["damage_mastery"] || 1
+      dmg_m = graze_mastery(dmg_m, hit)
+      dmg = DiceRoller.roll(dmg_m, magic["damage_bonus"] || 0)
+      mod = apply_target_resistance(dmg[:total], target, "magical", element)
+      final = mod[:immune] ? 0 : [mod[:damage], 0].max
+      target[:hp] = [target[:hp] - final, 0].max
+      suffix = hit[:graze] ? " (touché de peu)" : ""
+      @log << "#{magic["name"]} sur #{target[:name]} : #{final} dégâts !#{suffix}#{mod[:descriptor]} (#{target[:hp]}/#{target[:max_hp]})"
 
-      if with_status && magic["inflict_status"]
+      if hit[:hit] && with_status && magic["inflict_status"]
         chance = magic["status_chance"] || 50
         if rand(100) < chance
           apply_status_to_enemy(target, magic["inflict_status"], magic["status_duration"] || 2)
@@ -606,12 +717,17 @@ class CombatService
       def_m, def_b = enemy_defense(target)
       hit = DiceRoller.opposed_roll(acc_m, acc_b, def_m, def_b)
 
-      if hit[:hit]
-        dmg = DiceRoller.roll(magic["damage_mastery"] || 1, magic["damage_bonus"] || 0)
-        target[:hp] = [target[:hp] - dmg[:total], 0].max
-        @log << "#{magic["name"]} → #{target[:name]} : #{dmg[:total]} dégâts (#{target[:hp]}/#{target[:max_hp]})"
+      if hit[:hit] || hit[:graze]
+        dmg_m = magic["damage_mastery"] || 1
+        dmg_m = graze_mastery(dmg_m, hit)
+        dmg = DiceRoller.roll(dmg_m, magic["damage_bonus"] || 0)
+        mod = apply_target_resistance(dmg[:total], target, "magical", element)
+        final = mod[:immune] ? 0 : [mod[:damage], 0].max
+        target[:hp] = [target[:hp] - final, 0].max
+        suffix = hit[:graze] ? " (touché de peu)" : ""
+        @log << "#{magic["name"]} → #{target[:name]} : #{final} dégâts#{suffix}#{mod[:descriptor]} (#{target[:hp]}/#{target[:max_hp]})"
 
-        if magic["inflict_status"]
+        if hit[:hit] && magic["inflict_status"]
           chance = magic["status_chance"] || 50
           if rand(100) < chance
             apply_status_to_enemy(target, magic["inflict_status"], magic["status_duration"] || 2)
@@ -645,8 +761,10 @@ class CombatService
 
     if magic["damage_mastery"] && magic["damage_mastery"] > 0
       dmg = DiceRoller.roll(magic["damage_mastery"], magic["damage_bonus"] || 0)
-      target[:hp] = [target[:hp] - dmg[:total], 0].max
-      @log << "#{magic["name"]} inflige #{dmg[:total]} dégâts à #{target[:name]}."
+      mod = apply_target_resistance(dmg[:total], target, "magical", magic["element"])
+      final = mod[:immune] ? 0 : [mod[:damage], 0].max
+      target[:hp] = [target[:hp] - final, 0].max
+      @log << "#{magic["name"]} inflige #{final} dégâts à #{target[:name]}#{mod[:descriptor]}."
     end
 
     apply_status_to_enemy(target, magic["inflict_status"], magic["status_duration"] || 2)
@@ -665,14 +783,19 @@ class CombatService
     def_m, def_b = enemy_defense(target)
 
     hit = DiceRoller.opposed_roll(acc_m, acc_b, def_m, def_b)
-    if hit[:hit]
-      dmg = DiceRoller.roll(magic["damage_mastery"] || 1, magic["damage_bonus"] || 0)
-      target[:hp] = [target[:hp] - dmg[:total], 0].max
+    if hit[:hit] || hit[:graze]
+      dmg_m = magic["damage_mastery"] || 1
+      dmg_m = graze_mastery(dmg_m, hit)
+      dmg = DiceRoller.roll(dmg_m, magic["damage_bonus"] || 0)
+      mod = apply_target_resistance(dmg[:total], target, "magical", element)
+      final = mod[:immune] ? 0 : [mod[:damage], 0].max
+      target[:hp] = [target[:hp] - final, 0].max
       drain_pct = magic["drain_percent"] || 50
-      healed = (dmg[:total] * drain_pct / 100.0).ceil
+      healed = (final * drain_pct / 100.0).ceil
       @state[:player][:hp] = [@state[:player][:hp] + healed, @state[:player][:max_hp]].min
 
-      @log << "#{magic["name"]} : #{dmg[:total]} dégâts, +#{healed} PV drainés (#{@state[:player][:hp]}/#{@state[:player][:max_hp]})"
+      suffix = hit[:graze] ? " (touché de peu)" : ""
+      @log << "#{magic["name"]} : #{final} dégâts, +#{healed} PV drainés#{suffix}#{mod[:descriptor]} (#{@state[:player][:hp]}/#{@state[:player][:max_hp]})"
       @log << "#{target[:name]} est vaincu !" if target[:hp] <= 0
     else
       @log << "#{magic["name"]} : raté !"
@@ -704,6 +827,7 @@ class CombatService
   # ═══════════════════════════════════════════
 
   def resolve_enemy_turns
+    @enemy_attack_index = 0
     living_enemies.each do |enemy|
       next if enemy_is_stunned?(enemy)
       next if enemy_is_paralyzed?(enemy)
@@ -727,9 +851,10 @@ class CombatService
     def_m, def_b = player_defense_vs(enemy)
 
     hit = DiceRoller.opposed_roll(att_m, att_b, def_m, def_b)
-    if hit[:hit]
+    @enemy_attack_index = (@enemy_attack_index || 0) + 1
+    if hit[:hit] || hit[:graze]
       counter = @state[:player_counter]
-      if counter && counter[:counter_on_success]
+      if hit[:hit] && counter && counter[:counter_on_success]
         @log << "#{enemy[:name]} vous attaque mais vous contre-attaquez !"
         resolve_player_counter_hit(enemy, counter)
         return
@@ -737,6 +862,7 @@ class CombatService
 
       dmg_m = enemy[:damage][:mastery]
       dmg_b = enemy[:damage][:bonus]
+      dmg_m = graze_mastery(dmg_m, hit)
       res_m = character.vigueur
       res_b = character.total_dr_bonus
       stance_dr = @state.dig(:player_stance, :dr_bonus) || 0
@@ -749,7 +875,8 @@ class CombatService
       final = [dmg[:total] - res[:total], 1].max
 
       @state[:player][:hp] -= final
-      @log << "#{enemy[:name]} vous attaque : #{final} dégâts ! (#{@state[:player][:hp]}/#{@state[:player][:max_hp]} PV)"
+      suffix = hit[:graze] ? " (touché de peu)" : ""
+      @log << "#{enemy[:name]} vous attaque : #{final} dégâts !#{suffix} (#{@state[:player][:hp]}/#{@state[:player][:max_hp]} PV)"
       @log << "Vous êtes tombé au combat !" if @state[:player][:hp] <= 0
     else
       @log << "#{enemy[:name]} vous attaque : raté !"
@@ -784,9 +911,11 @@ class CombatService
     def_m, def_b = player_defense_vs(enemy)
 
     hit = DiceRoller.opposed_roll(att_m, att_b, def_m, def_b)
-    if hit[:hit]
+    @enemy_attack_index = (@enemy_attack_index || 0) + 1
+    if hit[:hit] || hit[:graze]
       dmg_m = enemy[:damage][:mastery] + (tech["damage_mastery_mod"] || 0)
       dmg_m = [dmg_m, 1].max
+      dmg_m = graze_mastery(dmg_m, hit)
       dmg_b = enemy[:damage][:bonus] + (tech["damage_bonus"] || 0)
       res_m = character.vigueur + character.total_dr_mastery
       res_b = character.total_dr_bonus
@@ -796,9 +925,10 @@ class CombatService
       final = [dmg[:total] - res[:total], 1].max
 
       @state[:player][:hp] -= final
-      @log << "#{enemy[:name]} utilise #{tech["name"]} : #{final} dégâts !"
+      suffix = hit[:graze] ? " (touché de peu)" : ""
+      @log << "#{enemy[:name]} utilise #{tech["name"]} : #{final} dégâts !#{suffix}"
 
-      if tech["inflict_status"]
+      if hit[:hit] && tech["inflict_status"]
         chance = tech["status_chance"] || 100
         if rand(100) < chance
           apply_status_to_player(tech["inflict_status"], tech["status_duration"] || 2)
@@ -813,7 +943,6 @@ class CombatService
   def resolve_enemy_magic_ability(enemy, magic)
     acc_m = enemy[:attack][:mastery]
     acc_b = enemy[:attack][:bonus]
-    def_m, def_b = player_defense_vs(enemy)
 
     case magic["type"]
     when "heal"
@@ -822,13 +951,18 @@ class CombatService
       @log << "#{enemy[:name]} lance #{magic["name"]} et récupère #{heal} PV (#{enemy[:hp]}/#{enemy[:max_hp]})"
       return
     when "damage", "damage_status"
+      def_m, def_b = player_defense_vs(enemy)
       hit = DiceRoller.opposed_roll(acc_m, acc_b, def_m, def_b)
-      if hit[:hit]
-        dmg = DiceRoller.roll(magic["damage_mastery"] || 1, magic["damage_bonus"] || 0)[:total]
+      @enemy_attack_index = (@enemy_attack_index || 0) + 1
+      if hit[:hit] || hit[:graze]
+        dmg_m = magic["damage_mastery"] || 1
+        dmg_m = graze_mastery(dmg_m, hit)
+        dmg = DiceRoller.roll(dmg_m, magic["damage_bonus"] || 0)[:total]
         @state[:player][:hp] -= dmg
-        @log << "#{enemy[:name]} lance #{magic["name"]} : #{dmg} dégâts !"
+        suffix = hit[:graze] ? " (touché de peu)" : ""
+        @log << "#{enemy[:name]} lance #{magic["name"]} : #{dmg} dégâts !#{suffix}"
 
-        if magic["inflict_status"]
+        if hit[:hit] && magic["inflict_status"]
           chance = magic["status_chance"] || 50
           if rand(100) < chance
             apply_status_to_player(magic["inflict_status"], magic["status_duration"] || 2)
@@ -839,13 +973,18 @@ class CombatService
         @log << "#{enemy[:name]} lance #{magic["name"]} : raté !"
       end
     when "drain"
+      def_m, def_b = player_defense_vs(enemy)
       hit = DiceRoller.opposed_roll(acc_m, acc_b, def_m, def_b)
-      if hit[:hit]
-        dmg = DiceRoller.roll(magic["damage_mastery"] || 1, magic["damage_bonus"] || 0)[:total]
+      @enemy_attack_index = (@enemy_attack_index || 0) + 1
+      if hit[:hit] || hit[:graze]
+        dmg_m = magic["damage_mastery"] || 1
+        dmg_m = graze_mastery(dmg_m, hit)
+        dmg = DiceRoller.roll(dmg_m, magic["damage_bonus"] || 0)[:total]
         @state[:player][:hp] -= dmg
         healed = (dmg * (magic["drain_percent"] || 50) / 100.0).ceil
         enemy[:hp] = [enemy[:hp] + healed, enemy[:max_hp]].min
-        @log << "#{enemy[:name]} lance #{magic["name"]} : #{dmg} dégâts, +#{healed} PV drainés"
+        suffix = hit[:graze] ? " (touché de peu)" : ""
+        @log << "#{enemy[:name]} lance #{magic["name"]} : #{dmg} dégâts, +#{healed} PV drainés#{suffix}"
       else
         @log << "#{enemy[:name]} lance #{magic["name"]} : raté !"
       end
@@ -862,10 +1001,12 @@ class CombatService
 
     dmg = DiceRoller.roll(dmg_m, dmg_b)
     res = DiceRoller.roll(res_m, res_b)
-    final = [dmg[:total] - res[:total], 1].max
+    raw = [dmg[:total] - res[:total], 1].max
+    mod = apply_target_resistance(raw, enemy, "physical")
+    final = mod[:immune] ? 0 : [mod[:damage], 1].max
 
     enemy[:hp] = [enemy[:hp] - final, 0].max
-    @log << "Contre-attaque ! #{final} dégâts à #{enemy[:name]} (#{enemy[:hp]}/#{enemy[:max_hp]})"
+    @log << "Contre-attaque ! #{final} dégâts à #{enemy[:name]}#{mod[:descriptor]} (#{enemy[:hp]}/#{enemy[:max_hp]})"
     @log << "#{enemy[:name]} est vaincu !" if enemy[:hp] <= 0
   end
 
@@ -992,6 +1133,10 @@ class CombatService
   # Stat helpers
   # ═══════════════════════════════════════════
 
+  def graze_mastery(mastery, hit)
+    hit[:graze] ? [mastery - 1, 1].max : mastery
+  end
+
   def player_accuracy(weapon_data)
     if weapon_data
       skill_name = weapon_skill_name(weapon_data)
@@ -1040,6 +1185,44 @@ class CombatService
     [vig_m + dr_m, vig_b + dr_b]
   end
 
+  ELEMENT_LABELS = {
+    "physical" => "physique", "magical" => "magique",
+    "feu" => "feu", "eau" => "eau", "ombre" => "ombre",
+    "lumiere" => "lumière", "nature" => "nature"
+  }.freeze
+
+  def apply_target_resistance(raw_damage, target, kind, element = nil)
+    resistances = (target[:resistances] || {}).transform_keys(&:to_s)
+
+    value = nil
+    key = nil
+    if element && resistances.key?(element.to_s)
+      value = resistances[element.to_s].to_i
+      key = element.to_s
+    elsif resistances.key?(kind.to_s)
+      value = resistances[kind.to_s].to_i
+      key = kind.to_s
+    end
+
+    return { damage: raw_damage, descriptor: "", immune: false, multiplier: 1.0 } if value.nil? || value.zero?
+
+    value = value.clamp(-100, 100)
+    multiplier = (100 - value) / 100.0
+    final = (raw_damage * multiplier).round
+    immune = value >= 100
+    label = ELEMENT_LABELS[key] || key
+
+    descriptor = if immune
+      " — immunité #{label} !"
+    elsif value > 0
+      " — résiste #{value}% #{label}"
+    else
+      " — vulnérabilité #{value.abs}% #{label} !"
+    end
+
+    { damage: final, descriptor: descriptor, immune: immune, multiplier: multiplier }
+  end
+
   def player_defense_vs(_enemy)
     esquive = character.skills.find_by(name: "Esquive")
     mastery = esquive ? esquive.mastery : character.dexterite
@@ -1059,6 +1242,12 @@ class CombatService
 
     accel = (@state[:player_statuses] || []).find { |s| s[:name] == "Accéléré" }
     bonus += 1 if accel
+
+    penalty = @enemy_attack_index || 0
+    if penalty > 0
+      mastery = [mastery - penalty, 1].max
+      @log << "Esquive affaiblie (-#{penalty}D, attaque n°#{penalty + 1} du tour)"
+    end
 
     [mastery, bonus]
   end
@@ -1158,10 +1347,23 @@ class CombatService
     @state[:status] = result.to_s
     rewards = {}
 
+    tower_combat = @state[:floor].to_i.positive?
+
     case result
     when :victory
-      xp_reward = @state[:enemies].sum { |e| e[:xp_value].to_i }
-      gold_reward = @state[:enemies].sum { |e| e[:gold_value].to_i }
+      base_xp = @state[:enemies].sum { |e| e[:xp_value].to_i }
+      base_gold = @state[:enemies].sum { |e| e[:gold_value].to_i }
+
+      if tower_combat
+        xp_reward = (base_xp / 2.0).ceil
+        search = resolve_search_loot(base_gold)
+        gold_reward = search[:gold]
+      else
+        xp_reward = base_xp
+        gold_reward = base_gold
+        search = nil
+      end
+
       character.update!(
         xp: character.xp + xp_reward,
         gold: character.gold + gold_reward,
@@ -1170,9 +1372,10 @@ class CombatService
         current_floor: [@state[:floor], character.current_floor].max,
         combat_state: nil
       )
-      character.advance_day
+      character.advance_day unless tower_combat
 
       @state[:log].concat(@log)
+      @state[:log] << search[:message] if search
       @state[:log] << "Victoire ! +#{xp_reward} XP, +#{gold_reward} or."
       rewards = { xp: xp_reward, gold: gold_reward }
 
@@ -1185,6 +1388,7 @@ class CombatService
         current_mana: [(@state[:player][:mana] || 0), 0].max,
         combat_state: nil
       )
+      character.update!(tower_session_active: false) if tower_combat
 
       @state[:log].concat(@log)
       @state[:log] << "Défaite... Vous revenez en ville avec 1 PV."
@@ -1197,7 +1401,7 @@ class CombatService
         current_mana: [@state[:player][:mana], 0].max,
         combat_state: nil
       )
-      character.advance_day
+      character.advance_day unless tower_combat
 
       @state[:log].concat(@log) if @log.any?
 
@@ -1217,7 +1421,7 @@ class CombatService
         statuses: []
       },
       enemies: (@state[:enemies] || []).map.with_index { |e, i|
-        { index: i, name: e[:name], hp: e[:hp], max_hp: e[:max_hp], alive: e[:hp] > 0, statuses: e[:statuses] || [] }
+        { index: i, name: e[:name], hp: e[:hp], max_hp: e[:max_hp], alive: e[:hp] > 0, statuses: e[:statuses] || [], revealed_resistances: revealed_resistances_for(e) }
       },
       log: @state[:log].last(20),
       recent_log: @state[:log].last(10),
@@ -1227,5 +1431,28 @@ class CombatService
 
   def save_state!
     character.update!(combat_state: @state.deep_stringify_keys)
+  end
+
+  def resolve_search_loot(base_gold)
+    skill = character.skills.find_by(name: "Fouille")
+    mastery = skill&.mastery || 1
+    bonus = skill&.bonus || 0
+    roll = DiceRoller.roll(mastery, bonus)
+    total = roll[:total]
+    tier = total / 5
+    multiplier = tier < 1 ? 0.0 : 0.75 + 0.25 * (tier - 1)
+    gold = (base_gold * multiplier).floor
+
+    notation = DiceRoller.notation(mastery, bonus)
+    descriptor = case
+                 when total < 5 then "vous ne trouvez rien"
+                 when total < 10 then "vous trouvez quelques pièces"
+                 when total < 15 then "fouille standard"
+                 when total < 20 then "bonne fouille"
+                 when total < 25 then "fouille minutieuse"
+                 else "trésor exceptionnel"
+                 end
+    { gold: gold, roll: total, multiplier: multiplier,
+      message: "Fouille (#{notation}) : #{total} — #{descriptor}." }
   end
 end
