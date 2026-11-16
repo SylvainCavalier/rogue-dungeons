@@ -94,3 +94,7 @@ bundle exec bundler-audit  # Gem vulnerability check
 **Backend:** Rails 8.0, PostgreSQL, Devise, Pundit, GoodJob, Pagy 43, PaperTrail
 **Frontend:** Vue 3.5, Vite 5, Pinia, Vue Router, Axios, Tailwind CSS 3.4
 **Requires:** Ruby 3.3.5, Node 20.x
+
+## Life Dashboard
+
+Projet du life-dashboard : `rogue_dungeons` (`/historyupdate` envoie chaque session au journal de bord de ce projet).
