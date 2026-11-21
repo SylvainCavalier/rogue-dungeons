@@ -48,6 +48,17 @@ class Character < ApplicationRecord
     skill ? [skill.mastery, skill.bonus] : [vigueur, 0]
   end
 
+  # Dice used when working at the apothecary: the Alchimie skill, falling back to Intelligence.
+  def alchemy_roll
+    skill = skills.find_by(name: "Alchimie")
+    skill ? [skill.mastery, skill.bonus] : [intelligence, 0]
+  end
+
+  # Dice for a day of work at the given workplace ("forge" or "apothecary").
+  def work_roll(place)
+    place == "apothecary" ? alchemy_roll : forge_roll
+  end
+
   # --- Défense ---
 
   # Base dice of the chosen defense skill ("Esquive" or "Parade"), falling back to Dextérité.

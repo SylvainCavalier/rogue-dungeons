@@ -9,6 +9,7 @@ export const useGameStore = defineStore('game', {
     equipment: {},
     shop: { items: [] },
     forge: { equipment: [], work: null },
+    apothecary: { items: [], work: null },
     availableMagics: {},
     availableTechniques: {},
     townStatus: null,
@@ -177,6 +178,13 @@ export const useGameStore = defineStore('game', {
       return data
     },
 
+    // --- Apothecary ---
+    async fetchApothecary() {
+      const { data } = await apiClient.get('/apothecary')
+      this.apothecary = data
+      return data
+    },
+
     async buyItem(itemKey, itemType, quantity = 1) {
       try {
         const { data } = await apiClient.post('/shop/buy', { item_key: itemKey, item_type: itemType, quantity })
@@ -221,9 +229,9 @@ export const useGameStore = defineStore('game', {
       return data
     },
 
-    async work() {
+    async work(place = 'forge') {
       try {
-        const { data } = await apiClient.post('/town/work')
+        const { data } = await apiClient.post('/town/work', { place })
         if (this.character) {
           this.character.gold = data.gold
           this.character.date = data.date

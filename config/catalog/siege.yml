@@ -352,3 +352,6 @@ building_repair_costs:
   workshop:
     name: "Atelier"
     cost_per_level: 80
+  apothecary:
+    name: "Apothicaire"
+    cost_per_level: 60

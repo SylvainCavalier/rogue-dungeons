@@ -41,6 +41,7 @@ Rails.application.routes.draw do
 
     # Forge
     get "forge", to: "forge#index"
+    get "apothecary", to: "apothecary#index"
 
     # Town
     get "town/status", to: "town#status"

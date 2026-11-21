@@ -51,6 +51,11 @@ export default [
     component: () => import('../pages/Forge.vue'),
   },
   {
+    path: '/town/apothecary',
+    name: 'Apothecary',
+    component: () => import('../pages/Apothecary.vue'),
+  },
+  {
     path: '/town/inn',
     name: 'Inn',
     component: () => import('../pages/Inn.vue'),

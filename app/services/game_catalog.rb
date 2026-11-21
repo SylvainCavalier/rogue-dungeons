@@ -115,7 +115,11 @@ class GameCatalog
     end
 
     def shop_items
-      all_items
+      all_items.reject { |i| i["vendor"] == "apothecary" }
+    end
+
+    def apothecary_items
+      all_items.select { |i| i["vendor"] == "apothecary" }
     end
 
     def magics_for_element(element)

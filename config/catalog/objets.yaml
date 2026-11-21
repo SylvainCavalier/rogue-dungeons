@@ -4,6 +4,7 @@ items:
     - key: potion_healing_minor
       name: "Potion de soin mineure"
       category: "consumable"
+      vendor: "apothecary"
       price: 25
       effect_type: "heal"
       value: 1
@@ -15,6 +16,7 @@ items:
     - key: potion_healing_major
       name: "Potion de soin majeure"
       category: "consumable"
+      vendor: "apothecary"
       price: 90
       effect_type: "heal"
       value: 3
@@ -26,6 +28,7 @@ items:
     - key: potion_mana_minor
       name: "Potion de mana mineure"
       category: "consumable"
+      vendor: "apothecary"
       price: 35
       effect_type: "restore_mana"
       value: 1
@@ -37,6 +40,7 @@ items:
     - key: antidote
       name: "Antidote"
       category: "consumable"
+      vendor: "apothecary"
       price: 20
       effect_type: "cure_status"
       status_removed: "Empoisonné"
@@ -47,6 +51,7 @@ items:
     - key: remedy_universal
       name: "Remède universel"
       category: "consumable"
+      vendor: "apothecary"
       price: 120
       effect_type: "cure_status"
       status_removed: "any_negative"
@@ -57,6 +62,7 @@ items:
     - key: elixir_vigor
       name: "Élixir de vigueur"
       category: "consumable"
+      vendor: "apothecary"
       price: 150
       effect_type: "buff"
       stat: "vigueur"
@@ -69,6 +75,7 @@ items:
     - key: elixir_intelligence
       name: "Élixir d’intelligence"
       category: "consumable"
+      vendor: "apothecary"
       price: 150
       effect_type: "buff"
       stat: "intelligence"
@@ -81,6 +88,7 @@ items:
     - key: elixir_dexterity
       name: "Élixir de rapidité"
       category: "consumable"
+      vendor: "apothecary"
       price: 150
       effect_type: "buff"
       stat: "dexterite"
@@ -104,6 +112,7 @@ items:
     - key: explosive_vial
       name: "Fiole explosive"
       category: "consumable"
+      vendor: "apothecary"
       price: 80
       effect_type: "damage"
       damage_mastery: 1

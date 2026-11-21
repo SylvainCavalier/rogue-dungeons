@@ -31,7 +31,7 @@ module Api
     end
 
     def work
-      result = WorkService.new(current_character).call
+      result = WorkService.new(current_character, params[:place] || "forge").call
       if result[:success]
         render json: result
       else

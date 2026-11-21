@@ -98,6 +98,8 @@ const buildings = computed(() => [
     points: '932,95 978,190 962,232 958,472 904,472 904,232 886,190', label_at: [932, 300] },
   { key: 'fortress', label: 'Forteresse', subtitle: props.siegeSubtitle, to: '/town/fortress', alert: props.siegeImminent,
     points: '1025,128 1110,128 1110,178 1208,178 1214,95 1258,148 1262,300 1186,300 1182,422 1058,422 1032,330', label_at: [1140, 240] },
+  { key: 'apothecary', label: 'Apothicaire', subtitle: 'Potions, élixirs et travail', to: '/town/apothecary',
+    points: '532,386 602,398 608,430 615,442 610,582 456,582 456,442 460,428 466,400', label_at: [535, 540] },
   { key: 'shop', label: 'Magasin', subtitle: 'Acheter et vendre', to: '/town/shop',
     points: '230,440 278,398 382,398 420,445 422,598 232,598', label_at: [326, 520] },
   { key: 'workshop', label: 'Atelier', subtitle: 'Améliorer les défenses', to: '/town/workshop',

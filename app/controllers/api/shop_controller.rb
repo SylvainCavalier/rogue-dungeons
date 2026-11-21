@@ -2,6 +2,12 @@ module Api
   class ShopController < BaseController
     before_action :require_character!
 
+    DESTROYED_MESSAGES = {
+      "forge" => "La forge est détruite, réparez-la d'abord",
+      "shop" => "Le magasin est détruit, réparez-le d'abord",
+      "apothecary" => "L'apothicaire est détruit, réparez-le d'abord"
+    }.freeze
+
     def index
       render json: {
         items: GameCatalog.shop_items.map { |i| shop_item(i, "item") }
@@ -12,15 +18,14 @@ module Api
       key = params[:item_key]
       quantity = (params[:quantity] || 1).to_i
       item_type = params[:item_type]
-      building = building_for(item_type)
-
-      if current_character.building_destroyed?(building)
-        return render json: { error: destroyed_message(building) }, status: :unprocessable_entity
-      end
-
       catalog = item_type == "equipment" ? GameCatalog.equipment(key) : GameCatalog.item(key)
       unless catalog
         return render json: { error: "Objet inconnu" }, status: :not_found
+      end
+
+      building = building_for(item_type, catalog)
+      if current_character.building_destroyed?(building)
+        return render json: { error: DESTROYED_MESSAGES[building] }, status: :unprocessable_entity
       end
 
       base_price = catalog["price"]
@@ -107,12 +112,10 @@ module Api
       end
     end
 
-    def building_for(item_type)
-      item_type == "equipment" ? "forge" : "shop"
-    end
+    def building_for(item_type, catalog)
+      return "forge" if item_type == "equipment"
 
-    def destroyed_message(building)
-      building == "forge" ? "La forge est détruite, réparez-la d'abord" : "Le magasin est détruit, réparez-le d'abord"
+      catalog["vendor"] == "apothecary" ? "apothecary" : "shop"
     end
   end
 end

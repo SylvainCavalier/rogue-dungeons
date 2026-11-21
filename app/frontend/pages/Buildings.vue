@@ -94,7 +94,8 @@ function damageEffect(key) {
     guild: 'Entraînement +2 jours',
     forge: 'Revenus réduits de 30%',
     watchtower: 'Renseignements dégradés',
-    workshop: 'Certains pièges indisponibles'
+    workshop: 'Certains pièges indisponibles',
+    apothecary: 'Prix +25%, revenus -30%'
   }
   return effects[key] || 'Performances réduites'
 }

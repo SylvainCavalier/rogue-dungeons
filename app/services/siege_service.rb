@@ -1,6 +1,6 @@
 class SiegeService
   DIRECTIONS = FortressDefense::DIRECTIONS
-  BUILDINGS = %w[shop academy guild forge watchtower workshop].freeze
+  BUILDINGS = %w[shop academy guild forge watchtower workshop apothecary].freeze
 
   attr_reader :character
 
