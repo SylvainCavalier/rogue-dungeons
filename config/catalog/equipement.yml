@@ -190,6 +190,7 @@ equipment:
       damage_mastery: 0
       damage_bonus: 1
       accuracy_bonus: 1
+      two_handed: true
       notes: "Facile à viser."
 
     - key: sling
@@ -201,6 +202,7 @@ equipment:
       damage_mastery: 0
       damage_bonus: 1
       accuracy_bonus: 0
+      two_handed: true
       notes: "Simple et fiable."
 
     - key: crossbow_light
@@ -212,6 +214,7 @@ equipment:
       damage_mastery: 0
       damage_bonus: 2
       accuracy_bonus: -1
+      two_handed: true
       notes: "Puissante, moins fine."
 
     - key: bow_long
@@ -223,6 +226,7 @@ equipment:
       damage_mastery: 1
       damage_bonus: 0
       accuracy_bonus: 1
+      two_handed: true
       notes: "Très précis."
 
     - key: crossbow_reinforced
@@ -234,6 +238,7 @@ equipment:
       damage_mastery: 1
       damage_bonus: 1
       accuracy_bonus: -1
+      two_handed: true
       notes: "Plus de puissance, moins maniable."
 
     - key: bow_composite
@@ -245,6 +250,7 @@ equipment:
       damage_mastery: 1
       damage_bonus: 2
       accuracy_bonus: 0
+      two_handed: true
       notes: "Bon compromis."
 
     - key: bow_elite
@@ -256,6 +262,7 @@ equipment:
       damage_mastery: 2
       damage_bonus: 0
       accuracy_bonus: 2
+      two_handed: true
       notes: "Précision premium."
 
     - key: crossbow_heavy
@@ -267,6 +274,7 @@ equipment:
       damage_mastery: 2
       damage_bonus: 1
       accuracy_bonus: -2
+      two_handed: true
       notes: "Très puissante, très exigeante."
 
     - key: bow_runic
@@ -278,6 +286,7 @@ equipment:
       damage_mastery: 2
       damage_bonus: 2
       accuracy_bonus: 1
+      two_handed: true
       notes: "Runes stabilisantes."
 
     - key: bow_ancient_winds
@@ -289,6 +298,7 @@ equipment:
       damage_mastery: 3
       damage_bonus: 0
       accuracy_bonus: 2
+      two_handed: true
       notes: "Légendaire : très précis."
 
     - key: crossbow_imperial
@@ -300,6 +310,7 @@ equipment:
       damage_mastery: 3
       damage_bonus: 1
       accuracy_bonus: -1
+      two_handed: true
       notes: "Puissance extrême."
 
   armor:

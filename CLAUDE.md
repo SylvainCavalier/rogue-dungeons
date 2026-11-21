@@ -83,7 +83,7 @@ Each character gets every skill of `Character::SKILLS_MAP` at creation, with `ma
 |---|---|---|
 | Forge (Vigueur) | Gold earned working at the forge (roll × 5 gold) | `WorkService`, `Character#forge_roll`, `ForgeController` |
 | Alchimie (Intelligence) | Gold earned working at the apothecary (roll × 5 gold) | `WorkService`, `Character#alchemy_roll`, `ApothecaryController` |
-| Arc (Dextérité) | Accuracy with `arme_a_distance` | `CombatService#weapon_skill_name` |
+| Arc (Dextérité) | Accuracy with `arme_a_distance` (all ranged weapons are `two_handed` for the shield rule, but keep using Arc) | `CombatService#weapon_skill_name` |
 | Arme à une main (Dextérité) | Accuracy with one-handed melee (and default) | same |
 | Arme à deux mains (Dextérité) | Accuracy with `two_handed: true` melee (can't be equipped with a shield: equipping one unequips the other, `InventoryController#free_hands_for`) | same |
 | Esquive (Dextérité) | Player defense in **esquive** mode; its bonus is also used for fleeing | `Character#defense_roll`, `player_defense_vs`, `character_dex_bonus` |
