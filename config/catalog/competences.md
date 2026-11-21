@@ -6,6 +6,7 @@ Escalade
 Natation
 Bras de fer
 Résistance à l'alcool
+Forge
 
 ## Dextérité
 Arc

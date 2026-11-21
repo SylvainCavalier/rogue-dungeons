@@ -1,6 +1,6 @@
 module Api
   class CharactersController < BaseController
-    before_action :require_character!, only: [:show, :stats, :upgrade_stat]
+    before_action :require_character!, only: [:show, :stats, :upgrade_stat, :defense_mode]
 
     UPGRADABLE_STATS = %w[hp mana].freeze
 
@@ -93,6 +93,15 @@ module Api
         mana_upgrade_cost: char.mana_upgrade_cost,
         message: "+1 #{label} (#{cost} XP)"
       }
+    end
+
+    def defense_mode
+      char = current_character
+      if char.update(defense_mode: params[:mode].to_s)
+        render json: { defense: CombatService.defense_info(char) }
+      else
+        render json: { error: "Mode de défense invalide" }, status: :unprocessable_entity
+      end
     end
 
     private

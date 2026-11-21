@@ -1,6 +1,22 @@
 class CombatService
   COMBAT_ITEM_EFFECTS = %w[heal restore_mana cure_status damage].freeze
 
+  # Parry is easier to succeed than a dodge, but a successful parry still lets
+  # PARRY_CHIP_DAMAGE through. A successful dodge avoids everything.
+  PARRY_ROLL_BONUS = 2
+  PARRY_CHIP_DAMAGE = 1
+
+  # Defense mode + dice shown by the combat toggle.
+  def self.defense_info(character)
+    esq_m, esq_b = character.defense_roll("esquive")
+    par_m, par_b = character.defense_roll("parade")
+    {
+      mode: character.defense_mode,
+      esquive: DiceRoller.notation(esq_m, esq_b),
+      parade: DiceRoller.notation(par_m, par_b + PARRY_ROLL_BONUS)
+    }
+  end
+
   attr_reader :character, :state, :log
 
   def initialize(character)
@@ -107,7 +123,8 @@ class CombatService
         max_hp: @state[:player][:max_hp],
         mana: @state[:player][:mana],
         max_mana: @state[:player][:max_mana],
-        statuses: @state[:player_statuses] || []
+        statuses: @state[:player_statuses] || [],
+        defense: self.class.defense_info(character)
       },
       enemies: (@state[:enemies] || []).map.with_index { |e, i|
         {
@@ -902,7 +919,7 @@ class CombatService
       @log << "#{enemy[:name]} vous attaque : #{final} dégâts !#{suffix} (#{@state[:player][:hp]}/#{@state[:player][:max_hp]} PV)"
       @log << "Vous êtes tombé au combat !" if @state[:player][:hp] <= 0
     else
-      @log << "#{enemy[:name]} vous attaque : raté !"
+      defended!("#{enemy[:name]} vous attaque")
 
       counter = @state[:player_counter]
       if counter && counter[:counter_on_success]
@@ -959,7 +976,7 @@ class CombatService
         end
       end
     else
-      @log << "#{enemy[:name]} utilise #{tech["name"]} : raté !"
+      defended!("#{enemy[:name]} utilise #{tech["name"]}")
     end
   end
 
@@ -993,7 +1010,7 @@ class CombatService
           end
         end
       else
-        @log << "#{enemy[:name]} lance #{magic["name"]} : raté !"
+        defended!("#{enemy[:name]} lance #{magic["name"]}")
       end
     when "drain"
       def_m, def_b = player_defense_vs(enemy)
@@ -1009,7 +1026,7 @@ class CombatService
         suffix = hit[:graze] ? " (touché de peu)" : ""
         @log << "#{enemy[:name]} lance #{magic["name"]} : #{dmg} dégâts, +#{healed} PV drainés#{suffix}"
       else
-        @log << "#{enemy[:name]} lance #{magic["name"]} : raté !"
+        defended!("#{enemy[:name]} lance #{magic["name"]}")
       end
     else
       resolve_enemy_attack(enemy)
@@ -1178,8 +1195,9 @@ class CombatService
     if weapon_data
       is_ranged = weapon_data["category"] == "arme_a_distance"
       stat = is_ranged ? character.dexterite : character.vigueur
-      mastery = stat
-      bonus = (weapon_data["damage_mastery"] || 0) + (weapon_data["damage_bonus"] || 0)
+      # Characteristic dice + weapon dice (e.g. Vigueur 2 + weapon 3D+1 = 5D+1)
+      mastery = stat + (weapon_data["damage_mastery"] || 0)
+      bonus = weapon_data["damage_bonus"] || 0
     else
       mastery = character.vigueur
       bonus = 0
@@ -1246,21 +1264,23 @@ class CombatService
     { damage: final, descriptor: descriptor, immune: immune, multiplier: multiplier }
   end
 
+  def parry_mode?
+    character.defense_mode == "parade"
+  end
+
+  # Esquive: higher roll needed, full avoidance. Parade: easier roll
+  # (PARRY_ROLL_BONUS), but PARRY_CHIP_DAMAGE still goes through.
+  # Technique/stance bonuses only apply to the matching mode.
   def player_defense_vs(_enemy)
-    esquive = character.skills.find_by(name: "Esquive")
-    mastery = esquive ? esquive.mastery : character.dexterite
-    bonus = esquive ? esquive.bonus : 0
+    mastery, bonus = character.defense_roll
+    bonus += PARRY_ROLL_BONUS if parry_mode?
 
-    stance = @state[:player_stance]
-    if stance
-      mastery += (stance[:esquive_bonus] || 0)
-      bonus += (stance[:parade_bonus] || 0)
-    end
-
-    counter = @state[:player_counter]
-    if counter
-      mastery += (counter[:esquive_bonus] || 0)
-      bonus += (counter[:parade_bonus] || 0)
+    [@state[:player_stance], @state[:player_counter]].compact.each do |mods|
+      if parry_mode?
+        bonus += (mods[:parade_bonus] || 0)
+      else
+        mastery += (mods[:esquive_bonus] || 0)
+      end
     end
 
     accel = (@state[:player_statuses] || []).find { |s| s[:name] == "Accéléré" }
@@ -1269,10 +1289,23 @@ class CombatService
     penalty = @enemy_attack_index || 0
     if penalty > 0
       mastery = [mastery - penalty, 1].max
-      @log << "Esquive affaiblie (-#{penalty}D, attaque n°#{penalty + 1} du tour)"
+      label = parry_mode? ? "Parade" : "Esquive"
+      @log << "#{label} affaiblie (-#{penalty}D, attaque n°#{penalty + 1} du tour)"
     end
 
     [mastery, bonus]
+  end
+
+  # Logs a failed enemy attack. With a parry, the player still takes chip damage.
+  def defended!(action_label)
+    unless parry_mode?
+      @log << "#{action_label} : raté !"
+      return
+    end
+
+    @state[:player][:hp] -= PARRY_CHIP_DAMAGE
+    @log << "#{action_label} : paré ! #{PARRY_CHIP_DAMAGE} dégât subi (#{@state[:player][:hp]}/#{@state[:player][:max_hp]} PV)"
+    @log << "Vous êtes tombé au combat !" if @state[:player][:hp] <= 0
   end
 
   def apply_player_accuracy_mods(mastery, bonus)
@@ -1441,7 +1474,8 @@ class CombatService
         max_hp: character.max_hp,
         mana: character.current_mana,
         max_mana: character.max_mana,
-        statuses: []
+        statuses: [],
+        defense: self.class.defense_info(character)
       },
       enemies: (@state[:enemies] || []).map.with_index { |e, i|
         { index: i, key: e[:key], name: e[:name], hp: e[:hp], max_hp: e[:max_hp], alive: e[:hp] > 0, statuses: e[:statuses] || [], revealed_resistances: revealed_resistances_for(e) }

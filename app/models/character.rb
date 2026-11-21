@@ -18,14 +18,17 @@ class Character < ApplicationRecord
   MONTHS_PER_YEAR = 12
 
   SKILLS_MAP = {
-    "vigueur" => %w[Endurance Escalade Natation Bras\ de\ fer Résistance\ à\ l'alcool],
+    "vigueur" => %w[Endurance Escalade Natation Bras\ de\ fer Résistance\ à\ l'alcool Forge],
     "dexterite" => %w[Arc Arme\ à\ une\ main Arme\ à\ deux\ mains Esquive Discrétion Vitesse Parade],
     "intelligence" => %w[Feu Eau Ombre Lumière Nature Enchantement Alchimie],
     "charisme" => %w[Persuasion Marchandage Dressage],
     "perception" => %w[Intuition Observation Sang-Froid Fouille]
   }.freeze
 
+  DEFENSE_MODES = %w[esquive parade].freeze
+
   validates :name, presence: true
+  validates :defense_mode, inclusion: { in: DEFENSE_MODES }
   validates :vigueur, :dexterite, :intelligence, :charisme, :perception,
             presence: true,
             numericality: { only_integer: true, greater_than_or_equal_to: MIN_PER_STAT }
@@ -36,6 +39,22 @@ class Character < ApplicationRecord
 
   before_validation :compute_derived_stats
   after_create :initialize_skills
+
+  # --- Travail ---
+
+  # Dice used when working at the forge: the Forge skill, falling back to Vigueur.
+  def forge_roll
+    skill = skills.find_by(name: "Forge")
+    skill ? [skill.mastery, skill.bonus] : [vigueur, 0]
+  end
+
+  # --- Défense ---
+
+  # Base dice of the chosen defense skill ("Esquive" or "Parade"), falling back to Dextérité.
+  def defense_roll(mode = defense_mode)
+    skill = skills.find_by(name: mode == "parade" ? "Parade" : "Esquive")
+    skill ? [skill.mastery, skill.bonus] : [dexterite, 0]
+  end
 
   # --- Temps ---
 

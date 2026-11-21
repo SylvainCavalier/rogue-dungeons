@@ -15,6 +15,7 @@ Rails.application.routes.draw do
     resource :character, only: [:show, :create, :destroy] do
       get :stats
       patch :upgrade_stat
+      patch :defense_mode
     end
 
     # Skills

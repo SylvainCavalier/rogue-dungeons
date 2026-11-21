@@ -12,7 +12,8 @@ class WorkService
     damage_level = @character.building_damage["forge"].to_i
     return { success: false, error: "La forge est détruite, réparez-la d'abord" } if damage_level >= 2
 
-    roll = DiceRoller.roll(@character.vigueur)
+    mastery, bonus = @character.forge_roll
+    roll = DiceRoller.roll(mastery, bonus)
     gold_earned = roll[:total] * 5
     gold_earned = (gold_earned * 0.7).ceil if damage_level == 1
 
@@ -21,7 +22,7 @@ class WorkService
 
     {
       success: true,
-      message: "Vous avez travaillé à la forge et gagné #{gold_earned} pièces d'or#{damage_level == 1 ? " (forge endommagée : -30%)" : ""}",
+      message: "Forge (#{DiceRoller.notation(mastery, bonus)}) : #{roll[:total]} — vous avez gagné #{gold_earned} pièces d'or#{damage_level == 1 ? " (forge endommagée : -30%)" : ""}",
       gold_earned: gold_earned,
       roll: roll,
       gold: @character.gold,

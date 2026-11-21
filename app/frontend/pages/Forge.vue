@@ -32,13 +32,13 @@
       </div>
 
       <!-- Tabs -->
-      <div class="flex gap-2 mb-6 animate-fade-in-up stagger-2">
+      <div class="flex flex-wrap gap-2 mb-6 animate-fade-in-up stagger-2">
         <button v-for="tab in tabs" :key="tab.key" @click="activeTab = tab.key"
           :class="activeTab === tab.key ? 'bg-orange-700 text-white' : 'btn-ghost'"
           class="px-4 py-2 rounded-lg text-sm font-medium transition">{{ tab.label }}</button>
         <button @click="activeTab = 'sell'"
           :class="activeTab === 'sell' ? 'bg-red-700 text-white' : 'btn-ghost'"
-          class="px-4 py-2 rounded-lg text-sm font-medium transition ml-auto">Vendre</button>
+          class="px-4 py-2 rounded-lg text-sm font-medium transition">Vendre</button>
       </div>
 
       <!-- Buy tabs -->
@@ -50,6 +50,11 @@
           <div class="flex-1 min-w-0">
             <span class="text-stone-200 text-sm font-medium">{{ item.name }}</span>
             <span v-if="item.data?.tier" class="text-stone-600 text-xs ml-2">T{{ item.data.tier }}</span>
+            <p v-if="itemStats(item.data).length" class="flex flex-wrap gap-x-3 text-xs mt-0.5">
+              <span v-for="stat in itemStats(item.data)" :key="stat.label" :class="stat.class">
+                {{ stat.label }} <span class="font-semibold">{{ stat.value }}</span>
+              </span>
+            </p>
             <p class="text-stone-500 text-xs truncate">{{ item.data?.notes }}</p>
           </div>
           <div class="flex items-center gap-3 flex-shrink-0">
@@ -74,6 +79,11 @@
           <div class="flex-1 min-w-0">
             <span class="text-stone-200 text-sm font-medium">{{ item.name }}</span>
             <span v-if="item.quantity > 1" class="text-stone-500 text-xs ml-1">x{{ item.quantity }}</span>
+            <p v-if="itemStats(item.data).length" class="flex flex-wrap gap-x-3 text-xs mt-0.5">
+              <span v-for="stat in itemStats(item.data)" :key="stat.label" :class="stat.class">
+                {{ stat.label }} <span class="font-semibold">{{ stat.value }}</span>
+              </span>
+            </p>
           </div>
           <div class="flex items-center gap-3 flex-shrink-0">
             <span class="text-yellow-400 text-sm">{{ sellPrice(item) }} or</span>
@@ -106,7 +116,7 @@
               {{ workInfo?.min_gold || 0 }} – {{ workInfo?.max_gold || 0 }} or
             </p>
             <p class="text-stone-500 text-xs mt-1">
-              Jet de {{ workInfo?.vigueur || 0 }}D × 5 or
+              Jet de Forge ({{ workInfo?.notation || '1D' }}) × 5 or
               <span v-if="workInfo?.damage_level === 1" class="text-red-400">(forge endommagée : -30%)</span>
             </p>
           </div>
@@ -133,28 +143,65 @@ import ItemIcon from '../components/game/ItemIcon.vue'
 
 const gameStore = useGameStore()
 const router = useRouter()
-const activeTab = ref('weapons')
+const activeTab = ref('swords')
 const showWorkModal = ref(false)
 const working = ref(false)
 
+// Each tab matches equipment by category and, for melee weapons, by weapon_type.
 const tabs = [
-  { key: 'weapons', label: 'Armes' },
-  { key: 'armor', label: 'Armures' },
+  { key: 'swords', label: 'Épées', category: 'arme_de_melee', types: ['epee', 'rapiere', 'dague'] },
+  { key: 'axes', label: 'Haches', category: 'arme_de_melee', types: ['hache'] },
+  { key: 'maces', label: 'Masses', category: 'arme_de_melee', types: ['masse', 'marteau'] },
+  { key: 'polearms', label: 'Lances', category: 'arme_de_melee', types: ['lance', 'arme_d_hast'] },
+  { key: 'ranged', label: 'Distance', category: 'arme_a_distance' },
+  { key: 'shields', label: 'Boucliers', category: 'bouclier' },
+  { key: 'armor', label: 'Armures', category: 'armure' },
+  { key: 'helmets', label: 'Casques', category: 'casque' },
+  { key: 'boots', label: 'Bottes', category: 'bottes' },
 ]
 
 const workInfo = computed(() => gameStore.forge.work)
 const canWork = computed(() => workInfo.value?.can_work)
 
 const filteredItems = computed(() => {
-  const equipment = gameStore.forge.equipment || []
-  if (activeTab.value === 'weapons') {
-    return equipment.filter(e => ['arme_de_melee', 'arme_a_distance'].includes(e.data?.category))
-  }
-  if (activeTab.value === 'armor') {
-    return equipment.filter(e => ['armure', 'casque', 'bottes', 'bouclier'].includes(e.data?.category))
-  }
-  return []
+  const tab = tabs.find(t => t.key === activeTab.value)
+  if (!tab) return []
+  return (gameStore.forge.equipment || []).filter(e =>
+    e.data?.category === tab.category && (!tab.types || tab.types.includes(e.data?.weapon_type))
+  )
 })
+
+function dice(mastery = 0, bonus = 0) {
+  if (!mastery) return bonus ? `+${bonus}` : '0'
+  if (!bonus) return `${mastery}D`
+  return bonus > 0 ? `${mastery}D+${bonus}` : `${mastery}D${bonus}`
+}
+
+function signed(n) {
+  return n > 0 ? `+${n}` : `${n}`
+}
+
+// Combat stats shown on the item row: weapon damage dice, armor protection, accuracy modifier.
+function itemStats(data) {
+  if (!data) return []
+  const stats = []
+  if (['arme_de_melee', 'arme_a_distance'].includes(data.category)) {
+    // Player damage = characteristic dice + weapon dice (see CombatService#player_damage)
+    const ranged = data.category === 'arme_a_distance'
+    const statLabel = ranged ? 'Dex' : 'Vig'
+    const statValue = gameStore.character?.[ranged ? 'dexterite' : 'vigueur'] || 0
+    const weapon = dice(data.damage_mastery, data.damage_bonus)
+    const total = dice(statValue + (data.damage_mastery || 0), data.damage_bonus || 0)
+    stats.push({ label: 'Dégâts', value: `${total} (${statLabel} ${statValue} + arme ${weapon})`, class: 'text-red-300' })
+  } else if (data.dr_mastery !== undefined || data.dr_bonus !== undefined) {
+    stats.push({ label: 'Protection', value: dice(data.dr_mastery, data.dr_bonus), class: 'text-sky-300' })
+  }
+  if (data.accuracy_bonus) {
+    stats.push({ label: 'Précision', value: signed(data.accuracy_bonus), class: data.accuracy_bonus > 0 ? 'text-green-300' : 'text-orange-300' })
+  }
+  if (data.two_handed) stats.push({ label: 'Deux mains', value: '', class: 'text-stone-400' })
+  return stats
+}
 
 const sellableItems = computed(() =>
   gameStore.inventory.filter(i => !i.equipped && i.item_type === 'equipment')

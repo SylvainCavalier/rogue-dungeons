@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_05_15_025436) do
+ActiveRecord::Schema[8.0].define(version: 2026_11_22_110000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -49,6 +49,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_15_025436) do
     t.boolean "tower_session_active", default: false, null: false
     t.integer "bonus_max_hp", default: 0, null: false
     t.integer "bonus_max_mana", default: 0, null: false
+    t.string "defense_mode", default: "esquive", null: false
     t.index ["user_id"], name: "index_characters_on_user_id", unique: true
   end
 

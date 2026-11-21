@@ -209,6 +209,9 @@ export function useCombatFx() {
       } else if (line.includes('contre-attaquez')) {
         play(player, 'shield', { delay: at + 140 })
         float(player, 'Contre !', 'heal', at + 220)
+      } else if (line.includes('paré !')) {
+        play(player, 'shield', { delay: at + 140 })
+        float(player, 'Paré -1', 'miss', at + 220)
       } else if (line.includes('raté')) {
         float(player, 'Esquive', 'miss', at + 220)
       } else if (spell) {

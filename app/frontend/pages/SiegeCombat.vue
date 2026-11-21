@@ -80,6 +80,8 @@
                 {{ s.name }} ({{ s.remaining }})
               </span>
             </div>
+            <DefenseToggle :defense="siege.player.defense" :disabled="acting"
+              @update="d => { if (siege.player) siege.player.defense = d }" />
           </FxFrame>
 
           <!-- Enemies -->
@@ -217,6 +219,7 @@ import { useGameStore } from '../stores/game'
 import apiClient from '../plugins/axios'
 import MonsterPortrait from '../components/game/MonsterPortrait.vue'
 import FxFrame from '../components/game/FxFrame.vue'
+import DefenseToggle from '../components/game/DefenseToggle.vue'
 import { useCombatFx } from '../composables/useCombatFx'
 
 const gameStore = useGameStore()
