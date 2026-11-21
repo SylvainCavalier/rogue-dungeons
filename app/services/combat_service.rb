@@ -1,4 +1,6 @@
 class CombatService
+  COMBAT_ITEM_EFFECTS = %w[heal restore_mana cure_status damage].freeze
+
   attr_reader :character, :state, :log
 
   def initialize(character)
@@ -359,24 +361,32 @@ class CombatService
       return
     end
 
-    case item_data["effect"]
+    unless COMBAT_ITEM_EFFECTS.include?(item_data["effect_type"])
+      @log << "#{item_data["name"]} ne peut pas être utilisé en combat."
+      return
+    end
+
+    case item_data["effect_type"]
     when "heal"
-      heal = DiceRoller.roll(item_data["heal_mastery"] || 1, item_data["heal_bonus"] || 0)[:total]
-      @state[:player][:hp] = [@state[:player][:hp] + heal, @state[:player][:max_hp]].min
+      heal = DiceRoller.roll(item_data["heal_mastery"] || 1, item_data["value"] || 0)[:total]
+      heal = [heal, @state[:player][:max_hp] - @state[:player][:hp]].min
+      @state[:player][:hp] += heal
       @log << "Vous utilisez #{item_data["name"]} et récupérez #{heal} PV (#{@state[:player][:hp]}/#{@state[:player][:max_hp]})."
-    when "mana"
-      restore = item_data["mana_restore"] || 5
-      @state[:player][:mana] = [@state[:player][:mana] + restore, @state[:player][:max_mana]].min
-      @log << "Vous utilisez #{item_data["name"]} et récupérez #{restore} mana."
+    when "restore_mana"
+      restore = DiceRoller.roll(item_data["heal_mastery"] || 1, item_data["value"] || 0)[:total]
+      restore = [restore, @state[:player][:max_mana] - @state[:player][:mana]].min
+      @state[:player][:mana] += restore
+      @log << "Vous utilisez #{item_data["name"]} et récupérez #{restore} mana (#{@state[:player][:mana]}/#{@state[:player][:max_mana]})."
+    when "cure_status"
+      resolve_item_cure(item_data)
     when "damage"
       target = living_enemies.first
       if target
         dmg = DiceRoller.roll(item_data["damage_mastery"] || 1, item_data["damage_bonus"] || 0)[:total]
         target[:hp] = [target[:hp] - dmg, 0].max
-        @log << "Vous lancez #{item_data["name"]} sur #{target[:name]} : #{dmg} dégâts !"
+        @log << "Vous lancez #{item_data["name"]} sur #{target[:name]} : #{dmg} dégâts ! (#{target[:hp]}/#{target[:max_hp]} PV)"
+        @log << "#{target[:name]} est vaincu !" if target[:hp] <= 0
       end
-    else
-      @log << "Vous utilisez #{item_data["name"]}."
     end
 
     if inv_item.quantity > 1
@@ -384,6 +394,18 @@ class CombatService
     else
       inv_item.destroy!
     end
+  end
+
+  def resolve_item_cure(item_data)
+    wanted = item_data["status_removed"]
+    statuses = @state[:player_statuses] || []
+    cured = statuses.select { |s| wanted == "any_negative" ? status_is_negative?(s[:name]) : s[:name] == wanted }
+    @state[:player_statuses] = statuses - cured
+    @log << if cured.any?
+              "Vous utilisez #{item_data['name']} : statuts retirés (#{cured.pluck(:name).join(', ')})."
+            else
+              "Vous utilisez #{item_data['name']}, sans effet."
+            end
   end
 
   # ═══════════════════════════════════════════
@@ -1422,7 +1444,7 @@ class CombatService
         statuses: []
       },
       enemies: (@state[:enemies] || []).map.with_index { |e, i|
-        { index: i, name: e[:name], hp: e[:hp], max_hp: e[:max_hp], alive: e[:hp] > 0, statuses: e[:statuses] || [], revealed_resistances: revealed_resistances_for(e) }
+        { index: i, key: e[:key], name: e[:name], hp: e[:hp], max_hp: e[:max_hp], alive: e[:hp] > 0, statuses: e[:statuses] || [], revealed_resistances: revealed_resistances_for(e) }
       },
       log: @state[:log].last(20),
       recent_log: @state[:log].last(10),

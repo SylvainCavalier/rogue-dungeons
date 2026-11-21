@@ -114,6 +114,7 @@ module Api
         m.merge(
           "learned" => learned_keys.include?(m["key"]),
           "description" => details["description"],
+          "type" => details["type"],
           "mana_cost" => details["mana_cost"],
           "days_needed" => days
         )
@@ -137,6 +138,7 @@ module Api
           t.merge(
             "learned" => learned_keys.include?(t["key"]),
             "description" => details["description"],
+            "type" => details["type"],
             "rank" => rank,
             "days_needed" => days
           )

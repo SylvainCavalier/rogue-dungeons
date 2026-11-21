@@ -47,11 +47,11 @@
       </div>
 
       <!-- Combat actif -->
-      <template v-else-if="siege?.status === 'active'">
+      <template v-else-if="siege?.status === 'active' || fxPlaying">
         <!-- Player & Enemies -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <!-- Player -->
-          <div class="bg-stone-900 border border-stone-700 rounded-xl p-4">
+          <FxFrame :state="playerFx" class="bg-stone-900 border border-stone-700 rounded-xl p-4">
             <h3 class="text-sm font-semibold text-amber-400 mb-3 uppercase tracking-wider">Défenseur</h3>
             <div class="mb-2">
               <div class="flex justify-between text-sm mb-1">
@@ -80,13 +80,13 @@
                 {{ s.name }} ({{ s.remaining }})
               </span>
             </div>
-          </div>
+          </FxFrame>
 
           <!-- Enemies -->
           <div class="bg-stone-900 border border-stone-700 rounded-xl p-4">
             <h3 class="text-sm font-semibold text-red-400 mb-3 uppercase tracking-wider">Assaillants</h3>
             <div v-for="(enemy, i) in siege.enemies" :key="i" class="flex gap-3 mb-3 last:mb-0">
-              <MonsterPortrait :monster-key="enemy.key" :name="enemy.name" :hp="enemy.hp" :alive="enemy.alive" size="lg" />
+              <MonsterPortrait :monster-key="enemy.key" :name="enemy.name" :hp="enemy.hp" :alive="enemy.alive" size="lg" :fx-state="enemyFx(enemy.index ?? i)" />
               <div class="flex-1 min-w-0">
               <div class="flex justify-between items-center mb-1">
                 <span class="text-sm" :class="enemy.alive ? 'text-stone-200' : 'text-stone-600 line-through'">
@@ -216,10 +216,13 @@ import { useRouter } from 'vue-router'
 import { useGameStore } from '../stores/game'
 import apiClient from '../plugins/axios'
 import MonsterPortrait from '../components/game/MonsterPortrait.vue'
+import FxFrame from '../components/game/FxFrame.vue'
+import { useCombatFx } from '../composables/useCombatFx'
 
 const gameStore = useGameStore()
 const router = useRouter()
 
+const { player: playerFx, enemy: enemyFx, playing: fxPlaying, run: runFx } = useCombatFx()
 const siege = computed(() => gameStore.siegeState)
 const acting = ref(false)
 const starting = ref(false)
@@ -228,13 +231,15 @@ const logContainer = ref(null)
 const learnedTechniques = ref([])
 const learnedMagics = ref([])
 const usableItems = ref([])
+const COMBAT_ITEM_EFFECTS = ['heal', 'restore_mana', 'cure_status', 'damage']
+const weaponType = ref(null)
 
 const siegePending = computed(() => {
   return gameStore.character?.siege_pending || (gameStore.siegeStatus?.siege_pending)
 })
 
 const isFinished = computed(() =>
-  siege.value && ['victory', 'defeat'].includes(siege.value.status)
+  !fxPlaying.value && siege.value && ['victory', 'defeat'].includes(siege.value.status)
 )
 
 const hpPercent = computed(() => {
@@ -281,11 +286,26 @@ async function startSiege() {
   }
 }
 
+function consumeItem(id) {
+  const item = usableItems.value.find(i => i.id === id)
+  if (!item) return
+  item.quantity -= 1
+  if (item.quantity <= 0) usableItems.value = usableItems.value.filter(i => i !== item)
+}
+
 async function doAction(type, params = {}) {
   acting.value = true
   try {
-    await gameStore.siegeAction(type, params)
-    scrollLog()
+    await runFx(async () => {
+      await gameStore.siegeAction(type, params)
+      scrollLog()
+    }, type, params, () => siege.value, {
+      weaponType: weaponType.value,
+      techniques: learnedTechniques.value,
+      magics: learnedMagics.value,
+      items: usableItems.value
+    })
+    if (type === 'item') consumeItem(params.item_id)
   } finally {
     acting.value = false
   }
@@ -327,7 +347,9 @@ async function loadCombatResources() {
     learnedTechniques.value = allTechs.filter(t => t.learned)
     const allMags = Object.values(magRes.data.magics || {}).flat()
     learnedMagics.value = allMags.filter(m => m.learned)
-    usableItems.value = (invRes.data.items || []).filter(i => !i.equipped && i.item_type === 'item')
+    usableItems.value = (invRes.data.items || [])
+      .filter(i => !i.equipped && i.item_type === 'item' && COMBAT_ITEM_EFFECTS.includes(i.data?.effect_type))
+    weaponType.value = invRes.data.equipment?.weapon?.data?.weapon_type || null
   } catch (e) { /* optional */ }
 }
 
