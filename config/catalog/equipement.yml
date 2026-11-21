@@ -27,10 +27,11 @@ equipment:
       category: "arme_de_melee"
       weapon_type: "hache"
       tier: 1
-      price: 35
-      damage_mastery: 0
-      damage_bonus: 2
+      price: 40
+      damage_mastery: 1
+      damage_bonus: 1
       accuracy_bonus: -1
+      two_handed: true
       notes: "Plus violente, moins précise."
 
     - key: club_primitive
@@ -71,10 +72,11 @@ equipment:
       category: "arme_de_melee"
       weapon_type: "hache"
       tier: 2
-      price: 110
-      damage_mastery: 1
+      price: 120
+      damage_mastery: 2
       damage_bonus: 1
-      accuracy_bonus: -1
+      accuracy_bonus: -2
+      two_handed: true
       notes: "Dégâts au-dessus, précision en dessous."
 
     - key: rapier_sharp
@@ -139,10 +141,10 @@ equipment:
       category: "arme_de_melee"
       weapon_type: "hache"
       tier: 3
-      price: 290
-      damage_mastery: 2
+      price: 300
+      damage_mastery: 3
       damage_bonus: 2
-      accuracy_bonus: -1
+      accuracy_bonus: -3
       two_handed: true
       notes: "Très gros dégâts."
 
@@ -172,11 +174,11 @@ equipment:
       name: "Exécuteur royal"
       category: "arme_de_melee"
       weapon_type: "hache"
-      tier: 5
-      price: 950
-      damage_mastery: 3
+      tier: 4
+      price: 850
+      damage_mastery: 5
       damage_bonus: 2
-      accuracy_bonus: -1
+      accuracy_bonus: -4
       two_handed: true
       notes: "Dégâts énormes."
 
