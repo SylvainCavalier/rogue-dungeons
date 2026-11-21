@@ -85,7 +85,7 @@ Each character gets every skill of `Character::SKILLS_MAP` at creation, with `ma
 | Alchimie (Intelligence) | Gold earned working at the apothecary (roll × 5 gold) | `WorkService`, `Character#alchemy_roll`, `ApothecaryController` |
 | Arc (Dextérité) | Accuracy with `arme_a_distance` | `CombatService#weapon_skill_name` |
 | Arme à une main (Dextérité) | Accuracy with one-handed melee (and default) | same |
-| Arme à deux mains (Dextérité) | Accuracy with `two_handed: true` melee | same |
+| Arme à deux mains (Dextérité) | Accuracy with `two_handed: true` melee (can't be equipped with a shield: equipping one unequips the other, `InventoryController#free_hands_for`) | same |
 | Esquive (Dextérité) | Player defense in **esquive** mode; its bonus is also used for fleeing | `Character#defense_roll`, `player_defense_vs`, `character_dex_bonus` |
 | Parade (Dextérité) | Player defense in **parade** mode | `Character#defense_roll`, `player_defense_vs` |
 | Feu / Eau / Ombre / Lumière / Nature (Intelligence) | Accuracy of magics of that element | `find_player_skill_for_element` |

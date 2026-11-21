@@ -45,7 +45,9 @@
             <div class="flex-1 min-w-0">
               <span class="text-stone-200 text-sm font-medium">{{ item.name }}</span>
               <span v-if="item.quantity > 1" class="text-stone-500 text-xs ml-1">x{{ item.quantity }}</span>
-              <p class="text-stone-500 text-xs truncate">{{ item.data?.notes }}</p>
+              <p class="text-stone-500 text-xs truncate">
+                <span v-if="item.data?.two_handed" class="text-amber-500 mr-1">Deux mains ·</span>{{ item.data?.notes }}
+              </p>
             </div>
             <div class="flex gap-2 flex-shrink-0">
               <button v-if="item.item_type === 'equipment'" @click="equip(item.id)"

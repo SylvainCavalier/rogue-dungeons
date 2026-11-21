@@ -24,11 +24,15 @@ module Api
         return render json: { error: "Emplacement inconnu pour cet équipement" }, status: :unprocessable_entity
       end
 
+      freed = free_hands_for(slot, catalog)
       current_character.inventory_items.where(slot: slot, equipped: true).update_all(equipped: false)
       item.update!(equipped: true, slot: slot)
 
+      message = "#{item.display_name} équipé(e)"
+      message += " (#{freed.display_name} retiré(e) : arme à deux mains)" if freed
+
       render json: {
-        message: "#{item.display_name} équipé(e)",
+        message: message,
         item: item_json(item.reload),
         equipment: equipped_json
       }
@@ -73,6 +77,20 @@ module Api
     end
 
     private
+
+    # A two-handed weapon and a shield can't be equipped together: equipping one
+    # unequips the other. Returns the unequipped item, if any.
+    def free_hands_for(slot, catalog)
+      conflict =
+        if slot == "weapon" && catalog&.dig("two_handed")
+          current_character.equipped_shield
+        elsif slot == "shield"
+          weapon = current_character.equipped_weapon
+          weapon if weapon&.catalog_data&.dig("two_handed")
+        end
+      conflict&.update!(equipped: false)
+      conflict
+    end
 
     def apply_item_effect(catalog)
       char = current_character

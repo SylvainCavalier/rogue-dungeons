@@ -97,6 +97,7 @@ equipment:
       damage_mastery: 1
       damage_bonus: 2
       accuracy_bonus: -2
+      two_handed: true
       notes: "Très lourd : gros dégâts, gros malus."
 
     - key: sword_steel
@@ -119,6 +120,7 @@ equipment:
       damage_mastery: 2
       damage_bonus: 0
       accuracy_bonus: -1
+      two_handed: true
       notes: "Allonge utile, mais encombrante."
 
     - key: blade_veteran
@@ -141,6 +143,7 @@ equipment:
       damage_mastery: 2
       damage_bonus: 2
       accuracy_bonus: -1
+      two_handed: true
       notes: "Très gros dégâts."
 
     - key: sword_runic
@@ -174,6 +177,7 @@ equipment:
       damage_mastery: 3
       damage_bonus: 2
       accuracy_bonus: -1
+      two_handed: true
       notes: "Dégâts énormes."
 
   weapons_ranged:
