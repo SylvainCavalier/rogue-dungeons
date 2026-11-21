@@ -16,9 +16,9 @@ equipment:
       category: "arme_de_melee"
       weapon_type: "epee"
       tier: 1
-      price: 30
+      price: 25
       damage_mastery: 0
-      damage_bonus: 1
+      damage_bonus: 2
       accuracy_bonus: 0
       notes: "Équilibrée."
 
@@ -51,7 +51,7 @@ equipment:
       tier: 2
       price: 90
       damage_mastery: 1
-      damage_bonus: 0
+      damage_bonus: 1
       accuracy_bonus: 0
       notes: "Standard fiable."
 
@@ -82,9 +82,9 @@ equipment:
       category: "arme_de_melee"
       weapon_type: "rapiere"
       tier: 2
-      price: 110
+      price: 100
       damage_mastery: 1
-      damage_bonus: 1
+      damage_bonus: 0
       accuracy_bonus: 1
       notes: "Précise, orientée duel."
 
@@ -107,7 +107,7 @@ equipment:
       tier: 3
       price: 220
       damage_mastery: 2
-      damage_bonus: 0
+      damage_bonus: 1
       accuracy_bonus: 0
       notes: "Équilibrée (milieu/haut jeu)."
 
@@ -128,11 +128,11 @@ equipment:
       category: "arme_de_melee"
       weapon_type: "epee"
       tier: 3
-      price: 260
+      price: 240
       damage_mastery: 2
-      damage_bonus: 1
-      accuracy_bonus: 0
-      notes: "Efficace partout."
+      damage_bonus: 0
+      accuracy_bonus: 1
+      notes: "Précise, forgée pour les vétérans."
 
     - key: axe_berserker
       name: "Hache berserker"
@@ -163,8 +163,8 @@ equipment:
       weapon_type: "epee"
       tier: 5
       price: 850
-      damage_mastery: 3
-      damage_bonus: 1
+      damage_mastery: 4
+      damage_bonus: 0
       accuracy_bonus: 0
       notes: "Puissante, instable."
 
