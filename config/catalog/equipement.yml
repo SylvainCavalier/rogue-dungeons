@@ -8,7 +8,7 @@ equipment:
       price: 20
       damage_mastery: 0
       damage_bonus: 1
-      accuracy_bonus: 1
+      accuracy_bonus: 2
       notes: "Très précise, dégâts modestes."
 
     - key: sword_copper
@@ -85,7 +85,7 @@ equipment:
       price: 100
       damage_mastery: 1
       damage_bonus: 0
-      accuracy_bonus: 1
+      accuracy_bonus: 2
       notes: "Précise, orientée duel."
 
     - key: hammer_arms
@@ -131,7 +131,7 @@ equipment:
       price: 240
       damage_mastery: 2
       damage_bonus: 0
-      accuracy_bonus: 1
+      accuracy_bonus: 2
       notes: "Précise, forgée pour les vétérans."
 
     - key: axe_berserker
@@ -151,18 +151,18 @@ equipment:
       category: "arme_de_melee"
       weapon_type: "epee"
       tier: 4
-      price: 520
+      price: 780
       damage_mastery: 3
-      damage_bonus: 0
-      accuracy_bonus: 1
+      damage_bonus: 2
+      accuracy_bonus: 2
       notes: "Runes = meilleur équilibre."
 
     - key: blade_abyssal
       name: "Lame abyssale"
       category: "arme_de_melee"
       weapon_type: "epee"
-      tier: 5
-      price: 850
+      tier: 4
+      price: 750
       damage_mastery: 4
       damage_bonus: 0
       accuracy_bonus: 0
