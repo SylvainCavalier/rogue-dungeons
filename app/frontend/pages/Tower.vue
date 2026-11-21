@@ -25,6 +25,7 @@
           </p>
           <ul class="text-stone-300 space-y-1">
             <li v-for="(e, i) in towerInfo.floor_preview.enemies" :key="i" class="flex items-center gap-2">
+              <MonsterPortrait :monster-key="e.key" :name="e.name" size="sm" />
               <span class="text-amber-400 font-mono">{{ e.count }}x</span>
               <span>{{ e.name }}</span>
             </li>
@@ -67,6 +68,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGameStore } from '../stores/game'
 import StatusBar from '../components/game/StatusBar.vue'
+import MonsterPortrait from '../components/game/MonsterPortrait.vue'
 
 const gameStore = useGameStore()
 const router = useRouter()

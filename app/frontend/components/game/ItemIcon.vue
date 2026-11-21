@@ -1,5 +1,12 @@
 <template>
-  <div class="inline-flex items-center justify-center rounded-lg flex-shrink-0"
+  <div v-if="showImage"
+    class="relative inline-block rounded-lg flex-shrink-0 overflow-hidden border border-stone-700 bg-stone-950"
+    :class="imageSizeClass">
+    <img :src="imageSrc" alt="" loading="lazy" @error="imageFailed = true"
+      class="w-full h-full object-cover" draggable="false" />
+    <div class="absolute inset-0 pointer-events-none shadow-[inset_0_0_6px_rgba(0,0,0,0.8)]"></div>
+  </div>
+  <div v-else class="inline-flex items-center justify-center rounded-lg flex-shrink-0"
     :class="[sizeClass, bgClass]">
     <svg :class="svgClass" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
       <path v-if="icon === 'sword'" stroke-linecap="round" stroke-linejoin="round"
@@ -28,13 +35,29 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 const props = defineProps({
   type: { type: String, default: 'item' },
   category: { type: String, default: '' },
   size: { type: String, default: 'md' },
+  itemKey: { type: String, default: '' },
 })
+
+// Generated artwork lives in public/images/items/<key>.webp (see config/art/prompts.yml).
+// Falls back to the SVG glyph when the key is missing or the image fails to load.
+const imageFailed = ref(false)
+watch(() => props.itemKey, () => { imageFailed.value = false })
+
+const showImage = computed(() => !!props.itemKey && !imageFailed.value)
+const imageSrc = computed(() => `/images/items/${props.itemKey}.webp`)
+
+const imageSizeClass = computed(() => ({
+  sm: 'w-7 h-7',
+  md: 'w-10 h-10',
+  lg: 'w-14 h-14',
+  xl: 'w-20 h-20',
+}[props.size] || 'w-10 h-10'))
 
 const icon = computed(() => {
   if (props.category === 'arme_de_melee') return 'sword'

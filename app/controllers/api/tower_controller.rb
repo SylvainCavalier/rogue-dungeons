@@ -12,7 +12,7 @@ module Api
         next_floor: next_floor,
         in_combat: char.in_combat?,
         floor_preview: floor_data ? {
-          enemies: floor_data["enemies"],
+          enemies: floor_data["enemies"].map { |e| e.merge("key" => GameCatalog.monster_key_for_name(e["name"])) },
           boss: floor_data["boss"]
         } : nil,
         current_hp: char.current_hp,

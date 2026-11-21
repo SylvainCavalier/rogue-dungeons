@@ -35,10 +35,21 @@
         </button>
       </div>
 
-      <!-- 4 directions grid -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-        <div v-for="dir in directions" :key="dir"
-          class="bg-stone-900 border border-stone-700 rounded-xl p-4">
+      <!-- Interactive town map + selected direction panel -->
+      <div class="grid grid-cols-1 lg:grid-cols-5 gap-4 mb-8 items-start">
+        <div class="lg:col-span-3">
+          <FortressMap :fortress-data="fortressData" :selected="activeDirection"
+            @select="dir => activeDirection = dir"
+            @add="dir => { activeDirection = dir; openTrapSelector(dir) }" />
+          <div class="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-xs text-stone-500">
+            <span>Cliquez sur une porte pour gérer ses défenses</span>
+            <span><span class="text-emerald-400">★</span> bien placé</span>
+            <span><span class="text-emerald-300">✦</span> synergie</span>
+            <span>Anneau = durabilité</span>
+          </div>
+        </div>
+        <div v-for="dir in [activeDirection]" :key="dir"
+          class="lg:col-span-2 bg-stone-900 border border-stone-700 rounded-xl p-4">
           <div class="flex items-center justify-between mb-3">
             <h3 class="font-semibold text-lg" :class="directionColor(dir)">
               {{ directionLabel(dir) }}
@@ -65,6 +76,9 @@
               <div class="flex items-center justify-between gap-2">
                 <div class="flex items-center gap-2 min-w-0">
                   <span class="text-xs text-stone-500 w-5 shrink-0">{{ idx + 1 }}.</span>
+                  <img :src="`/images/traps/${defense.trap_key}.webp`" alt=""
+                    class="w-9 h-9 rounded-md object-cover shrink-0 border border-stone-700"
+                    :class="{ 'grayscale': defense.broken }" />
                   <div class="min-w-0">
                     <div class="flex items-center gap-2 flex-wrap">
                       <span class="text-sm font-medium truncate">{{ defense.trap?.name || defense.trap_key }}</span>
@@ -213,8 +227,10 @@
               :disabled="(fortressData?.gold || 0) < trap.cost"
               class="w-full bg-stone-800 hover:bg-stone-700 rounded-lg p-3 text-left transition disabled:opacity-40 disabled:cursor-not-allowed">
               <div class="flex justify-between items-start">
-                <div>
-                  <div class="font-semibold text-sm flex items-center gap-2">
+                <img :src="`/images/traps/${key}.webp`" alt=""
+                  class="w-14 h-14 rounded-lg object-cover shrink-0 mr-3 border border-stone-700" />
+                <div class="flex-1 min-w-0">
+                  <div class="font-semibold text-sm flex items-center gap-2 flex-wrap">
                     {{ trap.name }}
                     <span class="text-xs" :class="trapTypeColor(trap.type)">{{ trapTypeLabel(trap.type) }}</span>
                     <span v-if="trap.role && trap.role !== 'flex'" class="text-xs text-stone-500">
@@ -243,12 +259,12 @@
 import { ref, computed, onMounted } from 'vue'
 import { useGameStore } from '../stores/game'
 import StatusBar from '../components/game/StatusBar.vue'
+import FortressMap from '../components/game/FortressMap.vue'
 
 const gameStore = useGameStore()
 const selectedDirection = ref(null)
 const showHelp = ref(false)
-
-const directions = ['nord', 'sud', 'est', 'ouest']
+const activeDirection = ref('nord')
 
 const fortressData = computed(() => gameStore.fortressData)
 

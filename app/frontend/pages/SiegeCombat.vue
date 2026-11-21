@@ -85,7 +85,9 @@
           <!-- Enemies -->
           <div class="bg-stone-900 border border-stone-700 rounded-xl p-4">
             <h3 class="text-sm font-semibold text-red-400 mb-3 uppercase tracking-wider">Assaillants</h3>
-            <div v-for="(enemy, i) in siege.enemies" :key="i" class="mb-3 last:mb-0">
+            <div v-for="(enemy, i) in siege.enemies" :key="i" class="flex gap-3 mb-3 last:mb-0">
+              <MonsterPortrait :monster-key="enemy.key" :name="enemy.name" :hp="enemy.hp" :alive="enemy.alive" size="lg" />
+              <div class="flex-1 min-w-0">
               <div class="flex justify-between items-center mb-1">
                 <span class="text-sm" :class="enemy.alive ? 'text-stone-200' : 'text-stone-600 line-through'">
                   {{ enemy.name }}
@@ -97,6 +99,7 @@
               <div v-if="enemy.alive" class="w-full bg-stone-800 rounded-full h-2">
                 <div class="bg-red-700 h-2 rounded-full transition-all duration-500"
                      :style="{ width: (enemy.hp / enemy.max_hp * 100) + '%' }"></div>
+              </div>
               </div>
             </div>
           </div>
@@ -212,6 +215,7 @@ import { ref, computed, onMounted, nextTick, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGameStore } from '../stores/game'
 import apiClient from '../plugins/axios'
+import MonsterPortrait from '../components/game/MonsterPortrait.vue'
 
 const gameStore = useGameStore()
 const router = useRouter()

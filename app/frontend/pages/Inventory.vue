@@ -15,7 +15,7 @@
             class="bg-stone-800 rounded-lg p-3 text-center border border-stone-700/50">
             <div class="text-xs text-stone-500 uppercase mb-2">{{ slot.label }}</div>
             <div v-if="gameStore.equipment[slot.key]">
-              <ItemIcon :type="'equipment'" :category="slotCategory(slot.key)" size="lg" class="mx-auto mb-1" />
+              <ItemIcon :type="'equipment'" :category="slotCategory(slot.key)" :item-key="gameStore.equipment[slot.key].item_key" size="xl" class="mx-auto mb-1" />
               <div class="text-xs text-stone-200 leading-tight">
                 {{ gameStore.equipment[slot.key].name }}
               </div>
@@ -41,7 +41,7 @@
         <div v-else class="space-y-2">
           <div v-for="item in unequippedItems" :key="item.id"
             class="flex items-center gap-3 bg-stone-800 rounded-lg px-4 py-3 hover:bg-stone-750 transition">
-            <ItemIcon :type="item.item_type" :category="item.data?.category" />
+            <ItemIcon :type="item.item_type" :category="item.data?.category" :item-key="item.item_key || item.key" />
             <div class="flex-1 min-w-0">
               <span class="text-stone-200 text-sm font-medium">{{ item.name }}</span>
               <span v-if="item.quantity > 1" class="text-stone-500 text-xs ml-1">x{{ item.quantity }}</span>

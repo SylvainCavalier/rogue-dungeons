@@ -2,16 +2,10 @@
   <div class="min-h-screen bg-stone-950">
     <StatusBar />
 
-    <div class="max-w-5xl mx-auto px-4 py-8">
-      <!-- Header with town image -->
-      <div class="relative rounded-2xl overflow-hidden mb-8 animate-fade-in-up">
-        <img :src="'/images/ville.webp'" alt="La ville" loading="lazy"
-          class="w-full h-48 md:h-56 object-cover opacity-60" />
-        <div class="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/40 to-transparent"></div>
-        <div class="absolute bottom-4 left-6">
-          <h1 class="text-3xl font-bold text-amber-400 drop-shadow-lg">La Ville</h1>
-          <p class="text-stone-400 text-sm mt-1">{{ gameStore.character?.date }}</p>
-        </div>
+    <div class="max-w-6xl mx-auto px-4 py-8">
+      <div class="flex items-end justify-between mb-4 animate-fade-in-up">
+        <h1 class="text-3xl font-bold text-amber-400">La Ville</h1>
+        <p class="text-stone-500 text-sm">{{ gameStore.character?.date }}</p>
       </div>
 
       <!-- Activité en cours -->
@@ -30,135 +24,11 @@
         </div>
       </div>
 
-      <!-- Grille des lieux -->
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <TownCard to="/town/character" :delay="1"
-          label="Fiche personnage" subtitle="Stats et compétences"
-          icon-color="text-amber-400">
-          <template #icon>
-            <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-            </svg>
-          </template>
-        </TownCard>
-
-        <TownCard to="/town/inventory" :delay="2"
-          label="Inventaire" subtitle="Équipement et objets"
-          icon-color="text-amber-400">
-          <template #icon>
-            <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
-            </svg>
-          </template>
-        </TownCard>
-
-        <TownCard to="/town/shop" :delay="3"
-          label="Magasin" subtitle="Acheter et vendre"
-          icon-color="text-yellow-400"
-          image="/images/magasin.webp">
-          <template #icon>
-            <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 21v-7.5a.75.75 0 01.75-.75h3a.75.75 0 01.75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349m-16.5 11.65V9.35m0 0a3.001 3.001 0 003.75-.615A2.993 2.993 0 009.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 002.25 1.016c.896 0 1.7-.393 2.25-1.016a3.001 3.001 0 003.75.614m-16.5 0a3.004 3.004 0 01-.621-4.72L4.318 3.44A1.5 1.5 0 015.378 3h13.243a1.5 1.5 0 011.06.44l1.19 1.189a3 3 0 01-.621 4.72m-13.5 8.65h3.75a.75.75 0 00.75-.75V13.5a.75.75 0 00-.75-.75H6.75a.75.75 0 00-.75.75v3.15c0 .415.336.75.75.75z" />
-            </svg>
-          </template>
-        </TownCard>
-
-        <TownCard to="/town/forge" :delay="4"
-          label="La Forge" subtitle="Armes, armures et travail"
-          icon-color="text-orange-400"
-          image="/images/forge.webp">
-          <template #icon>
-            <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6a8.983 8.983 0 013.361-6.867 8.21 8.21 0 003 2.48z" />
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 18a3.75 3.75 0 00.495-7.467 5.99 5.99 0 00-1.925 3.546 5.974 5.974 0 01-2.133-1A3.75 3.75 0 0012 18z" />
-            </svg>
-          </template>
-        </TownCard>
-
-        <TownCard to="/town/academy" :delay="5" :disabled="gameStore.isBusy"
-          label="Académie des mages" subtitle="Apprendre des magies"
-          icon-color="text-blue-400"
-          image="/images/academie-mages.webp">
-          <template #icon>
-            <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z" />
-            </svg>
-          </template>
-        </TownCard>
-
-        <TownCard to="/town/guild" :delay="6" :disabled="gameStore.isBusy"
-          label="Guilde des guerriers" subtitle="Apprendre des techniques"
-          icon-color="text-red-400"
-          image="/images/guilde-guerriers.webp">
-          <template #icon>
-            <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" />
-            </svg>
-          </template>
-        </TownCard>
-
-        <TownCard to="/town/inn" :delay="7" :disabled="gameStore.isBusy"
-          label="Auberge" subtitle="Passer la nuit (10 or)"
-          icon-color="text-green-400"
-          image="/images/apothicaire.webp">
-          <template #icon>
-            <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
-            </svg>
-          </template>
-        </TownCard>
-
-        <TownCard to="/tower" :delay="8" :disabled="gameStore.isBusy"
-          label="Tour d'ascension" :subtitle="`Étage ${nextFloor} / 100`"
-          icon-color="text-red-400" variant="danger"
-          image="/images/tour-ascension.webp">
-          <template #icon>
-            <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21" />
-            </svg>
-          </template>
-        </TownCard>
-
-        <TownCard to="/town/fortress" :delay="9"
-          label="Forteresse" :subtitle="siegeSubtitle"
-          icon-color="text-cyan-400">
-          <template #icon>
-            <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z" />
-            </svg>
-          </template>
-        </TownCard>
-
-        <TownCard to="/town/watchtower" :delay="10"
-          label="Vigie" subtitle="Renseignements ennemis"
-          icon-color="text-teal-400">
-          <template #icon>
-            <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
-              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-          </template>
-        </TownCard>
-
-        <TownCard to="/town/workshop" :delay="11"
-          label="Atelier" subtitle="Améliorer les défenses"
-          icon-color="text-orange-400">
-          <template #icon>
-            <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17l-5.658 3.286a.75.75 0 01-1.079-.79l1.266-6.052L.992 6.815a.75.75 0 01.428-1.317l6.12-.638L10.2.649a.75.75 0 011.348 0L14.21 4.86l6.12.638a.75.75 0 01.428 1.317l-4.957 4.799 1.266 6.052a.75.75 0 01-1.079.79l-5.658-3.286z" />
-            </svg>
-          </template>
-        </TownCard>
-
-        <TownCard v-if="hasBuildingDamage" to="/town/buildings" :delay="12"
-          label="Bâtiments" subtitle="Réparations nécessaires"
-          icon-color="text-red-400" variant="danger">
-          <template #icon>
-            <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
-            </svg>
-          </template>
-        </TownCard>
+      <!-- Interactive town square -->
+      <div class="animate-fade-in-up stagger-1">
+        <TownMap :busy="gameStore.isBusy" :next-floor="nextFloor"
+          :siege-subtitle="siegeSubtitle" :siege-imminent="siegeImminent"
+          :has-building-damage="hasBuildingDamage" />
       </div>
     </div>
   </div>
@@ -169,7 +39,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGameStore } from '../stores/game'
 import StatusBar from '../components/game/StatusBar.vue'
-import TownCard from '../components/game/TownCard.vue'
+import TownMap from '../components/game/TownMap.vue'
 
 const gameStore = useGameStore()
 const router = useRouter()
@@ -182,6 +52,11 @@ const siegeSubtitle = computed(() => {
   if (days !== undefined && days <= 1) return 'Siège imminent !'
   if (days !== undefined) return `Siège dans ${days} jours`
   return 'Défenses de la ville'
+})
+
+const siegeImminent = computed(() => {
+  const days = gameStore.townStatus?.days_until_siege
+  return days !== undefined && days <= 1
 })
 
 const hasBuildingDamage = computed(() => {

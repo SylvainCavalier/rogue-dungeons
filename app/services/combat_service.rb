@@ -110,6 +110,7 @@ class CombatService
       enemies: (@state[:enemies] || []).map.with_index { |e, i|
         {
           index: i,
+          key: e[:key],
           name: e[:name],
           hp: e[:hp],
           max_hp: e[:max_hp],

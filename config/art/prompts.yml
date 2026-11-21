@@ -1,0 +1,236 @@
+# Prompts used by `bin/rails art:generate` to create game artwork via fal.ai.
+# Each entry produces public/images/<group dir>/<key>.webp
+# Delete an image file and rerun the task to regenerate it.
+
+styles:
+  monster: >-
+    dark fantasy oil painting, painterly brushwork, dramatic chiaroscuro lighting,
+    warm torchlight against cold blue shadows, gloomy dungeon background, full body
+    creature portrait, centered composition, highly detailed, muted earthy palette,
+    no text, no watermark, no frame
+  siege_monster: >-
+    dark fantasy oil painting, painterly brushwork, dramatic lighting, stormy dusk sky,
+    burning fields and a fortified town wall in the far background, full body
+    portrait of an attacker charging, centered composition, highly detailed,
+    no text, no watermark, no frame
+  trap: >-
+    dark fantasy painted game icon, single object centered, isometric three-quarter view,
+    isolated on a plain very dark charcoal background, soft rim light, painterly,
+    highly detailed, no text, no watermark, no frame
+  item: >-
+    dark fantasy RPG inventory icon, single object centered and fully visible, three-quarter view,
+    isolated on a plain flat very dark charcoal background, soft warm key light from top left and
+    cold blue rim light, painterly digital painting, crisp silhouette, highly detailed, no hands,
+    no character, no text, no watermark, no frame, no border
+  map: >-
+    dark fantasy oil painting, painterly, moody dusk lighting, warm window lights,
+    highly detailed, no text, no labels, no watermark
+
+groups:
+  monsters:
+    dir: monsters
+    style: monster
+    size: square_hd
+    output_width: 512
+    items:
+      rat_geant: a giant mangy sewer rat with glowing red eyes and yellow teeth
+      gobelin: a small scrawny green goblin with a rusty dagger and ragged leather
+      archer_gobelin: a green goblin archer drawing a crude shortbow, quiver of black-feathered arrows
+      loup_affame: a starving grey wolf with visible ribs, snarling, drool on its fangs
+      chef_gobelin: a brutal hulking goblin chieftain with a spiked club, bone necklace and scarred face
+      bandit: a hooded human bandit with a short sword and a worn leather jerkin, face half-masked
+      mage_apprenti: a young apprentice wizard in a patched blue robe, a small unstable spark of magic in hand
+      ogre_mineur: a hulking grey-skinned ogre miner with a pickaxe, lantern hanging from its belt
+      ogre_des_profondeurs: a massive pale cave ogre from the deep tunnels, glowing fungus on its skin, huge stone maul
+      assassin: a lean assassin in dark grey wrappings with twin curved daggers, crouched in the shadows
+      loup_noir: a huge black wolf with smoky fur and amber eyes, lunging
+      sorcier_renegat: a renegade sorcerer in a torn crimson robe, wild beard, crackling purple magic between his hands
+      golem_argile: a lumbering clay golem with glowing runes carved in its chest, cracked earthen body
+      maitre_assassin: a master assassin in an elegant black cloak, poisoned blades dripping green, cold eyes behind a mask
+      bandit_veteran: a grizzled veteran bandit in chainmail with a battle axe and an eyepatch
+      elementaire_feu: a fire elemental, a roaring humanoid shape made of living flames and embers
+      elementaire_mineur: a small elemental creature of swirling stone, water and flickering fire
+      chevalier_dechu: a fallen knight in rusted dented plate armor, tattered tabard, cracked longsword, empty glowing eyes behind the visor
+      minotaure: a hulking minotaur with iron-banded horns wielding a great double axe
+      seigneur_elementaire: an elemental lord, a towering crowned titan of magma and fire, molten cracks across its body
+      assassin_elite: an elite assassin in black and crimson leather, mid-leap, shadowy afterimages
+      golem_pierre: a massive stone golem of grey granite blocks, moss in the cracks, blue glowing core
+      sorcier_noir: a black sorcerer in dark robes with a skull staff, shadow tendrils swirling around him
+      chevalier_noir: a black knight in jagged obsidian full plate, horned helm, wielding a huge black greatsword
+      champion_tour: an imposing gladiator champion in ornate bronze armor with a tower shield and a spear, battle-scarred
+      ombre: a living shadow, a faceless wraith-like silhouette of pure darkness with pale glowing eyes
+      spectre: a translucent ghostly specter in tattered spectral robes, screaming, cold blue light
+      vampire_mineur: a pale gaunt young vampire with sharp fangs and a torn aristocratic coat
+      demon_eclaireur: a lean red-skinned demon scout with bat wings, claws and small horns
+      vampire_ancestral: an ancient vampire lord, withered aristocrat in a high-collared crimson cloak, long claws, blood-red eyes
+      demon: a large horned demon with dark red skin, burning eyes and a flaming whip
+      diablotin_majeur: a greater imp, a mischievous winged fiend with long tail, holding a ball of hellfire
+      bete_infernale: an infernal beast, a hellhound-like monstrosity with molten cracks in its hide and flaming mane
+      titan_mineur: a lesser titan, a giant of weathered bronze-colored skin wearing crude armor plates, holding a stone pillar
+      seigneur_infernal: an infernal lord on a throne of bones, massive demon with great curved horns and burning crown
+      golem_antique: an ancient golem of carved marble and gold, eroded hieroglyphs, glowing eyes
+      chimere: a chimera with a lion head, a goat head and a serpent tail, breathing fire
+      dragonnet: a young dragon hatchling with obsidian scales breathing embers
+      titan_ancien: an ancient titan, colossal weathered giant covered in moss and stone, eyes like suns
+      dragon_jeune: a young red dragon with spread wings, roaring, fire in its throat
+      dragon_ancien: an enormous ancient golden dragon, scarred scales, hoard of treasure beneath it
+      champion_dechu: a fallen champion, corrupted paladin in blackened gold armor with a broken halo, dark aura
+      vampire_superieur: a superior vampire queen with bat-wing cape, floating amid swirling blood mist
+      archimage_noir: a dark archmage floating above the ground, hooded skeletal face, multiple orbiting arcane grimoires and runes
+      behemoth: a behemoth, colossal armored beast with massive tusks and a back of rocky spikes
+      dragon_noir: a colossal black dragon with tattered wings, breathing a torrent of shadow flame
+      ombre_majeure: a greater shadow, a towering mass of darkness with many glowing eyes and grasping hands
+      avatar_chaos: an avatar of chaos, a shifting abomination of fractured reality, chaotic colors and floating debris
+      titan_primordial: a primordial titan made of raw elements, mountain-sized, lava veins and storm clouds around its head
+      archidemon: an archdemon with four arms, great black wings and a crown of fire, wielding a burning sword
+      gardien_celeste: a celestial guardian, a radiant armored angelic warrior with luminous wings and a spear of light
+      heraut_neant: a herald of the void, a gaunt cosmic entity cloaked in starry darkness, holding a black void orb
+      maitre_tour: the master of the tower, a sinister ancient sorcerer-king on a dark throne, crown of floating runes, staff of pure power
+      unknown: an indistinct monster silhouette hidden in thick fog, only glowing eyes visible
+
+  siege_monsters:
+    dir: monsters
+    style: siege_monster
+    size: square_hd
+    output_width: 512
+    items:
+      gobelin_eclaireur: a nimble goblin scout with a torch and a short spear, sneaking toward the walls
+      bandit_pillard: a human raider with a burning torch and a looted sack, axe raised
+      loup_enrage: an enraged foaming wolf with bristling fur, charging
+      orc_guerrier: a muscular green orc warrior in spiked iron armor with a heavy cleaver
+      troll_assiegeant: a huge troll carrying a battering log, warty skin, wooden planks strapped as armor
+      chef_orc: an orc warlord with a horned helmet, war banner on his back and a giant axe
+      golem_siege: a siege golem of iron and stone, a battering ram built into its arm
+      dragon_mineur: a lesser green dragon swooping over the battlefield, breathing fire
+
+  traps:
+    dir: traps
+    style: trap
+    size: square
+    output_width: 256
+    items:
+      pieges_pointes: a cluster of sharp iron spikes hidden in a patch of dirt
+      barricade: a sturdy wooden barricade of sharpened stakes and planks
+      fosse_goudron: a pit of black bubbling boiling tar
+      meurtrieres: a section of stone wall with narrow arrow slits
+      fosse_pieux: a deep pit filled with sharpened wooden stakes dripping green poison
+      mur_renforce: a thick reinforced stone wall section with iron bands
+      piege_feu: a bronze mechanism pouring burning oil, flames
+      sceau_magique: a glowing purple magic glyph circle carved into the ground
+      tour_archers: a small wooden watchtower with archers on top
+      rempart_enchante: an enchanted stone rampart with glowing blue runes and a shimmering barrier
+
+  equipment:
+    dir: items
+    style: item
+    size: square
+    output_width: 256
+    items:
+      # Melee weapons (crude -> legendary)
+      dagger_rusty: a short rusty iron dagger with a frayed leather-wrapped grip, pitted and stained blade, shown diagonally from bottom-left to top-right filling the frame
+      sword_copper: a simple copper short sword with a greenish patina, plain wooden crossguard, shown diagonally from bottom-left to top-right filling the frame
+      axe_crude: a crude one-handed axe, rough chipped iron head lashed to a knotty wooden handle, shown diagonally from bottom-left to top-right filling the frame
+      club_primitive: a primitive wooden club studded with rough stones and bone shards, shown diagonally from bottom-left to top-right filling the frame
+      sword_iron: a plain sturdy iron longsword with a leather grip and simple crossguard, shown diagonally from bottom-left to top-right filling the frame
+      spear_reinforced: a reinforced spear with an iron leaf-shaped head and iron bands along the ash shaft, shown diagonally from bottom-left to top-right filling the frame
+      axe_war: a heavy steel war axe with a broad bearded blade and a reinforced haft, shown diagonally from bottom-left to top-right filling the frame
+      rapier_sharp: an elegant steel rapier with a swept silver basket hilt and a thin gleaming blade, shown diagonally from bottom-left to top-right filling the frame
+      hammer_arms: a massive steel war hammer with a square head and a long iron-banded handle, shown diagonally from bottom-left to top-right filling the frame
+      sword_steel: a polished steel longsword with a fine blued crossguard and leather grip, gleaming edge, shown diagonally from bottom-left to top-right filling the frame
+      halberd_heavy: a heavy halberd with a large axe blade, spike and hook on a long polearm, shown diagonally from bottom-left to top-right filling the frame
+      blade_veteran: a battle-worn but masterfully kept bastard sword with notches, engraved fuller and red leather grip, shown diagonally from bottom-left to top-right filling the frame
+      axe_berserker: a huge double-bladed berserker axe with jagged edges, blood-red runes and fur-wrapped haft, shown diagonally from bottom-left to top-right filling the frame
+      sword_runic: a runic sword with glowing pale blue runes along the blade and a silver hilt, shown diagonally from bottom-left to top-right filling the frame
+      blade_abyssal: an abyssal blade of black obsidian-like metal, purple void energy crackling along its edge, shown diagonally from bottom-left to top-right filling the frame
+      executioner_royal: a giant royal executioner greatsword with a wide squared blade, gold and crimson hilt, crown emblem, shown diagonally from bottom-left to top-right filling the frame
+      # Ranged weapons
+      bow_short_crude: a crude short bow made of a bent branch with rough twine string, shown diagonally from bottom-left to top-right filling the frame
+      sling: a simple leather sling with a smooth stone in its pouch, shown diagonally from bottom-left to top-right filling the frame
+      crossbow_light: a light wooden crossbow with a small iron prod and a bolt loaded, shown diagonally from bottom-left to top-right filling the frame
+      bow_long: a tall yew longbow with a leather grip and three arrows lying across it, warm light on the wood, shown diagonally from bottom-left to top-right filling the frame
+      crossbow_reinforced: a reinforced crossbow with steel bands, a steel prod and a winding crank, shown diagonally from bottom-left to top-right filling the frame
+      bow_composite: a recurve composite bow of horn and wood with bone tips and decorated grip, shown diagonally from bottom-left to top-right filling the frame
+      bow_elite: an elite recurve bow of dark lacquered wood with silver fittings and fine engravings, shown diagonally from bottom-left to top-right filling the frame
+      crossbow_heavy: a heavy siege-like crossbow with a thick steel prod, cranequin winch and big bolt, shown diagonally from bottom-left to top-right filling the frame
+      bow_runic: a runic bow with glowing blue runes carved along its limbs, silver string, shown diagonally from bottom-left to top-right filling the frame
+      bow_ancient_winds: a legendary ancient bow of pale white wood with swirling wind spirits and feathers, faint green glow, shown diagonally from bottom-left to top-right filling the frame
+      crossbow_imperial: an ornate imperial crossbow of black steel and gold with an eagle motif, glowing bolt, shown diagonally from bottom-left to top-right filling the frame
+      # Body armor
+      tunic_reinforced: a reinforced padded linen gambeson tunic with leather patches, laid flat
+      leather_armor: a brown leather cuirass with straps and buckles
+      studded_leather: a studded leather armor vest covered in iron rivets
+      chainmail: a chainmail hauberk shirt of interlocking iron rings
+      brigandine: a brigandine of red cloth with rows of brass rivets over steel plates
+      lamellar: a lamellar body armor cuirass made of many small rectangular steel plates laced together with red cord, torso armor displayed on an empty wooden armor stand
+      plate_armor: a full steel plate armor breastplate with pauldrons, polished
+      champion_armor: a champion's heavy plate cuirass with pauldrons, steel with gold trim and a lion emblem on the chest, displayed on an empty wooden armor stand, nobody wearing it
+      runic_armor: a sleek plate cuirass breastplate with pauldrons, glowing blue runes etched across the steel, torso armor displayed on an empty armor stand
+      # Helmets
+      hood_leather: a brown leather hood with a short cape
+      helmet_iron: a simple iron nasal helmet
+      helm_steel: a closed steel great helm with narrow eye slits
+      helmet_veteran: a battle-scarred steel sallet helmet with a red plume
+      helm_runic: a runic steel helm with glowing blue runes and a visor
+      # Boots
+      boots_reinforced: a pair of reinforced leather boots with iron toe caps
+      boots_soldier: a pair of sturdy soldier boots with steel greaves
+      boots_tracker: a pair of soft green-brown tracker boots with fur trim and laces
+      boots_enchanted: a pair of enchanted elegant boots with small feather wings and a faint blue glow
+      boots_abyssal_walk: a pair of dark abyssal armored boots of black metal with purple void mist around them
+      # Shields
+      shield_wood: a simple round wooden shield of planks with an iron boss
+      buckler_round: a small round steel buckler with a central boss
+      shield_iron: an iron heater shield with riveted edges
+      shield_heavy: a heavy steel kite shield, thick and dented
+      pavise: a tall rectangular pavise shield of wood and iron with a painted heraldic emblem
+      shield_guardian: a guardian's steel shield with a silver tower emblem and blue enamel
+      bulwark_royal: a massive royal tower shield of steel and gold with a crown emblem
+      aegis_sacred: a sacred radiant aegis shield of white gold with a sun emblem, glowing holy light
+
+  items:
+    dir: items
+    style: item
+    size: square
+    output_width: 256
+    items:
+      potion_healing_minor: a small round glass flask of bright red healing potion, cork stopper
+      potion_healing_major: a large ornate glass bottle of glowing crimson healing potion, wax-sealed with gold filigree
+      potion_mana_minor: a small round glass flask of glowing blue mana potion, cork stopper
+      antidote: a slim vial of green antidote liquid with a leaf tied to its neck by string
+      remedy_universal: an ornate crystal vial of shimmering golden remedy with a silver cap
+      elixir_vigor: a tall flask of thick orange-red elixir with a bull emblem on its label-less glass
+      elixir_intelligence: a tall elegant flask of violet elixir with swirling sparkles inside
+      elixir_dexterity: a slim tall flask of bright yellow-green elixir with a feather tied to it
+      smoke_bomb: a round clay smoke bomb with a short fuse, wisps of grey smoke
+      explosive_vial: a glass vial of bubbling orange alchemical liquid with a lit fuse, sparks
+      torch: a wooden torch wrapped in oiled cloth, burning with a warm flame
+      rope: a neat round coil of thick hemp rope lying flat, seen from above at an angle, with an iron grappling hook beside it
+      lockpick: a small leather roll of thief's lockpicks and picks
+      teleport_stone: a smooth polished stone engraved with a glowing teal teleportation rune
+      compass_enchanted: an enchanted brass compass with a glowing blue needle and arcane symbols
+      protective_talisman: a protective talisman amulet of silver with a blue gem on a leather cord
+      soul_fragment: a floating shard of ghostly pale blue soul energy, ethereal wisps
+      experience_crystal: a radiant golden crystal cluster glowing with inner light
+      mysterious_key: an ornate ancient black iron key with a glowing purple gem in its bow
+      ancient_relic: an ancient ornate golden reliquary casket encrusted with gems and strange glyphs, faint magical glow seeping from its lid
+      incomplete_map: an unrolled old parchment treasure map with ink drawings of mountains, paths and a tower, one corner torn off and burned edges
+
+  # The Fortress page overlays gate positions on this map (GATES in
+  # app/frontend/components/game/FortressMap.vue). If you regenerate it,
+  # re-check those coordinates.
+  maps:
+    dir: fortress
+    style: map
+    model: fal-ai/flux-pro/v1.1
+    size: square_hd
+    output_width: 1280
+    items:
+      town_map: >-
+        Top-down orthographic view straight from above of a dense medieval walled town at dusk,
+        painted fantasy map style. A square stone curtain wall with four corner towers encloses
+        the town. The wall has exactly four gatehouses, one in the middle of each side: north,
+        south, east and west. Two straight cobblestone main streets cross the town forming a
+        plus sign, connecting opposite gates and meeting at a central market square with a
+        fountain. The four quarters between the streets are densely packed with timber houses
+        with slate and red tile roofs, glowing windows, small gardens. Outside the walls: a dirt
+        road leaves each gate, muddy fields and dark forest

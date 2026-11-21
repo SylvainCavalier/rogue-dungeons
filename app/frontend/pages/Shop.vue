@@ -31,7 +31,7 @@
         <div v-for="(item, i) in filteredItems" :key="item.key"
           class="flex items-center gap-3 card p-4 animate-fade-in-up"
           :class="`stagger-${Math.min(i + 2, 8)}`">
-          <ItemIcon :type="item.item_type" :category="item.data?.category" />
+          <ItemIcon :type="item.item_type" :category="item.data?.category" :item-key="item.item_key || item.key" />
           <div class="flex-1 min-w-0">
             <span class="text-stone-200 text-sm font-medium">{{ item.name }}</span>
             <span v-if="item.data?.tier" class="text-stone-600 text-xs ml-2">T{{ item.data.tier }}</span>
@@ -55,7 +55,7 @@
         <div v-for="(item, i) in sellableItems" :key="item.id"
           class="flex items-center gap-3 card p-4 animate-fade-in-up"
           :class="`stagger-${Math.min(i + 2, 8)}`">
-          <ItemIcon :type="item.item_type" :category="item.data?.category" />
+          <ItemIcon :type="item.item_type" :category="item.data?.category" :item-key="item.item_key || item.key" />
           <div class="flex-1 min-w-0">
             <span class="text-stone-200 text-sm font-medium">{{ item.name }}</span>
             <span v-if="item.quantity > 1" class="text-stone-500 text-xs ml-1">x{{ item.quantity }}</span>
