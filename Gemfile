@@ -83,4 +83,6 @@ group :test do
   # Use system testing [https://guides.rubyonrails.org/testing.html#system-testing]
   gem "capybara" # System testing
   gem "selenium-webdriver" # System testing
+  # Rails 8.0's test runner is not compatible with Minitest 6 yet
+  gem "minitest", "< 6"
 end

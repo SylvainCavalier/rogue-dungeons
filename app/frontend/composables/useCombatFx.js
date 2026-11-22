@@ -134,11 +134,9 @@ export function useCombatFx() {
     const desc = describe(type, params, ctx)
     const prev = hpMap(before)
     const next = hpMap(after)
-    // End-of-fight snapshots return the last lines of the whole fight:
-    // only keep the current turn.
-    const fullLog = after.recent_log || []
-    const turnStart = fullLog.map(l => l.startsWith('--- Tour')).lastIndexOf(true)
-    const log = turnStart === -1 ? fullLog : fullLog.slice(turnStart)
+    // recent_log holds only this request's lines: the player's action, the
+    // slower enemies, then the "--- Tour N ---" header and the faster enemies.
+    const log = after.recent_log || []
     const missed = log.some(l => l.includes('raté'))
     let end = 0
 

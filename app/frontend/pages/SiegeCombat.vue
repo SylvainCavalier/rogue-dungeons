@@ -52,7 +52,11 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <!-- Player -->
           <FxFrame :state="playerFx" class="bg-stone-900 border border-stone-700 rounded-xl p-4">
-            <h3 class="text-sm font-semibold text-amber-400 mb-3 uppercase tracking-wider">Défenseur</h3>
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="text-sm font-semibold text-amber-400 uppercase tracking-wider">Défenseur</h3>
+              <span v-if="siege.player.initiative != null" class="text-[10px] text-stone-400"
+                title="Initiative (jet de Vitesse, lancé une fois en début de combat)">Initiative {{ siege.player.initiative }}</span>
+            </div>
             <div class="mb-2">
               <div class="flex justify-between text-sm mb-1">
                 <span class="text-red-400">PV</span>
@@ -93,6 +97,11 @@
               <div class="flex justify-between items-center mb-1">
                 <span class="text-sm" :class="enemy.alive ? 'text-stone-200' : 'text-stone-600 line-through'">
                   {{ enemy.name }}
+                  <span v-if="enemy.initiative != null" class="text-[10px] ml-1"
+                    :class="enemy.faster ? 'text-orange-400' : 'text-stone-500'"
+                    :title="enemy.faster ? 'Plus rapide que vous : agit avant vous' : 'Plus lent que vous : agit après vous'">
+                    Init. {{ enemy.initiative }}
+                  </span>
                 </span>
                 <span class="text-xs" :class="enemy.alive ? 'text-stone-400' : 'text-stone-600'">
                   {{ enemy.hp }}/{{ enemy.max_hp }}

@@ -32,9 +32,11 @@ class SiegeWaveFactory
         damage: stat_hash(template["damage"]),
         esquive: stat_hash(template["esquive"]),
         dr: stat_hash(template["dr"]),
+        vitesse: stat_hash(template["vitesse"]),
         xp_value: template["xp_value"] || 5,
         gold_value: template["gold_value"] || 3,
         abilities: template["abilities"] || [],
+        ability_chance: template["ability_chance"],
         statuses: [],
         debuffs: {}
       }
@@ -69,6 +71,7 @@ class SiegeWaveFactory
         damage: { mastery: 1, bonus: 0 },
         esquive: { mastery: 1, bonus: 0 },
         dr: { mastery: 0, bonus: 0 },
+        vitesse: { mastery: 1, bonus: 0 },
         xp_value: 5,
         gold_value: 3,
         abilities: [],

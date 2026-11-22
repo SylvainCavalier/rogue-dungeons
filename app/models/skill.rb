@@ -1,6 +1,8 @@
 class Skill < ApplicationRecord
   belongs_to :character
 
+  scope :visible, -> { where.not(name: Character::HIDDEN_SKILLS) }
+
   validates :name, presence: true, uniqueness: { scope: :character_id }
   validates :category, presence: true
   validates :mastery, presence: true, numericality: { only_integer: true, greater_than: 0 }

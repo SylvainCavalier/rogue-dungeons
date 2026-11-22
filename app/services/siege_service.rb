@@ -75,6 +75,15 @@ class SiegeService
       combat_state: combat_state
     )
 
+    # Initiative + opening actions of the enemies faster than the player.
+    siege_data_backup = character.siege_state.dup
+    opening = CombatService.new(character).begin_combat!
+    if %w[victory defeat].include?(opening[:status])
+      character.reload
+      finish_siege(opening[:status].to_sym, opening, siege_data_backup)
+      return opening.merge(siege: true, siege_week: siege_week, attack_direction: attack_direction)
+    end
+
     siege_snapshot
   end
 

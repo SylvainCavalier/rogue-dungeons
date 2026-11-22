@@ -149,6 +149,7 @@ siege_monsters:
     damage: { mastery: 1, bonus: 0 }
     esquive: { mastery: 1, bonus: 1 }
     dr: { mastery: 0, bonus: 0 }
+    vitesse: { mastery: 2, bonus: 0 }
     xp_value: 4
     gold_value: 3
     abilities: []
@@ -161,6 +162,7 @@ siege_monsters:
     damage: { mastery: 1, bonus: 1 }
     esquive: { mastery: 1, bonus: 1 }
     dr: { mastery: 0, bonus: 1 }
+    vitesse: { mastery: 1, bonus: 2 }
     xp_value: 6
     gold_value: 5
     abilities: []
@@ -173,6 +175,7 @@ siege_monsters:
     damage: { mastery: 2, bonus: 0 }
     esquive: { mastery: 2, bonus: 1 }
     dr: { mastery: 0, bonus: 0 }
+    vitesse: { mastery: 2, bonus: 2 }
     xp_value: 8
     gold_value: 5
     abilities: []
@@ -185,6 +188,7 @@ siege_monsters:
     damage: { mastery: 2, bonus: 1 }
     esquive: { mastery: 1, bonus: 1 }
     dr: { mastery: 1, bonus: 1 }
+    vitesse: { mastery: 2, bonus: 0 }
     xp_value: 12
     gold_value: 8
     abilities: []
@@ -197,6 +201,7 @@ siege_monsters:
     damage: { mastery: 3, bonus: 1 }
     esquive: { mastery: 1, bonus: 0 }
     dr: { mastery: 2, bonus: 1 }
+    vitesse: { mastery: 1, bonus: 0 }
     xp_value: 18
     gold_value: 12
     abilities: []
@@ -209,6 +214,7 @@ siege_monsters:
     damage: { mastery: 3, bonus: 2 }
     esquive: { mastery: 2, bonus: 1 }
     dr: { mastery: 2, bonus: 2 }
+    vitesse: { mastery: 2, bonus: 1 }
     xp_value: 25
     gold_value: 18
     abilities: []
@@ -221,6 +227,7 @@ siege_monsters:
     damage: { mastery: 4, bonus: 2 }
     esquive: { mastery: 1, bonus: 0 }
     dr: { mastery: 3, bonus: 2 }
+    vitesse: { mastery: 1, bonus: 0 }
     xp_value: 35
     gold_value: 25
     abilities: []
@@ -233,6 +240,7 @@ siege_monsters:
     damage: { mastery: 5, bonus: 2 }
     esquive: { mastery: 3, bonus: 2 }
     dr: { mastery: 3, bonus: 3 }
+    vitesse: { mastery: 3, bonus: 2 }
     xp_value: 50
     gold_value: 40
     abilities: []

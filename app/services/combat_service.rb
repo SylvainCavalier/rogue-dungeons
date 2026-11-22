@@ -6,6 +6,10 @@ class CombatService
   PARRY_ROLL_BONUS = 2
   PARRY_CHIP_DAMAGE = 1
 
+  # % chance per turn that an enemy uses one of its abilities (monster
+  # `ability_chance` overrides it: casters rely on their spells).
+  DEFAULT_ABILITY_CHANCE = 30
+
   # Defense mode + dice shown by the combat toggle.
   def self.defense_info(character)
     esq_m, esq_b = character.defense_roll("esquive")
@@ -42,16 +46,28 @@ class CombatService
     enemy_names = enemies.map { |e| e[:name] }.tally.map { |n, c| c > 1 ? "#{c}x #{n}" : n }.join(", ")
     @state[:log] << "Ennemis : #{enemy_names}"
 
-    save_state!
-    combat_snapshot
+    begin_combat!
+  end
+
+  # Rolls initiative once for the whole fight, then lets the enemies faster
+  # than the player act before the player's first turn. Also called by
+  # SiegeService once it has built the siege combat state.
+  def begin_combat!
+    @log = []
+    roll_initiative!
+    @state[:turn] = 1
+    start_round_log!
+    end_turn_with { resolve_enemy_turns(faster_enemies) }
   end
 
   def player_action(action_type, params = {})
     return { error: "Aucun combat en cours" } unless @state && @state[:status] == "active"
 
     @log = []
-    @state[:turn] += 1
-    @log << "--- Tour #{@state[:turn]} ---"
+    resume_legacy_combat!
+    # A stance/counter covers the enemy actions until the player's next action.
+    @state[:player_counter] = nil
+    @state[:player_stance] = nil
 
     skip = check_player_status_effects
     unless skip
@@ -71,44 +87,26 @@ class CombatService
       end
     end
 
-    return finish_combat(:victory) if enemies_all_dead?
-
-    resolve_enemy_turns unless enemies_all_dead?
-
-    return finish_combat(:defeat) if player_dead?
-
-    tick_all_statuses
-    return finish_combat(:defeat) if player_dead?
-
-    @state[:log].concat(@log)
-    save_state!
-    combat_snapshot
+    close_round
   end
 
   def flee
     return { error: "Aucun combat en cours" } unless @state && @state[:status] == "active"
 
+    @log = []
+    resume_legacy_combat!
+    @state[:player_counter] = nil
+    @state[:player_stance] = nil
+
     escape_roll = DiceRoller.roll(character_dex_mastery, character_dex_bonus)
     difficulty = @state[:floor] / 10 + 3
 
     if escape_roll[:total] >= difficulty
-      @state[:log] << "Fuite réussie ! (#{escape_roll[:total]} vs #{difficulty})"
+      @log << "Fuite réussie ! (#{escape_roll[:total]} vs #{difficulty})"
       finish_combat(:fled)
     else
-      @log = ["Tentative de fuite échouée ! (#{escape_roll[:total]} vs #{difficulty})"]
-      resolve_enemy_turns
-      if player_dead?
-        @state[:log].concat(@log)
-        return finish_combat(:defeat)
-      end
-      tick_all_statuses
-      if player_dead?
-        @state[:log].concat(@log)
-        return finish_combat(:defeat)
-      end
-      @state[:log].concat(@log)
-      save_state!
-      combat_snapshot
+      @log << "Tentative de fuite échouée ! (#{escape_roll[:total]} vs #{difficulty})"
+      close_round
     end
   end
 
@@ -125,7 +123,8 @@ class CombatService
         mana: @state[:player][:mana],
         max_mana: @state[:player][:max_mana],
         statuses: @state[:player_statuses] || [],
-        defense: self.class.defense_info(character)
+        defense: self.class.defense_info(character),
+        initiative: @state[:player_initiative]
       },
       enemies: (@state[:enemies] || []).map.with_index { |e, i|
         {
@@ -136,6 +135,8 @@ class CombatService
           max_hp: e[:max_hp],
           alive: e[:hp] > 0,
           statuses: e[:statuses] || [],
+          initiative: e[:initiative],
+          faster: faster_than_player?(e),
           revealed_resistances: revealed_resistances_for(e)
         }
       },
@@ -880,21 +881,100 @@ class CombatService
   # Enemy turn resolution
   # ═══════════════════════════════════════════
 
-  def resolve_enemy_turns
-    @enemy_attack_index = 0
-    living_enemies.each do |enemy|
+  # ═══════════════════════════════════════════
+  # Initiative and round flow
+  # A round is: faster enemies → player → slower enemies → status ticks.
+  # The player's input arrives in the middle of a round, so each request runs
+  # player → slower enemies → ticks, then the faster enemies of the next round.
+  # ═══════════════════════════════════════════
+
+  def roll_initiative!
+    mastery, bonus = character.initiative_roll
+    @state[:player_initiative] = DiceRoller.roll(mastery, bonus)[:total]
+    @state[:enemies].each do |enemy|
+      speed = enemy[:vitesse] || { mastery: 1, bonus: 0 }
+      enemy[:initiative] = DiceRoller.roll(speed[:mastery], speed[:bonus])[:total]
+    end
+
+    order = @state[:enemies].map { |e| [e[:name], e[:initiative]] } + [["Vous", @state[:player_initiative]]]
+    order = order.sort_by { |name, init| [-init, name == "Vous" ? 0 : 1] }
+    @state[:log] << "Initiative (Vitesse #{DiceRoller.notation(mastery, bonus)}) : " +
+      order.map { |name, init| "#{name} #{init}" }.join(" > ")
+  end
+
+  # Ties go to the player.
+  def faster_than_player?(enemy)
+    enemy[:initiative].to_i > @state[:player_initiative].to_i
+  end
+
+  def enemies_by_initiative
+    living_enemies.sort_by.with_index { |e, i| [-e[:initiative].to_i, i] }
+  end
+
+  def faster_enemies
+    enemies_by_initiative.select { |e| faster_than_player?(e) }
+  end
+
+  def slower_enemies
+    enemies_by_initiative.reject { |e| faster_than_player?(e) }
+  end
+
+  # Combats saved before initiative existed: roll it now, no opening phase.
+  def resume_legacy_combat!
+    return if @state[:player_initiative]
+
+    roll_initiative!
+    @state[:turn] = @state[:turn].to_i + 1
+    start_round_log!
+  end
+
+  def start_round_log!
+    @state[:round_attacks] = 0
+    @log << "--- Tour #{@state[:turn]} ---"
+  end
+
+  # End of the player's action: slower enemies, status ticks, then the next
+  # round starts with the faster enemies.
+  def close_round
+    return finish_combat(:victory) if enemies_all_dead?
+
+    resolve_enemy_turns(slower_enemies)
+    return finish_combat(:defeat) if player_dead?
+    return finish_combat(:victory) if enemies_all_dead?
+
+    tick_all_statuses
+    return finish_combat(:defeat) if player_dead?
+    return finish_combat(:victory) if enemies_all_dead?
+
+    @state[:turn] += 1
+    start_round_log!
+    end_turn_with { resolve_enemy_turns(faster_enemies) }
+  end
+
+  def end_turn_with
+    yield
+    return finish_combat(:defeat) if player_dead?
+    return finish_combat(:victory) if enemies_all_dead?
+
+    @state[:log].concat(@log)
+    save_state!
+    combat_snapshot
+  end
+
+  def resolve_enemy_turns(enemies)
+    enemies.each do |enemy|
+      break if player_dead?
+      next if enemy[:hp] <= 0
       next if enemy_is_stunned?(enemy)
+
       next if enemy_is_paralyzed?(enemy)
 
-      if enemy[:abilities]&.any? && rand(100) < 30
+      if enemy[:abilities]&.any? && rand(100) < (enemy[:ability_chance] || DEFAULT_ABILITY_CHANCE)
         resolve_enemy_ability(enemy)
       else
         resolve_enemy_attack(enemy)
       end
     end
-
-    @state[:player_counter] = nil
-    @state[:player_stance] = nil
   end
 
   def resolve_enemy_attack(enemy)
@@ -905,7 +985,7 @@ class CombatService
     def_m, def_b = player_defense_vs(enemy)
 
     hit = DiceRoller.opposed_roll(att_m, att_b, def_m, def_b)
-    @enemy_attack_index = (@enemy_attack_index || 0) + 1
+    @state[:round_attacks] = @state[:round_attacks].to_i + 1
     if hit[:hit] || hit[:graze]
       counter = @state[:player_counter]
       if hit[:hit] && counter && counter[:counter_on_success]
@@ -965,7 +1045,7 @@ class CombatService
     def_m, def_b = player_defense_vs(enemy)
 
     hit = DiceRoller.opposed_roll(att_m, att_b, def_m, def_b)
-    @enemy_attack_index = (@enemy_attack_index || 0) + 1
+    @state[:round_attacks] = @state[:round_attacks].to_i + 1
     if hit[:hit] || hit[:graze]
       dmg_m = enemy[:damage][:mastery] + (tech["damage_mastery_mod"] || 0)
       dmg_m = [dmg_m, 1].max
@@ -1007,7 +1087,7 @@ class CombatService
     when "damage", "damage_status"
       def_m, def_b = player_defense_vs(enemy)
       hit = DiceRoller.opposed_roll(acc_m, acc_b, def_m, def_b)
-      @enemy_attack_index = (@enemy_attack_index || 0) + 1
+      @state[:round_attacks] = @state[:round_attacks].to_i + 1
       if hit[:hit] || hit[:graze]
         dmg_m = magic["damage_mastery"] || 1
         dmg_m = graze_mastery(dmg_m, hit)
@@ -1029,7 +1109,7 @@ class CombatService
     when "drain"
       def_m, def_b = player_defense_vs(enemy)
       hit = DiceRoller.opposed_roll(acc_m, acc_b, def_m, def_b)
-      @enemy_attack_index = (@enemy_attack_index || 0) + 1
+      @state[:round_attacks] = @state[:round_attacks].to_i + 1
       if hit[:hit] || hit[:graze]
         dmg_m = magic["damage_mastery"] || 1
         dmg_m = graze_mastery(dmg_m, hit)
@@ -1301,7 +1381,7 @@ class CombatService
     accel = (@state[:player_statuses] || []).find { |s| s[:name] == "Accéléré" }
     bonus += 1 if accel
 
-    penalty = @enemy_attack_index || 0
+    penalty = @state[:round_attacks].to_i
     if penalty > 0
       mastery = [mastery - penalty, 1].max
       label = parry_mode? ? "Parade" : "Esquive"
@@ -1417,6 +1497,7 @@ class CombatService
 
   def finish_combat(result)
     @state[:status] = result.to_s
+    log_start = @state[:log].size
     rewards = {}
 
     tower_combat = @state[:floor].to_i.positive?
@@ -1491,13 +1572,14 @@ class CombatService
         mana: character.current_mana,
         max_mana: character.max_mana,
         statuses: [],
-        defense: self.class.defense_info(character)
+        defense: self.class.defense_info(character),
+        initiative: @state[:player_initiative]
       },
       enemies: (@state[:enemies] || []).map.with_index { |e, i|
         { index: i, key: e[:key], name: e[:name], hp: e[:hp], max_hp: e[:max_hp], alive: e[:hp] > 0, statuses: e[:statuses] || [], revealed_resistances: revealed_resistances_for(e) }
       },
       log: @state[:log].last(20),
-      recent_log: @state[:log].last(10),
+      recent_log: @state[:log][log_start..],
       rewards: rewards
     }
   end

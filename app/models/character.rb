@@ -27,6 +27,10 @@ class Character < ApplicationRecord
 
   DEFENSE_MODES = %w[esquive parade].freeze
 
+  # Skills kept in the database but hidden from the player until they get a use
+  # (see CLAUDE.md, "Hidden skills").
+  HIDDEN_SKILLS = %w[Discrétion].freeze
+
   validates :name, presence: true
   validates :defense_mode, inclusion: { in: DEFENSE_MODES }
   validates :vigueur, :dexterite, :intelligence, :charisme, :perception,
@@ -188,6 +192,13 @@ class Character < ApplicationRecord
   # Sum of a catalog field over equipped items (esquive_bonus, parade_bonus, flee_bonus, speed_bonus…).
   def equipment_bonus(field)
     inventory_items.where(equipped: true).sum { |item| catalog_for(item)&.dig(field).to_i }
+  end
+
+  # Initiative (Vitesse skill + boots speed_bonus), rolled once per combat.
+  def initiative_roll
+    skill = skills.find_by(name: "Vitesse")
+    mastery, bonus = skill ? [skill.mastery, skill.bonus] : [dexterite, 0]
+    [mastery, bonus + equipment_bonus("speed_bonus")]
   end
 
   def total_accuracy_bonus_from_equipment

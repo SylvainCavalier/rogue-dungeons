@@ -3,7 +3,7 @@ module Api
     before_action :require_character!
 
     def index
-      skills = current_character.skills.order(:category, :name)
+      skills = current_character.skills.visible.order(:category, :name)
       render json: {
         skills: skills.map { |s| skill_json(s) },
         available_xp: current_character.xp
@@ -11,7 +11,7 @@ module Api
     end
 
     def upgrade
-      skill = current_character.skills.find(params[:id])
+      skill = current_character.skills.visible.find(params[:id])
       service = SkillUpgradeService.new(current_character, skill)
       result = service.call
 

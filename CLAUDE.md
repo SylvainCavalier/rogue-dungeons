@@ -16,7 +16,7 @@ Player-facing text (UI strings, combat log, catalog data) is in **French**. Code
 foreman start -f Procfile.dev   # Rails (3000) + Vite dev server
 bundle install && npm install
 bin/rails db:create db:migrate
-bin/rails test                  # Minitest (test/ is almost empty for now)
+bin/rails test                  # Minitest (test/services/ has the combat tests; minitest pinned < 6 for Rails 8.0)
 bundle exec rspec               # RSpec (spec/, only a User spec for now)
 npm run lint / npm run lint:fix # ESLint
 bundle exec rubocop [-a]
@@ -62,7 +62,7 @@ A technique/magic must exist in **both** its `.md` and `.yml` with matching keys
 - **Player weapon damage** (`player_damage`): characteristic dice (Vigueur, or Dextérité for `arme_a_distance`) **+** weapon dice and bonus. Vigueur 2 + 3D+1 weapon = 5D+1. Bare hands = Vigueur D.
 - **Physical damage**: `damage roll − resistance roll` (min 1). Enemy resistance = its `vigueur` + `dr`. Player resistance = Vigueur + equipment DR (+ stance / "Protégé").
 - **Magic damage**: damage roll only, no resistance roll subtracted (but elemental resistances apply).
-- Each additional enemy attack in the same turn gives the player −1D on dodge ("Esquive affaiblie").
+- **Several attackers**: each enemy attack after the first in the same round gives the player −1D on the defense roll (dodge *or* parry, min 1D), logged as "Esquive affaiblie" / "Parade affaiblie (-2D, attaque n°3 du tour)". Counted by `@state[:round_attacks]` (persisted, since faster and slower enemies of a round resolve in different requests), reset at each "--- Tour N ---" (`start_round_log!`), incremented by every enemy attack, technique and damage/drain spell (`player_defense_vs`). Enemy heals don't count.
 
 ## Characteristics
 
@@ -71,7 +71,7 @@ A technique/magic must exist in **both** its `.md` and `.yml` with matching keys
 | Characteristic | Effects today |
 |---|---|
 | Vigueur | Max PV = Vigueur×3 (+bonus). Melee damage dice. Player physical resistance. Guild learning time (`rank×2 − Vigueur` days). |
-| Dextérité | Ranged damage dice. Fallback for weapon accuracy and dodge. Flee roll mastery (`Esquive` bonus added). |
+| Dextérité | Ranged damage dice. Fallback for weapon accuracy, dodge and initiative. Flee roll mastery (`Esquive` bonus added). |
 | Intelligence | Max PM = Intelligence×3 (+bonus). Fallback for magic accuracy. Academy learning time (`tier×3 − Intelligence` days). |
 | Charisme | **Not used yet.** |
 | Perception | Fallback for Observation only. |
@@ -90,13 +90,18 @@ Each character gets every skill of `Character::SKILLS_MAP` at creation, with `ma
 | Esquive (Dextérité) | Player defense in **esquive** mode; its bonus is also used for fleeing | `Character#defense_roll`, `player_defense_vs`, `character_dex_bonus` |
 | Parade (Dextérité) | Player defense in **parade** mode | `Character#defense_roll`, `player_defense_vs` |
 | Feu / Eau / Ombre / Lumière / Nature (Intelligence) | Accuracy of magics of that element | `find_player_skill_for_element` |
+| Vitesse (Dextérité) | Initiative roll (+ boots `speed_bonus`), once per fight: sets who acts before whom | `Character#initiative_roll`, `CombatService#roll_initiative!` |
 | Observation (Perception) | "Analyser" action (reveals enemy resistances) | `resolve_analyze` |
 | Fouille (Perception) | Gold multiplier after a tower victory | `resolve_search_loot` |
 | Endurance, Escalade, Natation, Bras de fer, Résistance à l'alcool (Vigueur) | **Not used yet** | — |
-| Discrétion, Vitesse (Dextérité) | **Not used yet** (boots already carry a `speed_bonus` for Vitesse) | — |
+| Discrétion (Dextérité) | **Not used yet, hidden** (see below) | — |
 | Enchantement (Intelligence) | **Not used yet** | — |
 | Persuasion, Marchandage, Dressage (Charisme) | **Not used yet** | — |
 | Intuition, Sang-Froid (Perception) | **Not used yet** | — |
+
+### Hidden skills
+
+`Character::HIDDEN_SKILLS` (today: **Discrétion**) lists skills that are still created and stored for every character but **not shown to the player** (`Skill.visible` scope, used by `CharactersController` and `SkillsController`, which also refuses to upgrade them). Discrétion has no gameplay use yet and we didn't want players to spend XP on it; once a mechanic uses it (stealth, ambush, avoiding fights…), remove it from `HIDDEN_SKILLS` and its value is already there.
 
 ### Adding a new skill
 
@@ -108,7 +113,7 @@ Each character gets every skill of `Character::SKILLS_MAP` at creation, with `ma
 
 ## Combat (`CombatService`)
 
-Turn order: player action → (victory check) → every living enemy acts → statuses tick (DoT/HoT, durations decrease). Player actions: `attack`, `technique`, `magic`, `item`, `analyze`, plus `flee` (Dextérité + Esquive bonus vs `floor/10 + 3`).
+**Initiative and turn order**: at the start of a fight (`begin_combat!`, called by `start_combat` and by `SiegeService#prepare_siege`) the player rolls Vitesse (+ boots `speed_bonus`) and every enemy rolls its `vitesse`, **once**; the values are kept until the end (`player_initiative`, `enemy[:initiative]`, shown on the combat cards). A round is: enemies faster than the player (highest first) → player → slower enemies → statuses tick (DoT/HoT, durations decrease). Ties go to the player. Since the player's input comes mid-round, one request runs `player action → slower enemies → ticks → "--- Tour N+1 ---" → faster enemies` (`close_round`), and faster enemies already act before the player's first turn. A stance/counter lasts until the player's next action; the "several attackers" penalty counts all the attacks of the current round, faster and slower enemies alike. Combats saved before initiative existed roll it on the next action (`resume_legacy_combat!`). Player actions: `attack`, `technique`, `magic`, `item`, `analyze`, plus `flee` (Dextérité + Esquive bonus vs `floor/10 + 3`).
 
 - **Targeting**: only `attack` and `analyze` use the chosen `target` index. Single-target techniques and magics always hit **the first living enemy** (`living_enemies.first`) — **intentional**, to keep fights fast; don't "fix" it unless asked. AoE types loop over all living enemies with **one opposed roll per target** (so some can be missed).
 - **Piercing weapons** (`pierce_targets: 2` in `equipement.yml`, the spears): a basic `attack` also hits the next living enemy after the chosen target (wrapping around), with one roll per target (`pierced_targets`, `resolve_attack_on`). Techniques don't pierce.
@@ -119,7 +124,7 @@ Turn order: player action → (victory check) → every living enemy acts → st
   - Equipment adds a flat bonus to the matching mode: boots `esquive_bonus`, helmets `parade_bonus` (`Character#defense_roll`, `#equipment_bonus`). Boots also have `flee_bonus` (added to the flee roll) and `speed_bonus` (stored for the future Vitesse mechanic, not used yet).
   - Bonuses of the other mode are ignored. Snapshots expose `player.defense` (`{ mode, esquive, parade }` dice notations).
 - **Player accuracy**: weapon skill (+ weapon `accuracy_bonus`) ± status modifiers. **Magic accuracy**: element skill (fallback Intelligence), against the enemy's `esquive`.
-- **Enemies**: 30% chance per turn to use one of their `abilities` (keys of `techniques.yml` or `magies.yml`; a `mana_cost` key means it's resolved as a magic), otherwise a basic attack.
+- **Enemies**: `ability_chance`% per turn (default `DEFAULT_ABILITY_CHANCE` = 30) to use one of their `abilities` (keys of `techniques.yml` or `magies.yml`; a `mana_cost` key means it's resolved as a magic), otherwise a basic attack.
 - **End** (`finish_combat`): `floor > 0` means a tower fight. Tower victory gives half the XP and gold scaled by the Fouille roll. Siege fights have no floor: full rewards, a day passes, then `SiegeService#finish_siege` applies the siege outcome. Defeat → 1 PV, tower session ends.
 
 ### Technique types (`techniques.yml` → `resolve_technique`)
@@ -133,6 +138,21 @@ All cost `mana_cost` and check the "Silencé" status. `damage`, `damage_status` 
 ### Statuses (`statuts.yml`)
 
 Applied as `{ name, remaining }` on the player or an enemy; re-applying refreshes to the max duration. Mechanics are data-driven (`tick_damage_*`, `tick_heal_*`, `mastery_penalty`, `accuracy_mastery_penalty`, `bonus_all`…), except a few hardcoded by name in `CombatService`: Étourdi (lose turn), Paralysé (50% lose turn), Confus (25% self-hit), Invisible (next attack auto-hits), Protégé (+1D resistance), Accéléré (+1 dodge), Silencé (no magic).
+
+### Monster design (`monstres.yml`)
+
+Stats are `hp`, `vigueur` (resistance to physical damage, with `dr`), `attack` (accuracy, also for their spells), `damage` (basic attacks and techniques; spells use the magic's own dice and ignore the player's resistance), `esquive`, `dr`, `vitesse` (initiative), optional `ability_chance`. Power rises with floors, but each monster follows an **archetype** instead of a linear curve — keep it that way when adding monsters:
+
+| Archetype | Profile | Examples |
+|---|---|---|
+| Agile | low PV/DR, high esquive and vitesse | rat, assassin, ombre, spectre |
+| Prédateur | fast, good attack, medium PV | loups, démon éclaireur, chimère |
+| Brute | lots of PV and damage, low attack/esquive, slow | ogre, minotaure, titans, béhémoth |
+| Tank | high DR/vigueur, very slow, average damage | golems, chevaliers |
+| Mage | fragile (low PV/vigueur/DR), high attack, `ability_chance` 50–65 | mage apprenti, sorciers, archimage |
+| Équilibré | average everywhere | bandits, démon, dragon jeune |
+
+Siege monsters (`siege.yml`) have `vitesse` too.
 
 ### Weaknesses / resistances and Analyze
 

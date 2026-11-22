@@ -33,7 +33,7 @@ module Api
 
     def stats
       char = current_character
-      skills_by_category = char.skills.order(:name).group_by(&:category)
+      skills_by_category = char.skills.visible.order(:name).group_by(&:category)
 
       render json: {
         characteristics: {
@@ -139,7 +139,7 @@ module Api
         activity_days_left: char.activity_days_left,
         activity_data: char.activity_data,
         in_combat: char.in_combat?,
-        skills: char.skills.order(:category, :name).map { |s| skill_json(s) },
+        skills: char.skills.visible.order(:category, :name).map { |s| skill_json(s) },
         techniques: char.learned_techniques.map { |t| { id: t.id, key: t.technique_key, name: t.name, category: t.category } },
         magics: char.learned_magics.order(:element, :tier).map { |m| { id: m.id, key: m.magic_key, name: m.name, element: m.element, tier: m.tier } },
         equipment: equipped_json(char)

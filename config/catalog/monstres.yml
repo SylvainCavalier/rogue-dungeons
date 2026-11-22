@@ -3,12 +3,13 @@ monsters:
   # Monstres faibles : beaucoup de faiblesses, pas de résistances
   rat_geant:
     name: "Rat géant"
-    hp: 7
-    vigueur: { mastery: 1, bonus: 1 }
+    hp: 6
+    vigueur: { mastery: 1, bonus: 0 }
     attack: { mastery: 1, bonus: 1 }
-    damage: { mastery: 1, bonus: 1 }
-    esquive: { mastery: 1, bonus: 1 }
-    dr: { mastery: 0, bonus: 1 }
+    damage: { mastery: 1, bonus: 0 }
+    esquive: { mastery: 2, bonus: 0 }
+    dr: { mastery: 0, bonus: 0 }
+    vitesse: { mastery: 2, bonus: 1 }
     xp_value: 2
     gold_value: 1
     abilities: []
@@ -22,6 +23,7 @@ monsters:
     damage: { mastery: 1, bonus: 1 }
     esquive: { mastery: 1, bonus: 2 }
     dr: { mastery: 0, bonus: 1 }
+    vitesse: { mastery: 1, bonus: 2 }
     xp_value: 3
     gold_value: 2
     abilities: []
@@ -29,12 +31,13 @@ monsters:
 
   archer_gobelin:
     name: "Archer gobelin"
-    hp: 8
-    vigueur: { mastery: 1, bonus: 1 }
+    hp: 7
+    vigueur: { mastery: 1, bonus: 0 }
     attack: { mastery: 2, bonus: 1 }
     damage: { mastery: 1, bonus: 2 }
     esquive: { mastery: 1, bonus: 1 }
-    dr: { mastery: 0, bonus: 1 }
+    dr: { mastery: 0, bonus: 0 }
+    vitesse: { mastery: 1, bonus: 1 }
     xp_value: 4
     gold_value: 3
     abilities: []
@@ -42,12 +45,13 @@ monsters:
 
   loup_affame:
     name: "Loup affamé"
-    hp: 11
+    hp: 10
     vigueur: { mastery: 1, bonus: 2 }
-    attack: { mastery: 2, bonus: 1 }
+    attack: { mastery: 2, bonus: 0 }
     damage: { mastery: 1, bonus: 2 }
-    esquive: { mastery: 2, bonus: 0 }
+    esquive: { mastery: 2, bonus: 1 }
     dr: { mastery: 0, bonus: 1 }
+    vitesse: { mastery: 2, bonus: 2 }
     xp_value: 4
     gold_value: 2
     abilities: []
@@ -60,11 +64,13 @@ monsters:
     vigueur: { mastery: 2, bonus: 1 }
     attack: { mastery: 2, bonus: 2 }
     damage: { mastery: 2, bonus: 1 }
-    esquive: { mastery: 2, bonus: 1 }
+    esquive: { mastery: 2, bonus: 0 }
     dr: { mastery: 1, bonus: 0 }
+    vitesse: { mastery: 3, bonus: 0 }
     xp_value: 18
     gold_value: 12
     abilities: ["coup_charge"]
+    ability_chance: 35
     resistances: { feu: -25, lumiere: -25 }
 
   # === ÉTAGES 11-20 : Pression ===
@@ -76,6 +82,7 @@ monsters:
     damage: { mastery: 2, bonus: 0 }
     esquive: { mastery: 2, bonus: 0 }
     dr: { mastery: 0, bonus: 2 }
+    vitesse: { mastery: 2, bonus: 0 }
     xp_value: 5
     gold_value: 5
     abilities: []
@@ -83,25 +90,28 @@ monsters:
 
   mage_apprenti:
     name: "Mage apprenti"
-    hp: 11
-    vigueur: { mastery: 1, bonus: 1 }
-    attack: { mastery: 2, bonus: 1 }
-    damage: { mastery: 2, bonus: 1 }
-    esquive: { mastery: 1, bonus: 2 }
-    dr: { mastery: 0, bonus: 1 }
+    hp: 8
+    vigueur: { mastery: 1, bonus: 0 }
+    attack: { mastery: 2, bonus: 2 }
+    damage: { mastery: 1, bonus: 1 }
+    esquive: { mastery: 1, bonus: 1 }
+    dr: { mastery: 0, bonus: 0 }
+    vitesse: { mastery: 1, bonus: 2 }
     xp_value: 6
     gold_value: 4
     abilities: ["etincelle"]
+    ability_chance: 60
     resistances: { physical: -25, feu: 25 }
 
   ogre_mineur:
     name: "Ogre mineur"
-    hp: 24
-    vigueur: { mastery: 2, bonus: 2 }
-    attack: { mastery: 2, bonus: 1 }
-    damage: { mastery: 2, bonus: 2 }
-    esquive: { mastery: 1, bonus: 1 }
+    hp: 30
+    vigueur: { mastery: 3, bonus: 0 }
+    attack: { mastery: 1, bonus: 2 }
+    damage: { mastery: 3, bonus: 0 }
+    esquive: { mastery: 1, bonus: 0 }
     dr: { mastery: 1, bonus: 0 }
+    vitesse: { mastery: 1, bonus: 0 }
     xp_value: 7
     gold_value: 6
     abilities: []
@@ -110,26 +120,29 @@ monsters:
   # Boss étage 20
   ogre_des_profondeurs:
     name: "Ogre des profondeurs"
-    hp: 42
-    vigueur: { mastery: 3, bonus: 1 }
-    attack: { mastery: 3, bonus: 0 }
-    damage: { mastery: 3, bonus: 1 }
-    esquive: { mastery: 1, bonus: 2 }
+    hp: 55
+    vigueur: { mastery: 3, bonus: 2 }
+    attack: { mastery: 2, bonus: 1 }
+    damage: { mastery: 4, bonus: 0 }
+    esquive: { mastery: 1, bonus: 0 }
     dr: { mastery: 1, bonus: 2 }
+    vitesse: { mastery: 1, bonus: 1 }
     xp_value: 28
     gold_value: 20
     abilities: ["coup_charge"]
+    ability_chance: 35
     resistances: { physical: 25, feu: -50, lumiere: -25 }
 
   # === ÉTAGES 21-30 : Brutalité ===
   assassin:
     name: "Assassin"
-    hp: 16
-    vigueur: { mastery: 2, bonus: 1 }
-    attack: { mastery: 2, bonus: 3 }
+    hp: 13
+    vigueur: { mastery: 2, bonus: 0 }
+    attack: { mastery: 3, bonus: 0 }
     damage: { mastery: 2, bonus: 2 }
-    esquive: { mastery: 2, bonus: 2 }
-    dr: { mastery: 0, bonus: 2 }
+    esquive: { mastery: 3, bonus: 0 }
+    dr: { mastery: 0, bonus: 1 }
+    vitesse: { mastery: 3, bonus: 1 }
     xp_value: 8
     gold_value: 7
     abilities: ["saignee"]
@@ -137,12 +150,13 @@ monsters:
 
   loup_noir:
     name: "Loup noir"
-    hp: 17
+    hp: 16
     vigueur: { mastery: 2, bonus: 1 }
     attack: { mastery: 2, bonus: 2 }
     damage: { mastery: 2, bonus: 1 }
     esquive: { mastery: 2, bonus: 2 }
     dr: { mastery: 0, bonus: 2 }
+    vitesse: { mastery: 3, bonus: 0 }
     xp_value: 7
     gold_value: 4
     abilities: []
@@ -150,25 +164,28 @@ monsters:
 
   sorcier_renegat:
     name: "Sorcier renégat"
-    hp: 14
-    vigueur: { mastery: 2, bonus: 0 }
-    attack: { mastery: 2, bonus: 2 }
-    damage: { mastery: 2, bonus: 2 }
-    esquive: { mastery: 2, bonus: 1 }
-    dr: { mastery: 0, bonus: 2 }
+    hp: 11
+    vigueur: { mastery: 1, bonus: 2 }
+    attack: { mastery: 3, bonus: 0 }
+    damage: { mastery: 1, bonus: 2 }
+    esquive: { mastery: 1, bonus: 2 }
+    dr: { mastery: 0, bonus: 1 }
+    vitesse: { mastery: 2, bonus: 0 }
     xp_value: 9
     gold_value: 6
     abilities: ["boule_de_feu"]
+    ability_chance: 60
     resistances: { physical: -25, feu: 50, eau: -25 }
 
   golem_argile:
     name: "Golem d'argile"
-    hp: 28
-    vigueur: { mastery: 3, bonus: 0 }
-    attack: { mastery: 2, bonus: 1 }
-    damage: { mastery: 2, bonus: 3 }
-    esquive: { mastery: 1, bonus: 1 }
-    dr: { mastery: 1, bonus: 2 }
+    hp: 36
+    vigueur: { mastery: 3, bonus: 1 }
+    attack: { mastery: 2, bonus: 0 }
+    damage: { mastery: 2, bonus: 2 }
+    esquive: { mastery: 1, bonus: 0 }
+    dr: { mastery: 2, bonus: 0 }
+    vitesse: { mastery: 1, bonus: 0 }
     xp_value: 10
     gold_value: 7
     abilities: []
@@ -177,15 +194,17 @@ monsters:
   # Boss étage 30
   maitre_assassin:
     name: "Maître assassin"
-    hp: 34
-    vigueur: { mastery: 2, bonus: 2 }
-    attack: { mastery: 3, bonus: 2 }
+    hp: 30
+    vigueur: { mastery: 2, bonus: 1 }
+    attack: { mastery: 4, bonus: 1 }
     damage: { mastery: 3, bonus: 1 }
-    esquive: { mastery: 3, bonus: 1 }
-    dr: { mastery: 1, bonus: 1 }
+    esquive: { mastery: 3, bonus: 2 }
+    dr: { mastery: 0, bonus: 2 }
+    vitesse: { mastery: 4, bonus: 0 }
     xp_value: 38
     gold_value: 30
     abilities: ["saignee", "coup_rapide"]
+    ability_chance: 40
     resistances: { physical: -25, ombre: 50, lumiere: -50 }
 
   # === ÉTAGES 31-40 : Magie et contrôle ===
@@ -197,6 +216,7 @@ monsters:
     damage: { mastery: 2, bonus: 2 }
     esquive: { mastery: 2, bonus: 2 }
     dr: { mastery: 1, bonus: 1 }
+    vitesse: { mastery: 2, bonus: 1 }
     xp_value: 10
     gold_value: 8
     abilities: []
@@ -204,38 +224,43 @@ monsters:
 
   elementaire_feu:
     name: "Élémentaire de feu"
-    hp: 22
-    vigueur: { mastery: 2, bonus: 2 }
+    hp: 20
+    vigueur: { mastery: 2, bonus: 1 }
     attack: { mastery: 3, bonus: 1 }
-    damage: { mastery: 3, bonus: 1 }
-    esquive: { mastery: 2, bonus: 1 }
-    dr: { mastery: 1, bonus: 1 }
+    damage: { mastery: 3, bonus: 0 }
+    esquive: { mastery: 2, bonus: 0 }
+    dr: { mastery: 1, bonus: 0 }
+    vitesse: { mastery: 2, bonus: 2 }
     xp_value: 12
     gold_value: 9
     abilities: ["boule_de_feu"]
+    ability_chance: 50
     resistances: { physical: 25, feu: 100, eau: -100, nature: -50 }
 
   elementaire_mineur:
     name: "Élémentaire mineur"
-    hp: 17
-    vigueur: { mastery: 2, bonus: 1 }
+    hp: 15
+    vigueur: { mastery: 2, bonus: 0 }
     attack: { mastery: 2, bonus: 2 }
-    damage: { mastery: 2, bonus: 2 }
+    damage: { mastery: 2, bonus: 1 }
     esquive: { mastery: 2, bonus: 1 }
-    dr: { mastery: 1, bonus: 1 }
+    dr: { mastery: 1, bonus: 0 }
+    vitesse: { mastery: 3, bonus: 0 }
     xp_value: 9
     gold_value: 6
     abilities: ["etincelle"]
+    ability_chance: 45
     resistances: { physical: 25, feu: 75, eau: -75 }
 
   chevalier_dechu:
     name: "Chevalier déchu"
-    hp: 25
+    hp: 26
     vigueur: { mastery: 3, bonus: 0 }
-    attack: { mastery: 3, bonus: 1 }
+    attack: { mastery: 3, bonus: 0 }
     damage: { mastery: 3, bonus: 0 }
-    esquive: { mastery: 2, bonus: 1 }
-    dr: { mastery: 1, bonus: 2 }
+    esquive: { mastery: 1, bonus: 2 }
+    dr: { mastery: 2, bonus: 0 }
+    vitesse: { mastery: 1, bonus: 2 }
     xp_value: 11
     gold_value: 9
     abilities: ["coup_charge"]
@@ -243,12 +268,13 @@ monsters:
 
   minotaure:
     name: "Minotaure"
-    hp: 30
-    vigueur: { mastery: 3, bonus: 1 }
-    attack: { mastery: 3, bonus: 1 }
-    damage: { mastery: 3, bonus: 2 }
-    esquive: { mastery: 2, bonus: 1 }
+    hp: 38
+    vigueur: { mastery: 3, bonus: 2 }
+    attack: { mastery: 2, bonus: 2 }
+    damage: { mastery: 4, bonus: 0 }
+    esquive: { mastery: 1, bonus: 2 }
     dr: { mastery: 1, bonus: 1 }
+    vitesse: { mastery: 2, bonus: 1 }
     xp_value: 14
     gold_value: 10
     abilities: ["coup_charge"]
@@ -257,26 +283,29 @@ monsters:
   # Boss étage 40
   seigneur_elementaire:
     name: "Seigneur élémentaire"
-    hp: 48
-    vigueur: { mastery: 3, bonus: 2 }
-    attack: { mastery: 4, bonus: 0 }
-    damage: { mastery: 3, bonus: 2 }
-    esquive: { mastery: 3, bonus: 0 }
-    dr: { mastery: 2, bonus: 0 }
+    hp: 45
+    vigueur: { mastery: 3, bonus: 0 }
+    attack: { mastery: 4, bonus: 1 }
+    damage: { mastery: 3, bonus: 0 }
+    esquive: { mastery: 2, bonus: 2 }
+    dr: { mastery: 1, bonus: 2 }
+    vitesse: { mastery: 2, bonus: 2 }
     xp_value: 48
     gold_value: 35
     abilities: ["boule_de_feu", "mur_de_flammes"]
+    ability_chance: 55
     resistances: { physical: 25, feu: 100, eau: -75, nature: -25 }
 
   # === ÉTAGES 41-50 : Armés jusqu'aux dents ===
   assassin_elite:
     name: "Assassin d'élite"
-    hp: 22
-    vigueur: { mastery: 2, bonus: 3 }
-    attack: { mastery: 3, bonus: 2 }
+    hp: 18
+    vigueur: { mastery: 2, bonus: 2 }
+    attack: { mastery: 4, bonus: 0 }
     damage: { mastery: 3, bonus: 1 }
-    esquive: { mastery: 3, bonus: 2 }
-    dr: { mastery: 1, bonus: 1 }
+    esquive: { mastery: 4, bonus: 0 }
+    dr: { mastery: 1, bonus: 0 }
+    vitesse: { mastery: 4, bonus: 0 }
     xp_value: 14
     gold_value: 10
     abilities: ["saignee", "coup_rapide"]
@@ -284,12 +313,13 @@ monsters:
 
   golem_pierre:
     name: "Golem de pierre"
-    hp: 38
-    vigueur: { mastery: 3, bonus: 2 }
-    attack: { mastery: 3, bonus: 1 }
+    hp: 50
+    vigueur: { mastery: 4, bonus: 0 }
+    attack: { mastery: 2, bonus: 2 }
     damage: { mastery: 3, bonus: 2 }
-    esquive: { mastery: 1, bonus: 2 }
-    dr: { mastery: 2, bonus: 1 }
+    esquive: { mastery: 1, bonus: 0 }
+    dr: { mastery: 3, bonus: 0 }
+    vitesse: { mastery: 1, bonus: 0 }
     xp_value: 15
     gold_value: 9
     abilities: []
@@ -297,25 +327,28 @@ monsters:
 
   sorcier_noir:
     name: "Sorcier noir"
-    hp: 20
-    vigueur: { mastery: 2, bonus: 1 }
-    attack: { mastery: 3, bonus: 2 }
-    damage: { mastery: 3, bonus: 2 }
-    esquive: { mastery: 3, bonus: 1 }
-    dr: { mastery: 1, bonus: 1 }
+    hp: 15
+    vigueur: { mastery: 2, bonus: 0 }
+    attack: { mastery: 4, bonus: 0 }
+    damage: { mastery: 2, bonus: 0 }
+    esquive: { mastery: 2, bonus: 2 }
+    dr: { mastery: 0, bonus: 2 }
+    vitesse: { mastery: 2, bonus: 2 }
     xp_value: 15
     gold_value: 10
     abilities: ["trait_obscur", "drain_vital"]
+    ability_chance: 60
     resistances: { physical: -25, ombre: 75, lumiere: -75 }
 
   chevalier_noir:
     name: "Chevalier noir"
-    hp: 30
+    hp: 32
     vigueur: { mastery: 3, bonus: 2 }
     attack: { mastery: 3, bonus: 2 }
     damage: { mastery: 3, bonus: 2 }
-    esquive: { mastery: 2, bonus: 1 }
-    dr: { mastery: 2, bonus: 1 }
+    esquive: { mastery: 2, bonus: 0 }
+    dr: { mastery: 2, bonus: 2 }
+    vitesse: { mastery: 2, bonus: 0 }
     xp_value: 16
     gold_value: 12
     abilities: ["coup_charge"]
@@ -328,38 +361,44 @@ monsters:
     vigueur: { mastery: 4, bonus: 1 }
     attack: { mastery: 4, bonus: 1 }
     damage: { mastery: 4, bonus: 0 }
-    esquive: { mastery: 3, bonus: 0 }
-    dr: { mastery: 2, bonus: 2 }
+    esquive: { mastery: 2, bonus: 2 }
+    dr: { mastery: 3, bonus: 1 }
+    vitesse: { mastery: 2, bonus: 1 }
     xp_value: 60
     gold_value: 45
     abilities: ["coup_charge", "contre_attaque"]
+    ability_chance: 35
     resistances: { physical: 50, magical: 25, lumiere: -25 }
 
   # === ÉTAGES 51-60 : Ombres et corruption ===
   ombre:
     name: "Ombre"
-    hp: 19
-    vigueur: { mastery: 2, bonus: 1 }
+    hp: 14
+    vigueur: { mastery: 2, bonus: 0 }
     attack: { mastery: 3, bonus: 2 }
-    damage: { mastery: 3, bonus: 1 }
-    esquive: { mastery: 3, bonus: 2 }
-    dr: { mastery: 1, bonus: 1 }
+    damage: { mastery: 3, bonus: 0 }
+    esquive: { mastery: 4, bonus: 2 }
+    dr: { mastery: 0, bonus: 2 }
+    vitesse: { mastery: 4, bonus: 0 }
     xp_value: 15
     gold_value: 8
     abilities: ["trait_obscur"]
+    ability_chance: 40
     resistances: { physical: 75, ombre: 100, lumiere: -100 }
 
   spectre:
     name: "Spectre"
-    hp: 22
-    vigueur: { mastery: 2, bonus: 2 }
+    hp: 18
+    vigueur: { mastery: 2, bonus: 1 }
     attack: { mastery: 3, bonus: 2 }
-    damage: { mastery: 3, bonus: 2 }
-    esquive: { mastery: 4, bonus: 0 }
-    dr: { mastery: 1, bonus: 2 }
+    damage: { mastery: 3, bonus: 0 }
+    esquive: { mastery: 4, bonus: 1 }
+    dr: { mastery: 1, bonus: 0 }
+    vitesse: { mastery: 3, bonus: 2 }
     xp_value: 18
     gold_value: 10
     abilities: ["cecite"]
+    ability_chance: 45
     resistances: { physical: 75, ombre: 75, lumiere: -75, nature: -25 }
 
   vampire_mineur:
@@ -370,36 +409,42 @@ monsters:
     damage: { mastery: 3, bonus: 2 }
     esquive: { mastery: 3, bonus: 1 }
     dr: { mastery: 1, bonus: 2 }
+    vitesse: { mastery: 3, bonus: 1 }
     xp_value: 20
     gold_value: 12
     abilities: ["drain_vital"]
+    ability_chance: 35
     resistances: { physical: 50, ombre: 50, lumiere: -100, feu: -25 }
 
   demon_eclaireur:
     name: "Démon éclaireur"
-    hp: 28
-    vigueur: { mastery: 3, bonus: 1 }
+    hp: 24
+    vigueur: { mastery: 3, bonus: 0 }
     attack: { mastery: 4, bonus: 0 }
-    damage: { mastery: 3, bonus: 2 }
-    esquive: { mastery: 3, bonus: 1 }
-    dr: { mastery: 1, bonus: 2 }
+    damage: { mastery: 3, bonus: 1 }
+    esquive: { mastery: 3, bonus: 2 }
+    dr: { mastery: 1, bonus: 1 }
+    vitesse: { mastery: 4, bonus: 1 }
     xp_value: 20
     gold_value: 12
     abilities: ["boule_de_feu"]
+    ability_chance: 35
     resistances: { physical: 25, feu: 75, eau: -25, lumiere: -50 }
 
   # Boss étage 60
   vampire_ancestral:
     name: "Vampire ancestral"
-    hp: 65
+    hp: 70
     vigueur: { mastery: 4, bonus: 1 }
     attack: { mastery: 4, bonus: 1 }
     damage: { mastery: 4, bonus: 0 }
     esquive: { mastery: 3, bonus: 2 }
     dr: { mastery: 2, bonus: 1 }
+    vitesse: { mastery: 3, bonus: 2 }
     xp_value: 75
     gold_value: 55
     abilities: ["drain_vital", "cecite"]
+    ability_chance: 45
     resistances: { physical: 75, ombre: 75, lumiere: -100, feu: -25 }
 
   # === ÉTAGES 61-70 : Infernal ===
@@ -411,6 +456,7 @@ monsters:
     damage: { mastery: 4, bonus: 0 }
     esquive: { mastery: 3, bonus: 1 }
     dr: { mastery: 2, bonus: 0 }
+    vitesse: { mastery: 3, bonus: 0 }
     xp_value: 22
     gold_value: 14
     abilities: ["boule_de_feu"]
@@ -418,25 +464,28 @@ monsters:
 
   diablotin_majeur:
     name: "Diablotin majeur"
-    hp: 26
-    vigueur: { mastery: 3, bonus: 1 }
-    attack: { mastery: 4, bonus: 1 }
-    damage: { mastery: 3, bonus: 2 }
-    esquive: { mastery: 3, bonus: 2 }
-    dr: { mastery: 1, bonus: 2 }
+    hp: 20
+    vigueur: { mastery: 2, bonus: 2 }
+    attack: { mastery: 4, bonus: 2 }
+    damage: { mastery: 3, bonus: 0 }
+    esquive: { mastery: 4, bonus: 0 }
+    dr: { mastery: 1, bonus: 0 }
+    vitesse: { mastery: 4, bonus: 2 }
     xp_value: 20
     gold_value: 12
     abilities: ["etincelle"]
+    ability_chance: 55
     resistances: { physical: 25, feu: 50, eau: -50, lumiere: -50 }
 
   bete_infernale:
     name: "Bête infernale"
-    hp: 35
-    vigueur: { mastery: 4, bonus: 0 }
-    attack: { mastery: 4, bonus: 1 }
-    damage: { mastery: 4, bonus: 1 }
-    esquive: { mastery: 3, bonus: 0 }
+    hp: 42
+    vigueur: { mastery: 4, bonus: 1 }
+    attack: { mastery: 4, bonus: 0 }
+    damage: { mastery: 4, bonus: 2 }
+    esquive: { mastery: 2, bonus: 2 }
     dr: { mastery: 2, bonus: 0 }
+    vitesse: { mastery: 3, bonus: 2 }
     xp_value: 24
     gold_value: 16
     abilities: []
@@ -444,12 +493,13 @@ monsters:
 
   titan_mineur:
     name: "Titan mineur"
-    hp: 40
-    vigueur: { mastery: 4, bonus: 1 }
-    attack: { mastery: 4, bonus: 0 }
-    damage: { mastery: 4, bonus: 1 }
-    esquive: { mastery: 2, bonus: 1 }
-    dr: { mastery: 2, bonus: 1 }
+    hp: 55
+    vigueur: { mastery: 4, bonus: 2 }
+    attack: { mastery: 3, bonus: 1 }
+    damage: { mastery: 5, bonus: 0 }
+    esquive: { mastery: 1, bonus: 2 }
+    dr: { mastery: 2, bonus: 2 }
+    vitesse: { mastery: 1, bonus: 2 }
     xp_value: 26
     gold_value: 16
     abilities: ["coup_charge"]
@@ -464,20 +514,23 @@ monsters:
     damage: { mastery: 4, bonus: 3 }
     esquive: { mastery: 3, bonus: 1 }
     dr: { mastery: 2, bonus: 2 }
+    vitesse: { mastery: 3, bonus: 0 }
     xp_value: 90
     gold_value: 65
     abilities: ["boule_de_feu", "mur_de_flammes", "explosion_ardente"]
+    ability_chance: 45
     resistances: { physical: 50, feu: 100, eau: -100, lumiere: -50 }
 
   # === ÉTAGES 71-80 : Anciens monstres ===
   golem_antique:
     name: "Golem antique"
-    hp: 44
-    vigueur: { mastery: 4, bonus: 1 }
-    attack: { mastery: 4, bonus: 1 }
-    damage: { mastery: 4, bonus: 1 }
-    esquive: { mastery: 2, bonus: 1 }
-    dr: { mastery: 3, bonus: 0 }
+    hp: 62
+    vigueur: { mastery: 5, bonus: 0 }
+    attack: { mastery: 3, bonus: 1 }
+    damage: { mastery: 4, bonus: 2 }
+    esquive: { mastery: 1, bonus: 1 }
+    dr: { mastery: 4, bonus: 0 }
+    vitesse: { mastery: 1, bonus: 1 }
     xp_value: 26
     gold_value: 16
     abilities: []
@@ -485,38 +538,43 @@ monsters:
 
   chimere:
     name: "Chimère"
-    hp: 38
+    hp: 40
     vigueur: { mastery: 4, bonus: 0 }
     attack: { mastery: 4, bonus: 2 }
     damage: { mastery: 4, bonus: 1 }
     esquive: { mastery: 3, bonus: 2 }
     dr: { mastery: 2, bonus: 1 }
+    vitesse: { mastery: 4, bonus: 0 }
     xp_value: 28
     gold_value: 18
     abilities: ["boule_de_feu"]
+    ability_chance: 35
     resistances: { physical: 50, feu: 50, eau: -50, nature: -25 }
 
   dragonnet:
     name: "Dragonnet"
-    hp: 42
-    vigueur: { mastery: 4, bonus: 1 }
+    hp: 36
+    vigueur: { mastery: 3, bonus: 2 }
     attack: { mastery: 4, bonus: 2 }
-    damage: { mastery: 4, bonus: 2 }
-    esquive: { mastery: 3, bonus: 1 }
-    dr: { mastery: 2, bonus: 1 }
+    damage: { mastery: 4, bonus: 1 }
+    esquive: { mastery: 4, bonus: 0 }
+    dr: { mastery: 2, bonus: 0 }
+    vitesse: { mastery: 4, bonus: 1 }
     xp_value: 30
     gold_value: 20
     abilities: ["boule_de_feu"]
+    ability_chance: 40
     resistances: { physical: 50, feu: 75, eau: -75 }
 
   titan_ancien:
     name: "Titan ancien"
-    hp: 48
-    vigueur: { mastery: 5, bonus: 0 }
-    attack: { mastery: 4, bonus: 1 }
-    damage: { mastery: 5, bonus: 0 }
-    esquive: { mastery: 2, bonus: 2 }
+    hp: 64
+    vigueur: { mastery: 5, bonus: 1 }
+    attack: { mastery: 3, bonus: 2 }
+    damage: { mastery: 5, bonus: 2 }
+    esquive: { mastery: 2, bonus: 0 }
     dr: { mastery: 3, bonus: 0 }
+    vitesse: { mastery: 2, bonus: 0 }
     xp_value: 32
     gold_value: 22
     abilities: ["coup_charge"]
@@ -524,40 +582,45 @@ monsters:
 
   dragon_jeune:
     name: "Dragon jeune"
-    hp: 55
+    hp: 58
     vigueur: { mastery: 5, bonus: 0 }
     attack: { mastery: 5, bonus: 0 }
     damage: { mastery: 5, bonus: 0 }
-    esquive: { mastery: 3, bonus: 1 }
-    dr: { mastery: 2, bonus: 2 }
+    esquive: { mastery: 3, bonus: 0 }
+    dr: { mastery: 3, bonus: 0 }
+    vitesse: { mastery: 3, bonus: 1 }
     xp_value: 36
     gold_value: 26
     abilities: ["boule_de_feu", "mur_de_flammes"]
+    ability_chance: 40
     resistances: { physical: 75, feu: 100, eau: -75 }
 
   # Boss étage 80
   dragon_ancien:
     name: "Dragon ancien"
-    hp: 85
+    hp: 90
     vigueur: { mastery: 5, bonus: 1 }
     attack: { mastery: 5, bonus: 1 }
     damage: { mastery: 5, bonus: 2 }
-    esquive: { mastery: 4, bonus: 0 }
-    dr: { mastery: 3, bonus: 1 }
+    esquive: { mastery: 3, bonus: 2 }
+    dr: { mastery: 4, bonus: 0 }
+    vitesse: { mastery: 3, bonus: 1 }
     xp_value: 110
     gold_value: 80
     abilities: ["explosion_ardente", "mur_de_flammes"]
+    ability_chance: 45
     resistances: { physical: 75, feu: 100, eau: -100, lumiere: -25 }
 
   # === ÉTAGES 81-90 : Élites ===
   champion_dechu:
     name: "Champion déchu"
-    hp: 40
+    hp: 42
     vigueur: { mastery: 4, bonus: 2 }
     attack: { mastery: 5, bonus: 0 }
     damage: { mastery: 4, bonus: 2 }
     esquive: { mastery: 3, bonus: 2 }
-    dr: { mastery: 2, bonus: 2 }
+    dr: { mastery: 3, bonus: 0 }
+    vitesse: { mastery: 3, bonus: 1 }
     xp_value: 32
     gold_value: 22
     abilities: ["coup_charge", "contre_attaque"]
@@ -565,38 +628,43 @@ monsters:
 
   vampire_superieur:
     name: "Vampire supérieur"
-    hp: 38
-    vigueur: { mastery: 4, bonus: 1 }
+    hp: 34
+    vigueur: { mastery: 4, bonus: 0 }
     attack: { mastery: 5, bonus: 0 }
     damage: { mastery: 4, bonus: 1 }
-    esquive: { mastery: 4, bonus: 1 }
-    dr: { mastery: 2, bonus: 1 }
+    esquive: { mastery: 4, bonus: 2 }
+    dr: { mastery: 2, bonus: 0 }
+    vitesse: { mastery: 5, bonus: 0 }
     xp_value: 30
     gold_value: 20
     abilities: ["drain_vital"]
+    ability_chance: 40
     resistances: { physical: 75, ombre: 75, lumiere: -100, feu: -25 }
 
   archimage_noir:
     name: "Archimage noir"
-    hp: 32
-    vigueur: { mastery: 3, bonus: 1 }
-    attack: { mastery: 5, bonus: 1 }
-    damage: { mastery: 5, bonus: 1 }
-    esquive: { mastery: 4, bonus: 0 }
-    dr: { mastery: 2, bonus: 0 }
+    hp: 24
+    vigueur: { mastery: 3, bonus: 0 }
+    attack: { mastery: 6, bonus: 0 }
+    damage: { mastery: 3, bonus: 0 }
+    esquive: { mastery: 3, bonus: 1 }
+    dr: { mastery: 1, bonus: 1 }
+    vitesse: { mastery: 3, bonus: 0 }
     xp_value: 34
     gold_value: 24
     abilities: ["explosion_ardente", "drain_vital"]
+    ability_chance: 65
     resistances: { physical: -25, magical: 50, feu: 50, ombre: 50, lumiere: -25 }
 
   behemoth:
     name: "Béhémoth"
-    hp: 56
-    vigueur: { mastery: 5, bonus: 1 }
-    attack: { mastery: 5, bonus: 0 }
-    damage: { mastery: 5, bonus: 1 }
-    esquive: { mastery: 2, bonus: 1 }
-    dr: { mastery: 3, bonus: 1 }
+    hp: 75
+    vigueur: { mastery: 5, bonus: 2 }
+    attack: { mastery: 4, bonus: 0 }
+    damage: { mastery: 6, bonus: 0 }
+    esquive: { mastery: 1, bonus: 2 }
+    dr: { mastery: 3, bonus: 2 }
+    vitesse: { mastery: 1, bonus: 2 }
     xp_value: 38
     gold_value: 26
     abilities: ["coup_charge"]
@@ -604,28 +672,32 @@ monsters:
 
   dragon_noir:
     name: "Dragon noir"
-    hp: 65
+    hp: 68
     vigueur: { mastery: 5, bonus: 2 }
     attack: { mastery: 5, bonus: 1 }
     damage: { mastery: 5, bonus: 2 }
     esquive: { mastery: 4, bonus: 0 }
     dr: { mastery: 3, bonus: 1 }
+    vitesse: { mastery: 4, bonus: 0 }
     xp_value: 42
     gold_value: 30
     abilities: ["explosion_ardente", "mur_de_flammes"]
+    ability_chance: 40
     resistances: { physical: 75, feu: 75, ombre: 50, lumiere: -75, eau: -25 }
 
   ombre_majeure:
     name: "Ombre majeure"
-    hp: 30
-    vigueur: { mastery: 4, bonus: 0 }
-    attack: { mastery: 5, bonus: 0 }
-    damage: { mastery: 4, bonus: 2 }
-    esquive: { mastery: 5, bonus: 0 }
-    dr: { mastery: 2, bonus: 1 }
+    hp: 26
+    vigueur: { mastery: 3, bonus: 2 }
+    attack: { mastery: 5, bonus: 1 }
+    damage: { mastery: 4, bonus: 1 }
+    esquive: { mastery: 5, bonus: 2 }
+    dr: { mastery: 2, bonus: 0 }
+    vitesse: { mastery: 5, bonus: 2 }
     xp_value: 30
     gold_value: 18
     abilities: ["cecite", "trait_obscur"]
+    ability_chance: 45
     resistances: { physical: 100, ombre: 100, lumiere: -100, feu: -25 }
 
   # Boss étage 90
@@ -634,23 +706,26 @@ monsters:
     hp: 100
     vigueur: { mastery: 6, bonus: 0 }
     attack: { mastery: 5, bonus: 2 }
-    damage: { mastery: 5, bonus: 3 }
-    esquive: { mastery: 4, bonus: 1 }
+    damage: { mastery: 6, bonus: 0 }
+    esquive: { mastery: 4, bonus: 0 }
     dr: { mastery: 3, bonus: 1 }
+    vitesse: { mastery: 4, bonus: 0 }
     xp_value: 140
     gold_value: 100
     abilities: ["explosion_ardente", "drain_vital", "cecite"]
+    ability_chance: 50
     resistances: { physical: 75, magical: 50, ombre: 50, lumiere: -50, nature: -25 }
 
   # === ÉTAGES 91-100 : L'ultime épreuve ===
   titan_primordial:
     name: "Titan primordial"
-    hp: 65
-    vigueur: { mastery: 5, bonus: 3 }
-    attack: { mastery: 5, bonus: 1 }
-    damage: { mastery: 5, bonus: 3 }
-    esquive: { mastery: 3, bonus: 1 }
-    dr: { mastery: 3, bonus: 2 }
+    hp: 85
+    vigueur: { mastery: 6, bonus: 0 }
+    attack: { mastery: 4, bonus: 2 }
+    damage: { mastery: 6, bonus: 2 }
+    esquive: { mastery: 2, bonus: 1 }
+    dr: { mastery: 4, bonus: 0 }
+    vitesse: { mastery: 2, bonus: 0 }
     xp_value: 44
     gold_value: 30
     abilities: ["coup_charge"]
@@ -658,15 +733,17 @@ monsters:
 
   archidemon:
     name: "Archidémon"
-    hp: 68
-    vigueur: { mastery: 5, bonus: 2 }
+    hp: 62
+    vigueur: { mastery: 5, bonus: 1 }
     attack: { mastery: 6, bonus: 0 }
-    damage: { mastery: 5, bonus: 3 }
+    damage: { mastery: 5, bonus: 2 }
     esquive: { mastery: 4, bonus: 1 }
-    dr: { mastery: 3, bonus: 1 }
+    dr: { mastery: 3, bonus: 0 }
+    vitesse: { mastery: 4, bonus: 1 }
     xp_value: 48
     gold_value: 34
     abilities: ["explosion_ardente", "drain_vital"]
+    ability_chance: 50
     resistances: { physical: 75, feu: 100, eau: -50, lumiere: -75 }
 
   gardien_celeste:
@@ -677,22 +754,26 @@ monsters:
     damage: { mastery: 5, bonus: 2 }
     esquive: { mastery: 4, bonus: 2 }
     dr: { mastery: 3, bonus: 2 }
+    vitesse: { mastery: 4, bonus: 0 }
     xp_value: 52
     gold_value: 38
     abilities: ["rayon_sacre", "soin_leger"]
+    ability_chance: 40
     resistances: { physical: 75, lumiere: 100, ombre: -75, feu: -25 }
 
   heraut_neant:
     name: "Héraut du Néant"
-    hp: 80
-    vigueur: { mastery: 6, bonus: 1 }
-    attack: { mastery: 6, bonus: 1 }
-    damage: { mastery: 6, bonus: 0 }
-    esquive: { mastery: 5, bonus: 0 }
-    dr: { mastery: 3, bonus: 2 }
+    hp: 64
+    vigueur: { mastery: 5, bonus: 0 }
+    attack: { mastery: 6, bonus: 2 }
+    damage: { mastery: 5, bonus: 0 }
+    esquive: { mastery: 5, bonus: 1 }
+    dr: { mastery: 3, bonus: 0 }
+    vitesse: { mastery: 5, bonus: 0 }
     xp_value: 60
     gold_value: 44
     abilities: ["drain_vital", "cecite", "explosion_ardente"]
+    ability_chance: 55
     resistances: { physical: 75, magical: 25, ombre: 75, lumiere: -75, nature: -25 }
 
   # Boss final étage 100
@@ -704,9 +785,11 @@ monsters:
     damage: { mastery: 6, bonus: 2 }
     esquive: { mastery: 5, bonus: 1 }
     dr: { mastery: 4, bonus: 0 }
+    vitesse: { mastery: 5, bonus: 0 }
     xp_value: 300
     gold_value: 500
     abilities: ["explosion_ardente", "drain_vital", "soin_leger", "mur_de_flammes"]
+    ability_chance: 45
     resistances: { physical: 75, magical: 50, feu: 75, ombre: 50, lumiere: -25, nature: -25 }
 
 # Mapping des noms dans tour.md vers les clés monstres
