@@ -110,6 +110,7 @@ Each character gets every skill of `Character::SKILLS_MAP` at creation, with `ma
 Turn order: player action → (victory check) → every living enemy acts → statuses tick (DoT/HoT, durations decrease). Player actions: `attack`, `technique`, `magic`, `item`, `analyze`, plus `flee` (Dextérité + Esquive bonus vs `floor/10 + 3`).
 
 - **Targeting**: only `attack` and `analyze` use the chosen `target` index. Single-target techniques and magics always hit **the first living enemy** (`living_enemies.first`) — **intentional**, to keep fights fast; don't "fix" it unless asked. AoE types loop over all living enemies with **one opposed roll per target** (so some can be missed).
+- **Piercing weapons** (`pierce_targets: 2` in `equipement.yml`, the spears): a basic `attack` also hits the next living enemy after the chosen target (wrapping around), with one roll per target (`pierced_targets`, `resolve_attack_on`). Techniques don't pierce.
 - **Player defense mode** (`characters.defense_mode`, `esquive` | `parade`): a toggle in the combat screen (`DefenseToggle.vue`, `PATCH /api/character/defense_mode`), persisted until the player changes it, applied automatically to every enemy attack (basic attacks, techniques, damage/drain spells).
   - *Esquive*: Esquive skill roll; a success avoids all damage. Technique/stance `esquive_bonus` adds dice.
   - *Parade*: Parade skill roll + `CombatService::PARRY_ROLL_BONUS` (easier), but a success still deals `PARRY_CHIP_DAMAGE` (1) — logged as "paré !". Technique/stance `parade_bonus` adds flat bonus.

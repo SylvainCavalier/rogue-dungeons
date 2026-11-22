@@ -245,9 +245,22 @@ class CombatService
     target = living_enemies[target_idx] || living_enemies.first
     return @log << "Aucune cible valide." unless target
 
-    weapon = character.equipped_weapon
-    weapon_data = weapon ? GameCatalog.equipment(weapon.item_key) : nil
+    weapon_data = equipped_weapon_data
+    pierced = pierced_targets(target, weapon_data)
+    @log << "Votre arme transperce #{pierced.map { |e| e[:name] }.join(" et ")} !" if pierced.size > 1
+    pierced.each { |enemy| resolve_attack_on(enemy, weapon_data) }
+  end
 
+  # Piercing weapons (`pierce_targets` in the catalog, e.g. spears) also hit the
+  # next living enemies after the chosen target (wrapping around), one roll each.
+  def pierced_targets(target, weapon_data)
+    count = [weapon_data&.dig("pierce_targets").to_i, 1].max
+    living = living_enemies
+    start = living.index(target)
+    Array.new([count, living.size].min) { |i| living[(start + i) % living.size] }
+  end
+
+  def resolve_attack_on(target, weapon_data)
     acc_mastery, acc_bonus = player_accuracy(weapon_data)
     def_mastery, def_bonus = enemy_defense(target)
 
