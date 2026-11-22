@@ -15,7 +15,6 @@ const ELEMENT_FX = { feu: 'fire', eau: 'water', ombre: 'shadow', lumiere: 'light
 
 const WEAPON_FX = {
   epee: 'slash', dague: 'slash', rapiere: 'slash', hache: 'cleave',
-  masse: 'smash', marteau: 'smash',
   lance: 'pierce', arme_d_hast: 'pierce',
   arc: 'arrow', arbalete: 'arrow', fronde: 'arrow'
 }

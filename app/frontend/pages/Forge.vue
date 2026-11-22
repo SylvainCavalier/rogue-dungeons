@@ -151,7 +151,6 @@ const working = ref(false)
 const tabs = [
   { key: 'swords', label: 'Épées', category: 'arme_de_melee', types: ['epee', 'rapiere', 'dague'] },
   { key: 'axes', label: 'Haches', category: 'arme_de_melee', types: ['hache'] },
-  { key: 'maces', label: 'Masses', category: 'arme_de_melee', types: ['masse', 'marteau'] },
   { key: 'polearms', label: 'Lances', category: 'arme_de_melee', types: ['lance', 'arme_d_hast'] },
   { key: 'ranged', label: 'Distance', category: 'arme_a_distance' },
   { key: 'shields', label: 'Boucliers', category: 'bouclier' },

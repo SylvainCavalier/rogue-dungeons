@@ -34,17 +34,6 @@ equipment:
       two_handed: true
       notes: "Plus violente, moins précise."
 
-    - key: club_primitive
-      name: "Masse primitive"
-      category: "arme_de_melee"
-      weapon_type: "masse"
-      tier: 1
-      price: 35
-      damage_mastery: 0
-      damage_bonus: 2
-      accuracy_bonus: -1
-      notes: "Cogne fort, touche moins bien."
-
     - key: sword_iron
       name: "Épée de fer"
       category: "arme_de_melee"
@@ -89,18 +78,6 @@ equipment:
       damage_bonus: 0
       accuracy_bonus: 2
       notes: "Précise, orientée duel."
-
-    - key: hammer_arms
-      name: "Marteau d’armes"
-      category: "arme_de_melee"
-      weapon_type: "marteau"
-      tier: 2
-      price: 130
-      damage_mastery: 1
-      damage_bonus: 2
-      accuracy_bonus: -2
-      two_handed: true
-      notes: "Très lourd : gros dégâts, gros malus."
 
     - key: sword_steel
       name: "Épée d’acier"
