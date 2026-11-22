@@ -165,12 +165,10 @@ groups:
       # Helmets
       hood_leather: a brown leather hood with a short cape
       helmet_iron: a simple iron nasal helmet
-      helm_steel: a closed steel great helm with narrow eye slits
       helmet_veteran: a battle-scarred steel sallet helmet with a red plume
       helm_runic: a runic steel helm with glowing blue runes and a visor
       # Boots
       boots_reinforced: a pair of reinforced leather boots with iron toe caps
-      boots_soldier: a pair of sturdy soldier boots with steel greaves
       boots_tracker: a pair of soft green-brown tracker boots with fur trim and laces
       boots_enchanted: a pair of enchanted elegant boots with small feather wings and a faint blue glow
       boots_abyssal_walk: a pair of dark abyssal armored boots of black metal with purple void mist around them
@@ -241,3 +239,5 @@ archived:
     sling: a simple leather sling with a smooth stone in its pouch, shown diagonally from bottom-left to top-right filling the frame
     bow_composite: a recurve composite bow of horn and wood with bone tips and decorated grip, shown diagonally from bottom-left to top-right filling the frame
     bow_runic: a runic bow with glowing blue runes carved along its limbs, silver string, shown diagonally from bottom-left to top-right filling the frame
+    helm_steel: a closed steel great helm with narrow eye slits
+    boots_soldier: a pair of sturdy soldier boots with steel greaves

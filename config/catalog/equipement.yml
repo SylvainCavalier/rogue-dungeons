@@ -390,31 +390,23 @@ equipment:
       name: "Capuche en cuir"
       category: "casque"
       tier: 1
-      price: 15
+      price: 20
       dr_mastery: 0
       dr_bonus: 1
       accuracy_bonus: 0
-      notes: "Protection minime."
+      parade_bonus: 1
+      notes: "Légère, laisse voir venir les coups."
 
     - key: helmet_iron
       name: "Casque de fer"
       category: "casque"
-      tier: 1
-      price: 35
+      tier: 2
+      price: 90
       dr_mastery: 0
       dr_bonus: 2
       accuracy_bonus: 0
+      parade_bonus: 1
       notes: "Basique."
-
-    - key: helm_steel
-      name: "Heaume d’acier"
-      category: "casque"
-      tier: 2
-      price: 120
-      dr_mastery: 1
-      dr_bonus: 0
-      accuracy_bonus: -1
-      notes: "Réduit la vision périphérique."
 
     - key: helmet_veteran
       name: "Casque du vétéran"
@@ -422,69 +414,73 @@ equipment:
       tier: 3
       price: 220
       dr_mastery: 1
-      dr_bonus: 1
-      accuracy_bonus: -1
-      notes: "Bon compromis."
+      dr_bonus: 0
+      accuracy_bonus: 0
+      parade_bonus: 2
+      notes: "Pour qui encaisse et pare."
 
     - key: helm_runic
       name: "Heaume runique"
       category: "casque"
-      tier: 5
-      price: 650
-      dr_mastery: 2
-      dr_bonus: 0
+      tier: 4
+      price: 600
+      dr_mastery: 1
+      dr_bonus: 1
       accuracy_bonus: 0
-      notes: "Runes de clarté : pas de malus."
+      parade_bonus: 2
+      notes: "Runes de clarté : chaque coup se lit d’avance."
 
   boots:
     - key: boots_reinforced
       name: "Bottes renforcées"
       category: "bottes"
       tier: 1
-      price: 20
+      price: 25
       dr_mastery: 0
       dr_bonus: 1
       accuracy_bonus: 0
+      esquive_bonus: 1
+      flee_bonus: 0
+      speed_bonus: 1
       notes: "Protection légère."
-
-    - key: boots_soldier
-      name: "Bottes de soldat"
-      category: "bottes"
-      tier: 1
-      price: 40
-      dr_mastery: 0
-      dr_bonus: 2
-      accuracy_bonus: 0
-      notes: "Stables."
 
     - key: boots_tracker
       name: "Bottes du pisteur"
       category: "bottes"
       tier: 2
-      price: 140
-      dr_mastery: 1
-      dr_bonus: 0
-      accuracy_bonus: 1
+      price: 100
+      dr_mastery: 0
+      dr_bonus: 2
+      accuracy_bonus: 0
+      esquive_bonus: 1
+      flee_bonus: 1
+      speed_bonus: 1
       notes: "Posture/placement améliorés."
 
     - key: boots_enchanted
       name: "Bottes enchantées"
       category: "bottes"
       tier: 3
-      price: 260
+      price: 240
       dr_mastery: 1
-      dr_bonus: 1
-      accuracy_bonus: 1
+      dr_bonus: 0
+      accuracy_bonus: 0
+      esquive_bonus: 2
+      flee_bonus: 1
+      speed_bonus: 2
       notes: "Légèreté magique."
 
     - key: boots_abyssal_walk
       name: "Bottes de marche abyssale"
       category: "bottes"
-      tier: 5
-      price: 720
-      dr_mastery: 2
-      dr_bonus: 0
+      tier: 4
+      price: 650
+      dr_mastery: 1
+      dr_bonus: 1
       accuracy_bonus: 0
+      esquive_bonus: 2
+      flee_bonus: 2
+      speed_bonus: 2
       notes: "Protection + stabilité surnaturelle."
 
   shields:

@@ -1405,9 +1405,10 @@ class CombatService
     character.dexterite
   end
 
+  # Flee roll bonus: Esquive skill bonus + equipment flee_bonus (boots).
   def character_dex_bonus
     skill = character.skills.find_by(name: "Esquive")
-    skill ? skill.bonus : 0
+    (skill ? skill.bonus : 0) + character.equipment_bonus("flee_bonus")
   end
 
   # ═══════════════════════════════════════════

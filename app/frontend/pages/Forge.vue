@@ -198,6 +198,10 @@ function itemStats(data) {
   if (data.accuracy_bonus) {
     stats.push({ label: 'Précision', value: signed(data.accuracy_bonus), class: data.accuracy_bonus > 0 ? 'text-green-300' : 'text-orange-300' })
   }
+  const extras = [['esquive_bonus', 'Esquive'], ['parade_bonus', 'Parade'], ['flee_bonus', 'Fuite'], ['speed_bonus', 'Vitesse']]
+  extras.forEach(([field, label]) => {
+    if (data[field]) stats.push({ label, value: signed(data[field]), class: 'text-emerald-300' })
+  })
   if (data.two_handed) stats.push({ label: 'Deux mains', value: '', class: 'text-stone-400' })
   if (data.pierce_targets > 1) stats.push({ label: `Transperce ${data.pierce_targets} ennemis`, value: '', class: 'text-amber-300' })
   return stats

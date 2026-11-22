@@ -73,9 +73,11 @@ class Character < ApplicationRecord
   end
 
   # Base dice of the chosen defense skill ("Esquive" or "Parade"), falling back to Dextérité.
+  # Equipment adds a flat bonus to the matching mode (boots: esquive_bonus, helmets: parade_bonus).
   def defense_roll(mode = effective_defense_mode)
     skill = skills.find_by(name: mode == "parade" ? "Parade" : "Esquive")
-    skill ? [skill.mastery, skill.bonus] : [dexterite, 0]
+    mastery, bonus = skill ? [skill.mastery, skill.bonus] : [dexterite, 0]
+    [mastery, bonus + equipment_bonus(mode == "parade" ? "parade_bonus" : "esquive_bonus")]
   end
 
   # --- Temps ---
@@ -181,6 +183,11 @@ class Character < ApplicationRecord
       item = inventory_items.find_by(equipped: true, slot: slot)
       item ? catalog_for(item)&.dig("dr_bonus").to_i : 0
     end
+  end
+
+  # Sum of a catalog field over equipped items (esquive_bonus, parade_bonus, flee_bonus, speed_bonus…).
+  def equipment_bonus(field)
+    inventory_items.where(equipped: true).sum { |item| catalog_for(item)&.dig(field).to_i }
   end
 
   def total_accuracy_bonus_from_equipment

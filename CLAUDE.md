@@ -93,7 +93,7 @@ Each character gets every skill of `Character::SKILLS_MAP` at creation, with `ma
 | Observation (Perception) | "Analyser" action (reveals enemy resistances) | `resolve_analyze` |
 | Fouille (Perception) | Gold multiplier after a tower victory | `resolve_search_loot` |
 | Endurance, Escalade, Natation, Bras de fer, Résistance à l'alcool (Vigueur) | **Not used yet** | — |
-| Discrétion, Vitesse (Dextérité) | **Not used yet** | — |
+| Discrétion, Vitesse (Dextérité) | **Not used yet** (boots already carry a `speed_bonus` for Vitesse) | — |
 | Enchantement (Intelligence) | **Not used yet** | — |
 | Persuasion, Marchandage, Dressage (Charisme) | **Not used yet** | — |
 | Intuition, Sang-Froid (Perception) | **Not used yet** | — |
@@ -116,6 +116,7 @@ Turn order: player action → (victory check) → every living enemy acts → st
   - *Esquive*: Esquive skill roll; a success avoids all damage. Technique/stance `esquive_bonus` adds dice.
   - *Parade*: Parade skill roll + `CombatService::PARRY_ROLL_BONUS` (easier), but a success still deals `PARRY_CHIP_DAMAGE` (1) — logged as "paré !". Technique/stance `parade_bonus` adds flat bonus.
   - With a ranged weapon equipped, parry is impossible: `Character#effective_defense_mode` forces esquive (the saved choice is kept for when a melee weapon comes back) and the toggle greys out Parade.
+  - Equipment adds a flat bonus to the matching mode: boots `esquive_bonus`, helmets `parade_bonus` (`Character#defense_roll`, `#equipment_bonus`). Boots also have `flee_bonus` (added to the flee roll) and `speed_bonus` (stored for the future Vitesse mechanic, not used yet).
   - Bonuses of the other mode are ignored. Snapshots expose `player.defense` (`{ mode, esquive, parade }` dice notations).
 - **Player accuracy**: weapon skill (+ weapon `accuracy_bonus`) ± status modifiers. **Magic accuracy**: element skill (fallback Intelligence), against the enemy's `esquive`.
 - **Enemies**: 30% chance per turn to use one of their `abilities` (keys of `techniques.yml` or `magies.yml`; a `mana_cost` key means it's resolved as a magic), otherwise a basic attack.
