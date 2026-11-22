@@ -25,6 +25,11 @@ styles:
   map: >-
     dark fantasy oil painting, painterly, moody dusk lighting, warm window lights,
     highly detailed, no text, no labels, no watermark
+  summon: >-
+    dark fantasy oil painting, painterly brushwork, a benevolent magical creature summoned
+    to fight beside the hero, faint violet arcane summoning circle glowing under it, ethereal
+    magenta light motes, dramatic lighting, dark dungeon background, full body creature
+    portrait, centered composition, highly detailed, no text, no watermark, no frame
 
 groups:
   monsters:
@@ -235,6 +240,20 @@ groups:
         with slate and red tile roofs, glowing windows, small gardens. Outside the walls: a dirt
         road leaves each gate, muddy fields and dark forest
 
+  # Creatures of the Invocation school (config/catalog/invocations.yml)
+  summons:
+    dir: summons
+    style: summon
+    size: square_hd
+    output_width: 512
+    items:
+      familier: a small clever winged cat familiar with glowing violet eyes and tiny bat wings, perched ready to pounce
+      loup_spectral: a translucent spectral wolf made of pale blue and violet ghostly mist, glowing eyes, mid-stride
+      golem_d_argile: a sturdy guardian clay golem with glowing violet runes on its chest, standing protectively with raised fists
+      esprit_gardien: a gentle luminous guardian spirit, a hooded figure of soft white and golden light with outstretched healing hands
+      elementaire_de_feu: a loyal fire elemental, a humanoid of roaring orange flames and embers, fists blazing, ready to fight
+      gardien_de_pierre: a colossal ancient stone guardian of carved granite with a great shield, moss and glowing violet runes, immovable stance
+      phenix: a majestic phoenix with wings of blazing gold and crimson fire spread wide, trailing embers and ash
 # Removed from the game: prompts kept for reference, images in config/art/archive/items/.
 # Not read by art:generate (outside `groups`).
 archived:

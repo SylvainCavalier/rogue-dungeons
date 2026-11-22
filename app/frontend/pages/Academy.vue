@@ -21,9 +21,13 @@
       </div>
 
       <template v-if="activeTab === 'spells'">
+      <GuildRankPanel guild="mages" :info="gameStore.guildRanks.mages"
+        accent-class="text-blue-400" button-class="bg-blue-800 hover:bg-blue-700 text-blue-100" />
+
       <p class="text-stone-500 text-sm mb-6 animate-fade-in-up stagger-1">
         Choisissez un sort à apprendre. La durée dépend du tier du sort et de votre intelligence.
-        Vous devez apprendre les sorts d'un élément dans l'ordre.
+        Vous devez apprendre les sorts d'un élément dans l'ordre. Les tiers 4-5 sont réservés aux
+        compagnons, les tiers 6-7 aux maîtres de l'académie.
       </p>
 
       <div v-for="(magics, element) in gameStore.availableMagics" :key="element"
@@ -46,10 +50,14 @@
                   <span class="text-stone-200 text-sm font-medium">{{ magic.name }}</span>
                   <span class="text-stone-600 text-xs ml-2">Tier {{ magic.tier }}</span>
                   <span v-if="magic.mana_cost" class="text-cyan-500 text-xs ml-2">{{ magic.mana_cost }} mana</span>
+                  <span v-if="magic.spell_power" class="text-emerald-400 text-xs ml-2" title="+1 dégât par tranche de 2 dés de maîtrise de l'élément">+{{ magic.spell_power }} dégâts (maîtrise)</span>
                 </div>
               </div>
               <div class="flex-shrink-0">
                 <span v-if="magic.learned" class="text-green-400 text-xs font-semibold px-2 py-1 bg-green-900/30 rounded-full">Appris</span>
+                <span v-else-if="!magic.rank_met" class="text-stone-500 text-xs px-2 py-1 bg-stone-900 rounded-full whitespace-nowrap">
+                  Rang {{ magic.required_rank_name }}
+                </span>
                 <button v-else @click="openConfirm(magic, element)" :disabled="gameStore.isBusy"
                   class="text-xs bg-blue-800 hover:bg-blue-700 text-blue-200 px-3 py-1.5 rounded-lg transition disabled:opacity-30 active:scale-95">
                   Apprendre
@@ -206,6 +214,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useGameStore } from '../stores/game'
 import StatusBar from '../components/game/StatusBar.vue'
 import ItemIcon from '../components/game/ItemIcon.vue'
+import GuildRankPanel from '../components/game/GuildRankPanel.vue'
 
 const gameStore = useGameStore()
 const selectedMagic = ref(null)
@@ -260,14 +269,14 @@ async function confirmEnchant() {
 }
 
 function elementLabel(el) {
-  const labels = { feu: 'Feu', eau: 'Eau', ombre: 'Ombre', lumiere: 'Lumière', nature: 'Nature' }
+  const labels = { feu: 'Feu', eau: 'Eau', ombre: 'Ombre', lumiere: 'Lumière', nature: 'Nature', invocation: 'Invocation' }
   return labels[el] || el
 }
 
 function elementColor(el) {
   const colors = {
     feu: 'text-orange-400', eau: 'text-cyan-400', ombre: 'text-violet-400',
-    lumiere: 'text-yellow-400', nature: 'text-emerald-400',
+    lumiere: 'text-yellow-400', nature: 'text-emerald-400', invocation: 'text-fuchsia-400',
   }
   return colors[el] || 'text-stone-400'
 }
@@ -275,7 +284,7 @@ function elementColor(el) {
 function elementDot(el) {
   const colors = {
     feu: 'bg-orange-400', eau: 'bg-cyan-400', ombre: 'bg-violet-400',
-    lumiere: 'bg-yellow-400', nature: 'bg-emerald-400',
+    lumiere: 'bg-yellow-400', nature: 'bg-emerald-400', invocation: 'bg-fuchsia-400',
   }
   return colors[el] || 'bg-stone-400'
 }
@@ -284,7 +293,7 @@ function elementBg(el) {
   const colors = {
     feu: 'bg-orange-900/40 text-orange-400', eau: 'bg-cyan-900/40 text-cyan-400',
     ombre: 'bg-violet-900/40 text-violet-400', lumiere: 'bg-yellow-900/40 text-yellow-400',
-    nature: 'bg-emerald-900/40 text-emerald-400',
+    nature: 'bg-emerald-900/40 text-emerald-400', invocation: 'bg-fuchsia-900/40 text-fuchsia-400',
   }
   return colors[el] || 'bg-stone-800 text-stone-400'
 }

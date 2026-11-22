@@ -119,7 +119,7 @@ magics:
     status_duration: 2
     damage_mastery: 1
     damage_bonus: 0
-    description: "1D dégâts et gèle l'ennemi."
+    description: "1D dégâts et gèle l'ennemi si le sort touche bien."
 
   pluie_regenerante:
     name: "Pluie régénérante"
@@ -148,13 +148,11 @@ magics:
     name: "Marée protectrice"
     element: "eau"
     tier: 6
-    mana_cost: 8
+    mana_cost: 11
     type: "buff"
-    buff_status: "Protégé"
+    buff_statuses: ["Protégé", "Régénération"]
     buff_duration: 3
-    heal_mastery: 1
-    heal_bonus: 2
-    description: "Protégé 3 tours et soigne 1D+2."
+    description: "Protégé et Régénération (1D PV/tour) pendant 3 tours."
 
   deluge_abyssal:
     name: "Déluge abyssal"
@@ -190,7 +188,7 @@ magics:
     status_duration: 2
     damage_mastery: 0
     damage_bonus: 0
-    description: "Aveugle l'ennemi (-2 mastery précision)."
+    description: "Aveugle l'ennemi s'il est bien touché (-2D en précision, 2 tours)."
 
   drain_vital:
     name: "Drain vital"
@@ -211,7 +209,7 @@ magics:
     type: "buff"
     buff_status: "Invisible"
     buff_duration: 1
-    description: "Invisible 1 tour (prochaine attaque touche auto)."
+    description: "Invisible : votre prochaine attaque ou votre prochain sort touche à coup sûr."
 
   malediction:
     name: "Malédiction"
@@ -223,8 +221,18 @@ magics:
     status_duration: 3
     damage_mastery: 1
     damage_bonus: 0
-    description: "Maudit l'ennemi (-1 à tous les bonus, 3 tours)."
+    description: "1D dégâts et Maudit 3 tours : ses résistances baissent de 25% (vulnérable)."
 
+  necromancie:
+    name: "Nécromancie"
+    element: "ombre"
+    tier: 6
+    mana_cost: 12
+    type: "raise_dead"
+    taunt: 50
+    description: "Relève le plus puissant ennemi tombé (hors boss) pour qu'il combatte à vos côtés. Jet d'Ombre : plus il est réussi, plus le mort-vivant est fort."
+
+  # Monster-only since Nécromancie took its place at the academy (see monstres.yml).
   terreur_nocturne:
     name: "Terreur nocturne"
     element: "ombre"
@@ -286,9 +294,9 @@ magics:
     tier: 4
     mana_cost: 6
     type: "buff"
-    buff_status: "Protégé"
+    buff_statuses: ["Protégé", "Béni"]
     buff_duration: 3
-    description: "Protégé pendant 3 tours (+1 mastery DR)."
+    description: "Protégé (+1D résistance) et Béni (+1 à tous les jets) pendant 3 tours."
 
   purification:
     name: "Purification"
@@ -300,15 +308,14 @@ magics:
     heal_bonus: 4
     description: "Soigne 2D+4 PV et retire les statuts négatifs."
 
-  resurrection_mineure:
-    name: "Résurrection mineure"
+  lumiere_vitale:
+    name: "Lumière vitale"
     element: "lumiere"
     tier: 6
     mana_cost: 12
     type: "heal"
-    heal_mastery: 3
-    heal_bonus: 5
-    description: "Soigne massivement : 3D+5 PV."
+    heal_percent: 50
+    description: "Rend la moitié de vos PV maximum."
 
   jugement_celeste:
     name: "Jugement céleste"
@@ -331,7 +338,7 @@ magics:
     status_duration: 1
     damage_mastery: 0
     damage_bonus: 0
-    description: "Paralyse brièvement l'ennemi."
+    description: "Paralyse l'ennemi s'il est bien touché (50% de perdre son prochain tour)."
 
   ecorce_protectrice:
     name: "Écorce protectrice"
@@ -341,7 +348,7 @@ magics:
     type: "buff"
     buff_status: "Protégé"
     buff_duration: 2
-    description: "Protection naturelle pendant 2 tours."
+    description: "Protégé (+1D résistance) pendant 2 tours."
 
   spores_toxiques:
     name: "Spores toxiques"
@@ -361,10 +368,10 @@ magics:
     element: "nature"
     tier: 4
     mana_cost: 7
-    type: "damage"
-    damage_mastery: 3
-    damage_bonus: 0
-    description: "Invoque des bêtes : 3D dégâts."
+    type: "damage_aoe"
+    damage_mastery: 2
+    damage_bonus: 1
+    description: "La meute se jette sur tous les ennemis : 2D+1 dégâts à chacun."
 
   croissance_acceleree:
     name: "Croissance accélérée"
@@ -374,7 +381,7 @@ magics:
     type: "buff"
     buff_status: "Régénération"
     buff_duration: 3
-    description: "Régénération pendant 3 tours."
+    description: "Régénération (1D PV/tour) pendant 3 tours."
 
   regeneration_sauvage:
     name: "Régénération sauvage"
@@ -398,3 +405,69 @@ magics:
     status_chance: 60
     status_duration: 3
     description: "4D+1 dégâts à tous, empoisonne souvent."
+
+  # === INVOCATION ===
+  # `summon`: creature key in invocations.yml. No accuracy roll: the Invocation
+  # skill sets the creature's strength. One creature at a time (a new one replaces it).
+  familier:
+    name: "Familier"
+    element: "invocation"
+    tier: 1
+    mana_cost: 3
+    type: "summon"
+    summon: "familier"
+    description: "Un petit familier griffe vos ennemis et détourne une partie de leurs coups (30%)."
+
+  loup_spectral:
+    name: "Loup spectral"
+    element: "invocation"
+    tier: 2
+    mana_cost: 5
+    type: "summon"
+    summon: "loup_spectral"
+    description: "Un loup spectral, vif et mordant, combat à vos côtés."
+
+  golem_d_argile:
+    name: "Golem d'argile"
+    element: "invocation"
+    tier: 3
+    mana_cost: 7
+    type: "summon"
+    summon: "golem_d_argile"
+    description: "Un golem robuste qui attire la plupart des coups ennemis (70%)."
+
+  esprit_gardien:
+    name: "Esprit gardien"
+    element: "invocation"
+    tier: 4
+    mana_cost: 8
+    type: "summon"
+    summon: "esprit_gardien"
+    description: "Un esprit bienveillant qui vous soigne (1D+2 PV) à chaque tour. Il n'attaque pas."
+
+  elementaire_de_feu:
+    name: "Élémentaire de feu"
+    element: "invocation"
+    tier: 5
+    mana_cost: 10
+    type: "summon"
+    summon: "elementaire_de_feu"
+    description: "Un élémentaire de flammes : dégâts de feu, peut brûler."
+
+  gardien_de_pierre:
+    name: "Gardien de pierre"
+    element: "invocation"
+    tier: 6
+    mana_cost: 12
+    type: "summon"
+    summon: "gardien_de_pierre"
+    description: "Un colosse de pierre presque indestructible qui encaisse les coups à votre place (80%)."
+
+  phenix:
+    name: "Phénix"
+    element: "invocation"
+    tier: 7
+    mana_cost: 15
+    type: "summon"
+    summon: "phenix"
+    description: "Un phénix embrase tous les ennemis à chaque tour et renaît une fois de ses cendres."

@@ -27,6 +27,8 @@ const props = defineProps({
   hp: { type: Number, default: 0 },
   alive: { type: Boolean, default: true },
   size: { type: String, default: 'md' },
+  // public/images/<imageDir>/<monsterKey>.webp (summoned creatures use "summons")
+  imageDir: { type: String, default: 'monsters' },
   // Reactive target from useCombatFx (fx, floats, shake, lunge counters)
   fxState: { type: Object, default: null }
 })
@@ -39,7 +41,7 @@ const shownAlive = ref(props.alive)
 
 const src = computed(() => {
   if (failed.value || !props.monsterKey) return FALLBACK
-  return `/images/monsters/${props.monsterKey}.webp`
+  return `/images/${props.imageDir}/${props.monsterKey}.webp`
 })
 
 const sizeClass = computed(() => ({

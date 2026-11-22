@@ -1,3 +1,9 @@
+# Mechanics of the techniques listed in techniques.md (same keys).
+# `cooldown`: rounds during which the technique can't be used again (0 = always available).
+# `requires`: key of a technique that must be learned first (advanced techniques).
+# `guild_rank`: warriors guild rank needed to learn it (default apprenti, see guildes.yml).
+# Passive techniques (category "passive") have no action: their `passive` key is read by CombatService.
+# Entries absent from techniques.md are monster-only abilities (see monstres.yml).
 techniques:
   # === Offensives ===
   coup_rapide:
@@ -6,15 +12,18 @@ techniques:
     type: "attack_modifier"
     accuracy_bonus: 2
     damage_bonus: -1
-    description: "Attaque rapide, plus précise mais moins puissante."
+    cooldown: 0
+    description: "Attaque plus précise (+2) mais moins puissante (-1)."
 
   coup_charge:
     name: "Coup chargé"
     category: "offensive"
     type: "attack_modifier"
     accuracy_bonus: -1
-    damage_bonus: 3
-    description: "Attaque chargée, moins précise mais très puissante."
+    damage_mastery_mod: 1
+    damage_bonus: 1
+    cooldown: 2
+    description: "Attaque lourde : -1 précision, +1D+1 dégâts."
 
   double_entaille:
     name: "Double entaille"
@@ -23,193 +32,230 @@ techniques:
     hits: 2
     accuracy_mastery_mod: -1
     damage_mastery_mod: 0
-    description: "Deux attaques rapides avec un malus de précision."
-
-  frappe_circulaire:
-    name: "Frappe circulaire"
-    category: "offensive"
-    type: "aoe"
-    accuracy_mastery_mod: -1
-    damage_mastery_mod: 0
-    description: "Touche tous les ennemis avec un léger malus."
+    cooldown: 2
+    description: "Deux frappes sur la même cible, -1D de précision chacune."
 
   estoc_perforant:
     name: "Estoc perforant"
     category: "offensive"
     type: "armor_pierce"
     dr_reduction_percent: 50
-    accuracy_bonus: 0
-    damage_bonus: 0
-    description: "Ignore la moitié de la réduction de dégâts ennemie."
+    cooldown: 2
+    description: "Ignore la moitié de la résistance de la cible."
 
-  brise_garde:
-    name: "Brise-garde"
+  frappe_circulaire:
+    name: "Frappe circulaire"
+    guild_rank: "compagnon"
     category: "offensive"
-    type: "debuff_attack"
-    accuracy_bonus: 0
-    damage_bonus: 0
-    debuff: "parade_reduction"
-    debuff_value: 2
-    description: "Réduit la parade de l'ennemi de 2 pour le reste du combat."
+    type: "aoe"
+    accuracy_mastery_mod: -1
+    damage_mastery_mod: 0
+    cooldown: 3
+    description: "Touche tous les ennemis, -1D de précision."
 
   execution:
     name: "Exécution"
+    guild_rank: "compagnon"
     category: "offensive"
     type: "execute"
-    hp_threshold: 25
+    hp_threshold: 30
     damage_multiplier: 2
     accuracy_bonus: -1
-    description: "Dégâts doublés si l'ennemi a moins de 25% PV."
-
-  percee_brutale:
-    name: "Percée brutale"
-    category: "offensive"
-    type: "attack_modifier"
-    accuracy_bonus: 0
-    damage_bonus: 2
-    damage_mastery_mod: 1
-    description: "Coup dévastateur avec bonus de dégâts massif."
-
-  assaut_furieux:
-    name: "Assaut furieux"
-    category: "offensive"
-    type: "multi_attack"
-    hits: 3
-    accuracy_mastery_mod: -1
-    damage_mastery_mod: -1
-    description: "Trois attaques frénétiques avec malus."
-
-  lame_tourbillonnante:
-    name: "Lame tourbillonnante"
-    category: "offensive"
-    type: "aoe"
-    accuracy_mastery_mod: 0
-    damage_mastery_mod: 0
-    damage_bonus: 1
-    description: "Attaque tournoyante touchant tous les ennemis."
+    cooldown: 3
+    description: "Dégâts doublés si la cible a moins de 30% de ses PV."
 
   # === Défensives ===
-  parade_parfaite:
-    name: "Parade parfaite"
-    category: "defensive"
-    type: "counter"
-    parade_bonus: 3
-    counter_on_success: true
-    description: "Parade à +3, contre-attaque automatique si réussie."
-
   posture_defensive:
     name: "Posture défensive"
     category: "defensive"
     type: "stance"
-    esquive_bonus: 2
-    parade_bonus: 2
-    skip_attack: true
-    description: "+2 esquive et parade ce tour, pas d'attaque."
+    defense_mastery: 2
+    cooldown: 2
+    description: "+2D en esquive ou en parade jusqu'à votre prochaine action."
 
-  contre_attaque:
-    name: "Contre-attaque"
-    category: "defensive"
-    type: "counter"
-    parade_bonus: 0
-    counter_on_success: true
-    description: "Si l'ennemi rate son attaque, riposte automatique."
-
-  mur_acier:
+  mur_d_acier:
     name: "Mur d'acier"
     category: "defensive"
     type: "stance"
-    dr_bonus: 3
-    skip_attack: true
-    description: "+3 réduction de dégâts ce tour, pas d'attaque."
+    dr_mastery: 2
+    cooldown: 3
+    description: "+2D de résistance aux dégâts jusqu'à votre prochaine action."
 
-  deviation:
-    name: "Déviation"
+  contre_attaque:
+    name: "Contre-attaque"
+    guild_rank: "compagnon"
     category: "defensive"
     type: "counter"
-    parade_bonus: 1
-    counter_on_success: true
-    counter_damage_bonus: 2
-    description: "Parade habile, contre-attaque bonus si réussie."
-
-  retraite_tactique:
-    name: "Retraite tactique"
-    category: "defensive"
-    type: "stance"
-    esquive_bonus: 4
-    skip_attack: true
-    description: "Grande esquive ce tour, aucune attaque."
+    cooldown: 3
+    description: "Riposte à chaque attaque ennemie esquivée ou parée jusqu'à votre prochaine action."
 
   resilience:
     name: "Résilience"
+    guild_rank: "compagnon"
     category: "defensive"
     type: "heal"
-    heal_mastery: 1
+    heal_mastery: 2
     heal_bonus: 2
-    skip_attack: true
-    description: "Récupère 1D+2 PV, pas d'attaque ce tour."
+    cooldown: 4
+    description: "Récupère 2D+2 PV."
 
   # === Techniques à effet ===
   saignee:
     name: "Saignée"
     category: "effect"
     type: "status_attack"
-    accuracy_bonus: 0
-    damage_bonus: 0
     inflict_status: "Saignement"
     status_duration: 3
+    cooldown: 2
     description: "Inflige Saignement (1D dégâts/tour, 3 tours)."
 
-  fracture:
-    name: "Fracture"
+  brise_garde:
+    name: "Brise-garde"
     category: "effect"
     type: "status_attack"
-    accuracy_bonus: -1
-    damage_bonus: 2
-    inflict_status: "Affaibli"
+    inflict_status: "Garde brisée"
     status_duration: 3
-    description: "Coup violent qui affaiblit la cible."
+    cooldown: 3
+    description: "Garde brisée : -1D d'esquive à la cible pendant 3 tours."
 
   desarmement:
     name: "Désarmement"
     category: "effect"
-    type: "debuff_attack"
+    type: "status_attack"
     accuracy_bonus: 1
     damage_bonus: -2
-    debuff: "attack_reduction"
-    debuff_value: 2
-    description: "Réduit l'attaque ennemie de 2 pour le combat."
+    inflict_status: "Désarmé"
+    status_duration: 3
+    cooldown: 3
+    description: "Désarmé : -1D d'attaque à la cible pendant 3 tours."
+
+  fracture:
+    name: "Fracture"
+    guild_rank: "compagnon"
+    category: "effect"
+    type: "status_attack"
+    damage_bonus: 1
+    inflict_status: "Affaibli"
+    status_duration: 3
+    cooldown: 3
+    description: "Affaibli : -1D de dégâts à la cible pendant 3 tours."
+
+  provocation:
+    name: "Provocation"
+    guild_rank: "compagnon"
+    category: "effect"
+    type: "status_attack"
+    accuracy_bonus: 1
+    inflict_status: "Enragé"
+    status_duration: 3
+    cooldown: 3
+    description: "Enrage la cible : +1D de dégâts pour elle, mais -1D d'esquive. Un pari risqué."
+
+  intimidation_martiale:
+    name: "Intimidation martiale"
+    guild_rank: "compagnon"
+    category: "effect"
+    type: "status_attack"
+    inflict_status: "Terrorisé"
+    status_duration: 2
+    cooldown: 3
+    description: "Terrorise la cible (-1D à tout pendant 2 tours)."
 
   etourdissement:
     name: "Étourdissement"
+    guild_rank: "compagnon"
     category: "effect"
     type: "status_attack"
     accuracy_bonus: -1
     damage_bonus: 1
     inflict_status: "Étourdi"
     status_duration: 1
-    description: "Chance d'étourdir l'ennemi (perd son tour)."
+    cooldown: 4
+    description: "Étourdit la cible si le coup porte bien (elle perd son tour)."
 
-  provocation:
-    name: "Provocation"
-    category: "effect"
-    type: "status_attack"
-    accuracy_bonus: 2
-    damage_bonus: -2
-    inflict_status: "Enragé"
-    status_duration: 2
-    apply_to: "enemy"
-    description: "L'ennemi devient enragé (+ dégâts, - défense)."
+  # === Techniques avancées ===
+  jugement_du_guerrier:
+    name: "Jugement du guerrier"
+    guild_rank: "maitre"
+    category: "advanced"
+    type: "execute"
+    hp_threshold: 50
+    damage_multiplier: 2
+    accuracy_bonus: 1
+    requires: "execution"
+    cooldown: 4
+    description: "Dégâts doublés si la cible a moins de 50% de ses PV, +1 précision."
 
-  intimidation_martiale:
-    name: "Intimidation martiale"
-    category: "effect"
-    type: "status_attack"
-    accuracy_bonus: 0
-    damage_bonus: 0
-    inflict_status: "Terrorisé"
-    status_duration: 2
-    description: "Terrorise l'ennemi (-1 mastery à tout)."
+  rafale_implacable:
+    name: "Rafale implacable"
+    guild_rank: "maitre"
+    category: "advanced"
+    type: "multi_attack"
+    hits: 4
+    accuracy_mastery_mod: -1
+    damage_mastery_mod: 0
+    requires: "double_entaille"
+    cooldown: 5
+    description: "Quatre frappes sur la même cible, -1D de précision chacune."
 
+  deluge_de_lames:
+    name: "Déluge de lames"
+    guild_rank: "maitre"
+    category: "advanced"
+    type: "aoe"
+    accuracy_mastery_mod: 0
+    damage_mastery_mod: 1
+    damage_bonus: 2
+    requires: "frappe_circulaire"
+    cooldown: 5
+    description: "Touche tous les ennemis avec +1D+2 dégâts."
+
+  frappe_transcendante:
+    name: "Frappe transcendante"
+    guild_rank: "maitre"
+    category: "advanced"
+    type: "attack_modifier"
+    auto_hit: true
+    damage_mastery_mod: 1
+    damage_bonus: 2
+    requires: "coup_charge"
+    cooldown: 5
+    description: "Touche à coup sûr, +1D+2 dégâts."
+
+  # === Techniques passives ===
+  rage_du_desespoir:
+    name: "Rage du désespoir"
+    category: "passive"
+    type: "passive"
+    passive: "desperate_rage"
+    hp_threshold: 30
+    description: "Passif : +1D aux dégâts de vos armes sous 30% de vos PV."
+
+  instinct_du_veteran:
+    name: "Instinct du vétéran"
+    guild_rank: "compagnon"
+    category: "passive"
+    type: "passive"
+    passive: "veteran_instinct"
+    description: "Passif : le malus d'esquive/parade face à plusieurs attaquants ne commence qu'à la 3e attaque du tour."
+
+  riposte:
+    name: "Riposte"
+    guild_rank: "compagnon"
+    category: "passive"
+    type: "passive"
+    passive: "riposte"
+    description: "Passif : en parade, contre-attaque automatiquement la première attaque parée de chaque tour."
+
+  survie:
+    name: "Survie"
+    guild_rank: "maitre"
+    category: "passive"
+    type: "passive"
+    passive: "survival"
+    description: "Passif : une fois par combat, un coup qui devrait vous tuer vous laisse à 1 PV."
+
+  # === Monster-only abilities ===
   charge_ecrasante:
     name: "Charge écrasante"
     category: "effect"
@@ -220,59 +266,3 @@ techniques:
     status_duration: 1
     status_chance: 50
     description: "Charge puissante, chance d'étourdir."
-
-  coup_affaiblissant:
-    name: "Coup affaiblissant"
-    category: "effect"
-    type: "status_attack"
-    accuracy_bonus: 0
-    damage_bonus: 0
-    inflict_status: "Affaibli"
-    status_duration: 3
-    description: "Affaiblit l'ennemi durablement."
-
-  # === Techniques avancées ===
-  rafale_implacable:
-    name: "Rafale implacable"
-    category: "advanced"
-    type: "multi_attack"
-    hits: 4
-    accuracy_mastery_mod: -1
-    damage_mastery_mod: 0
-    description: "Quatre attaques dévastatrices."
-
-  jugement_guerrier:
-    name: "Jugement du guerrier"
-    category: "advanced"
-    type: "execute"
-    hp_threshold: 50
-    damage_multiplier: 2
-    accuracy_bonus: 1
-    description: "Dégâts doublés si l'ennemi est sous 50% PV."
-
-  deluge_lames:
-    name: "Déluge de lames"
-    category: "advanced"
-    type: "aoe"
-    accuracy_mastery_mod: 0
-    damage_mastery_mod: 1
-    damage_bonus: 2
-    description: "Attaque de zone dévastatrice."
-
-  frappe_transcendante:
-    name: "Frappe transcendante"
-    category: "advanced"
-    type: "attack_modifier"
-    accuracy_bonus: 2
-    damage_bonus: 3
-    damage_mastery_mod: 1
-    description: "L'attaque ultime : précise et dévastatrice."
-
-  instinct_veteran:
-    name: "Instinct du vétéran"
-    category: "advanced"
-    type: "combo"
-    esquive_bonus: 2
-    counter_on_success: true
-    counter_damage_bonus: 3
-    description: "Esquive instinctive + contre-attaque puissante."

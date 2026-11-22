@@ -20,7 +20,7 @@ class Character < ApplicationRecord
   SKILLS_MAP = {
     "vigueur" => %w[Endurance Escalade Natation Bras\ de\ fer Résistance\ à\ l'alcool Forge],
     "dexterite" => %w[Arc Arme\ à\ une\ main Arme\ à\ deux\ mains Esquive Discrétion Vitesse Parade],
-    "intelligence" => %w[Feu Eau Ombre Lumière Nature Enchantement Alchimie],
+    "intelligence" => %w[Feu Eau Ombre Lumière Nature Invocation Enchantement Alchimie],
     "charisme" => %w[Persuasion Marchandage Dressage],
     "perception" => %w[Intuition Observation Sang-Froid Fouille]
   }.freeze
@@ -250,6 +250,23 @@ class Character < ApplicationRecord
       item = inventory_items.find_by(equipped: true, slot: slot)
       item ? catalog_for(item)&.dig("accuracy_bonus").to_i : 0
     end
+  end
+
+  # --- Magie ---
+
+  ELEMENT_SKILLS = { "feu" => "Feu", "eau" => "Eau", "ombre" => "Ombre", "lumiere" => "Lumière",
+                     "nature" => "Nature", "invocation" => "Invocation" }.freeze
+
+  # Flat bonus added to damage spells: +1 per 2 dice of the element skill (fallback Intelligence).
+  def spell_power(element)
+    skill = skills.find_by(name: ELEMENT_SKILLS[element.to_s])
+    (skill ? skill.mastery : intelligence) / 2
+  end
+
+  # Invocation skill dice (fallback Intelligence): sets the strength of summoned creatures.
+  def invocation_mastery
+    skill = skills.find_by(name: "Invocation")
+    skill ? skill.mastery : intelligence
   end
 
   # --- Upgrades XP -> PV/PM ---

@@ -189,6 +189,20 @@ class GameCatalog
       @loot_data ||= YAML.load_file(CATALOG_PATH.join("butin.yml"))
     end
 
+    # Guild ranks (guildes.yml, GuildRankService).
+    def guilds_data
+      @guilds_data ||= YAML.load_file(CATALOG_PATH.join("guildes.yml"))
+    end
+
+    # Creatures of the Invocation school (invocations.yml).
+    def summons_data
+      @summons_data ||= YAML.load_file(CATALOG_PATH.join("invocations.yml"))
+    end
+
+    def summon(key)
+      summons_data.dig("summons", key.to_s)&.merge("key" => key.to_s)
+    end
+
     # Equipment and items that can drop as tower loot, with their tier.
     def loot_pool(item_type)
       if item_type == "equipment"
@@ -199,7 +213,7 @@ class GameCatalog
     end
 
     def reload!
-      @enchantments_data = @loot_data = nil
+      @enchantments_data = @loot_data = @summons_data = @guilds_data = nil
       @all_equipment = @all_items = @all_techniques = @all_magics = nil
       @all_skills = @all_statuses = @all_floors = @all_monsters = nil
       @all_techniques_data = @all_magics_data = @all_statuses_data = nil
@@ -308,7 +322,8 @@ class GameCatalog
           current_category = normalize_technique_category(line.sub("## ", ""))
         elsif line.start_with?("•") && current_category
           name = line.sub(/^[•\t\s]+/, "").strip
-          key = name.parameterize(separator: "_")
+          # "Brise-garde" -> "brise_garde", "Mur d’acier" -> "mur_d_acier" (techniques.yml keys)
+          key = name.parameterize(separator: "_").tr("-", "_")
           techniques << { "key" => key, "name" => name, "category" => current_category }
         end
       end
@@ -459,6 +474,7 @@ class GameCatalog
       when /défensive/, /defensive/ then "defensive"
       when /effet/ then "effect"
       when /avancée/, /avancee/ then "advanced"
+      when /passive/ then "passive"
       else name.downcase.parameterize(separator: "_")
       end
     end

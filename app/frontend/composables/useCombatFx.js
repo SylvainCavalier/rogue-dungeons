@@ -96,6 +96,7 @@ export function useCombatFx() {
         case 'buff': return { kind: element === 'ombre' ? 'aura' : 'shield', scope: 'self', element }
         case 'drain': return { kind: 'shadow', scope: 'target', element, drain: true }
         case 'status': return { kind: elementKind, scope: 'target', element, silent: true }
+        case 'summon': case 'raise_dead': return { kind: 'aura', scope: 'self', element, silent: true }
         default: return { kind: elementKind, scope: 'target', element }
       }
     }

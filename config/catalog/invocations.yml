@@ -1,0 +1,102 @@
+# Creatures of the "Invocation" school (magies.yml spells with `type: summon`, `summon: <key>`).
+# Stats are given for a 1D Invocation skill. Each Invocation die above 1 adds `hp_per_die` PV,
+# and every 2 dice above 1 add +1D to attack and damage (and +1 to `heal`).
+# taunt: % chance that an enemy blow targets the creature instead of the player.
+# damage_kind: physical (minus the enemy's resistance roll) or magical (`element`, no resistance roll).
+# role: attack (default) or heal (heals the player each turn, never attacks).
+# aoe: attacks every enemy. rebirth: comes back once at half its PV.
+scaling:
+  attack_dice_per_dice: 2
+summons:
+  familier:
+    name: "Familier"
+    hp: 8
+    hp_per_die: 2
+    attack: { mastery: 2, bonus: 0 }
+    damage: { mastery: 1, bonus: 1 }
+    esquive: { mastery: 2, bonus: 2 }
+    vigueur: { mastery: 1, bonus: 0 }
+    dr: { mastery: 0, bonus: 0 }
+    taunt: 30
+    damage_kind: physical
+
+  loup_spectral:
+    name: "Loup spectral"
+    hp: 14
+    hp_per_die: 3
+    attack: { mastery: 2, bonus: 2 }
+    damage: { mastery: 2, bonus: 1 }
+    esquive: { mastery: 2, bonus: 1 }
+    vigueur: { mastery: 2, bonus: 0 }
+    dr: { mastery: 0, bonus: 1 }
+    taunt: 40
+    damage_kind: physical
+
+  golem_d_argile:
+    name: "Golem d'argile"
+    hp: 28
+    hp_per_die: 5
+    attack: { mastery: 2, bonus: 0 }
+    damage: { mastery: 2, bonus: 0 }
+    esquive: { mastery: 1, bonus: 0 }
+    vigueur: { mastery: 3, bonus: 0 }
+    dr: { mastery: 1, bonus: 1 }
+    taunt: 70
+    damage_kind: physical
+
+  esprit_gardien:
+    name: "Esprit gardien"
+    hp: 16
+    hp_per_die: 3
+    esquive: { mastery: 3, bonus: 0 }
+    vigueur: { mastery: 2, bonus: 0 }
+    dr: { mastery: 0, bonus: 0 }
+    taunt: 20
+    role: heal
+    heal: { mastery: 1, bonus: 2 }
+
+  elementaire_de_feu:
+    name: "Élémentaire de feu"
+    hp: 22
+    hp_per_die: 4
+    attack: { mastery: 3, bonus: 1 }
+    damage: { mastery: 3, bonus: 0 }
+    esquive: { mastery: 2, bonus: 0 }
+    vigueur: { mastery: 2, bonus: 0 }
+    dr: { mastery: 1, bonus: 0 }
+    taunt: 45
+    damage_kind: magical
+    element: feu
+    inflict_status: "Brûlé"
+    status_chance: 30
+    status_duration: 2
+
+  gardien_de_pierre:
+    name: "Gardien de pierre"
+    hp: 45
+    hp_per_die: 7
+    attack: { mastery: 3, bonus: 0 }
+    damage: { mastery: 3, bonus: 1 }
+    esquive: { mastery: 1, bonus: 0 }
+    vigueur: { mastery: 4, bonus: 1 }
+    dr: { mastery: 2, bonus: 1 }
+    taunt: 80
+    damage_kind: physical
+
+  phenix:
+    name: "Phénix"
+    hp: 32
+    hp_per_die: 5
+    attack: { mastery: 3, bonus: 2 }
+    damage: { mastery: 2, bonus: 2 }
+    esquive: { mastery: 3, bonus: 1 }
+    vigueur: { mastery: 2, bonus: 2 }
+    dr: { mastery: 1, bonus: 0 }
+    taunt: 50
+    damage_kind: magical
+    element: feu
+    aoe: true
+    rebirth: true
+    inflict_status: "Brûlé"
+    status_chance: 40
+    status_duration: 2

@@ -16,13 +16,14 @@ class AcademyService
       return { success: false, error: "Vous connaissez déjà cette magie" }
     end
 
+    ranks = GuildRankService.new(@character, "mages")
+    required = GuildRankService.required_rank_for_magic(magic_key)
+    unless ranks.allowed?(required)
+      return { success: false, error: "Rang #{ranks.rank_name(required)} de l'académie requis (vous : #{ranks.rank_name})" }
+    end
+
     previous_tier = magic["tier"] - 1
     if previous_tier > 0
-      has_previous = @character.learned_magics
-        .joins("") # no join needed
-        .where(element: magic["element"])
-        .any? { |lm| (GameCatalog.magic(lm.magic_key)&.dig("tier") || 0) >= previous_tier }
-
       element_magics = GameCatalog.magics_for_element(magic["element"])
       previous_magic = element_magics.find { |m| m["tier"] == previous_tier }
       if previous_magic && !@character.learned_magics.exists?(magic_key: previous_magic["key"])

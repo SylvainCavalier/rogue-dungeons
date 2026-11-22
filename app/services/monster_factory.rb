@@ -4,7 +4,7 @@ class MonsterFactory
       floor_data = GameCatalog.floor(floor_number)
       return fallback_encounter(floor_number) unless floor_data
 
-      floor_data["enemies"].map do |enemy_entry|
+      enemies = floor_data["enemies"].map do |enemy_entry|
         count = enemy_entry["count"] || 1
         name = enemy_entry["name"]
         monster_key = GameCatalog.monster_key_for_name(name)
@@ -12,6 +12,9 @@ class MonsterFactory
 
         Array.new(count) { build_monster(template, name, monster_key) }
       end.flatten
+      # The boss of a boss floor is its strongest monster (can't be raised by Nécromancie).
+      enemies.max_by { |e| e[:max_hp] }[:boss] = true if floor_data["boss"] && enemies.any?
+      enemies
     end
 
     private

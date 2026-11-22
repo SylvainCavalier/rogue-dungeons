@@ -24,7 +24,7 @@
 	•	Drain vital
 	•	Pas dans l’ombre
 	•	Malédiction
-	•	Terreur nocturne
+	•	Nécromancie
 	•	Éclipse
 
 ## Lumière
@@ -33,7 +33,7 @@
 	•	Dissipation
 	•	Bouclier lumineux
 	•	Purification
-	•	Résurrection mineure
+	•	Lumière vitale
 	•	Jugement céleste
 
 ## Nature
@@ -44,3 +44,11 @@
 	•	Croissance accélérée
 	•	Régénération sauvage
 	•	Courroux sylvestre
+## Invocation
+	•	Familier
+	•	Loup spectral
+	•	Golem d’argile
+	•	Esprit gardien
+	•	Élémentaire de feu
+	•	Gardien de pierre
+	•	Phénix

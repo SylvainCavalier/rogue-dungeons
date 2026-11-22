@@ -13,6 +13,8 @@
 	•	Affaibli
 	•	Silencé
 	•	Étourdi
+	•	Désarmé
+	•	Garde brisée
 
 ## Positifs
 	•	Régénération

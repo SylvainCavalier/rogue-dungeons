@@ -12,6 +12,8 @@ export const useGameStore = defineStore('game', {
     apothecary: { items: [], work: null },
     availableMagics: {},
     availableTechniques: {},
+    // Guild ranks: { warriors: {...}, mages: {...} } (GuildRankService#info)
+    guildRanks: { warriors: null, mages: null },
     tavern: { games: [] },
     enchantments: { items: [], thresholds: [], soul_stones: 0 },
     townStatus: null,
@@ -340,6 +342,7 @@ export const useGameStore = defineStore('game', {
     async fetchAvailableMagics() {
       const { data } = await apiClient.get('/town/available_magics')
       this.availableMagics = data.magics
+      this.guildRanks.mages = data.rank
       return data
     },
 
@@ -368,7 +371,22 @@ export const useGameStore = defineStore('game', {
     async fetchAvailableTechniques() {
       const { data } = await apiClient.get('/town/available_techniques')
       this.availableTechniques = data.techniques
+      this.guildRanks.warriors = data.rank
       return data
+    },
+
+    // Join the warriors guild / mages academy, or pass the next rank's trial.
+    async advanceGuildRank(guild) {
+      try {
+        const { data } = await apiClient.post('/town/guild_rank', { guild })
+        this.notify(data.message, 'success')
+        if (this.character) this.character.gold = data.gold
+        await (guild === 'mages' ? this.fetchAvailableMagics() : this.fetchAvailableTechniques())
+        return data
+      } catch (e) {
+        this.notify(e.response?.data?.error || 'Erreur', 'error')
+        throw e
+      }
     },
 
     // --- Tower & Combat ---

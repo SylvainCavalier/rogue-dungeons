@@ -4,36 +4,33 @@
 	•	Coup rapide
 	•	Coup chargé
 	•	Double entaille
-	•	Frappe circulaire
 	•	Estoc perforant
-	•	Brise-garde
+	•	Frappe circulaire
 	•	Exécution
-	•	Percée brutale
-	•	Assaut furieux
-	•	Lame tourbillonnante
 
 ## Techniques défensives
-	•	Parade parfaite
 	•	Posture défensive
-	•	Contre-attaque
 	•	Mur d’acier
-	•	Déviation
-	•	Retraite tactique
+	•	Contre-attaque
 	•	Résilience
 
 ## Techniques à effet
 	•	Saignée
-	•	Fracture
+	•	Brise-garde
 	•	Désarmement
-	•	Étourdissement
+	•	Fracture
 	•	Provocation
 	•	Intimidation martiale
-	•	Charge écrasante
-	•	Coup affaiblissant
+	•	Étourdissement
 
 ## Techniques avancées
-	•	Rafale implacable
 	•	Jugement du guerrier
+	•	Rafale implacable
 	•	Déluge de lames
 	•	Frappe transcendante
+
+## Techniques passives
+	•	Rage du désespoir
 	•	Instinct du vétéran
+	•	Riposte
+	•	Survie

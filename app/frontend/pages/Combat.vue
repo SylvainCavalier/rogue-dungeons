@@ -81,6 +81,7 @@
             </div>
             <DefenseToggle :defense="combat.player.defense" :disabled="acting"
               @update="d => { if (combat.player) combat.player.defense = d }" />
+            <AllyCard :allies="combat.allies" />
           </FxFrame>
 
           <!-- Enemies card -->
@@ -156,11 +157,24 @@
               Aucune technique apprise.
             </div>
             <button v-for="tech in learnedTechniques" :key="tech.key"
-              @click="doAction('technique', { key: tech.key })" :disabled="acting"
+              @click="doAction('technique', { key: tech.key })" :disabled="acting || techniqueCooldown(tech) > 0"
               class="w-full bg-stone-800 hover:bg-stone-700 text-stone-200 py-2 px-4 rounded-lg text-sm text-left transition disabled:opacity-50">
-              <span class="font-semibold">{{ tech.name }}</span>
-              <span class="text-stone-500 ml-2 text-xs">{{ tech.description }}</span>
+              <div class="flex justify-between">
+                <span>
+                  <span class="font-semibold">{{ tech.name }}</span>
+                  <span class="text-stone-500 ml-2 text-xs">{{ tech.description }}</span>
+                </span>
+                <span v-if="techniqueCooldown(tech) > 0" class="text-orange-300 text-xs whitespace-nowrap ml-2">
+                  Recharge {{ techniqueCooldown(tech) }}
+                </span>
+                <span v-else-if="tech.cooldown" class="text-stone-500 text-xs whitespace-nowrap ml-2">
+                  Recharge {{ tech.cooldown }} t.
+                </span>
+              </div>
             </button>
+            <p v-if="passiveTechniques.length" class="text-stone-500 text-xs pt-1">
+              Passifs actifs : <span class="text-emerald-300">{{ passiveTechniques.map(t => t.name).join(', ') }}</span>
+            </p>
           </div>
 
           <!-- Magic tab -->
@@ -264,6 +278,7 @@ import apiClient from '../plugins/axios'
 import MonsterPortrait from '../components/game/MonsterPortrait.vue'
 import FxFrame from '../components/game/FxFrame.vue'
 import DefenseToggle from '../components/game/DefenseToggle.vue'
+import AllyCard from '../components/game/AllyCard.vue'
 import ItemIcon from '../components/game/ItemIcon.vue'
 import { useCombatFx } from '../composables/useCombatFx'
 
@@ -276,6 +291,11 @@ const acting = ref(false)
 const activeTab = ref('attack')
 const logContainer = ref(null)
 const learnedTechniques = ref([])
+const passiveTechniques = ref([])
+// Rounds left before a technique can be used again (sent by the server in every snapshot).
+function techniqueCooldown(tech) {
+  return combat.value?.player?.technique_cooldowns?.[tech.key] || 0
+}
 const learnedMagics = ref([])
 const usableItems = ref([])
 const COMBAT_ITEM_EFFECTS = ['heal', 'restore_mana', 'cure_status', 'damage', 'combat_buff', 'enemy_status', 'escape']
@@ -415,7 +435,8 @@ async function loadCombatResources() {
     ])
 
     const allTechs = Object.values(techRes.data.techniques || {}).flat()
-    learnedTechniques.value = allTechs.filter(t => t.learned)
+    learnedTechniques.value = allTechs.filter(t => t.learned && t.category !== 'passive')
+    passiveTechniques.value = allTechs.filter(t => t.learned && t.category === 'passive')
 
     const allMags = Object.values(magRes.data.magics || {}).flat()
     learnedMagics.value = allMags.filter(m => m.learned)

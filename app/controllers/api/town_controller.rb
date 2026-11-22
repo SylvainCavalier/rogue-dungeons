@@ -91,6 +91,19 @@ module Api
       end
     end
 
+    # Joins the guild/academy or passes the next rank's trial (params[:guild]: warriors | mages).
+    def guild_rank_advance
+      guild = params[:guild].to_s
+      return render json: { error: "Guilde inconnue" }, status: :not_found unless GuildRankService::GUILDS.include?(guild)
+
+      result = GuildRankService.new(current_character, guild).advance!
+      if result[:success]
+        render json: result.merge(gold: current_character.gold)
+      else
+        render json: { error: result[:error] }, status: :unprocessable_entity
+      end
+    end
+
     def guild_advance
       result = GuildService.new(current_character).advance
       if result[:success]
@@ -102,6 +115,7 @@ module Api
 
     def available_magics
       all = GameCatalog.all_magics
+      mage_ranks = GuildRankService.new(current_character, "mages")
       learned_keys = current_character.learned_magics.pluck(:magic_key)
       intelligence = current_character.intelligence
       damaged = current_character.building_damaged?("academy")
@@ -116,15 +130,20 @@ module Api
           "description" => details["description"],
           "type" => details["type"],
           "mana_cost" => details["mana_cost"],
+          "spell_power" => details["damage_mastery"].to_i.positive? ? current_character.spell_power(m["element"]) : 0,
+          "required_rank" => (required = GuildRankService.required_rank_for_magic(m["key"])),
+          "required_rank_name" => GuildRankService.rank_name("mages", required),
+          "rank_met" => mage_ranks.allowed?(required),
           "days_needed" => days
         )
       end
 
-      render json: { magics: magics.group_by { |m| m["element"] } }
+      render json: { magics: magics.group_by { |m| m["element"] }, rank: mage_ranks.info }
     end
 
     def available_techniques
       all = GameCatalog.all_techniques
+      warrior_ranks = GuildRankService.new(current_character, "warriors")
       learned_keys = current_character.learned_techniques.pluck(:technique_key)
       vigueur = current_character.vigueur
       damaged = current_character.building_damaged?("guild")
@@ -139,13 +158,19 @@ module Api
             "learned" => learned_keys.include?(t["key"]),
             "description" => details["description"],
             "type" => details["type"],
+            "cooldown" => details["cooldown"].to_i,
+            "requires" => GameCatalog.technique(details["requires"].to_s)&.dig("name"),
+            "requirement_met" => GuildService.missing_requirement(current_character, t["key"], learned_keys).nil?,
+            "required_rank" => (required = GuildRankService.required_rank_for_technique(t["key"])),
+            "required_rank_name" => GuildRankService.rank_name("warriors", required),
+            "rank_met" => warrior_ranks.allowed?(required),
             "rank" => rank,
             "days_needed" => days
           )
         end
       end
 
-      render json: { techniques: grouped }
+      render json: { techniques: grouped, rank: warrior_ranks.info }
     end
   end
 end

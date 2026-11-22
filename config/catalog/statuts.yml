@@ -57,8 +57,9 @@ statuses:
     type: "negative"
     default_duration: 3
     bonus_penalty: 1
+    resistance_penalty: 25
     applies_to: "all"
-    description: "-1 à tous les bonus."
+    description: "Résistances -25% (vulnérable), -1 à tous les bonus."
 
   Affaibli:
     type: "negative"
@@ -77,6 +78,18 @@ statuses:
     default_duration: 1
     skip_turn: true
     description: "Perd son prochain tour."
+
+  Désarmé:
+    type: "negative"
+    default_duration: 3
+    accuracy_mastery_penalty: 1
+    description: "-1 mastery en attaque."
+
+  Garde brisée:
+    type: "negative"
+    default_duration: 3
+    defense_mastery_penalty: 1
+    description: "-1 mastery en esquive."
 
   # === POSITIFS ===
   Régénération:

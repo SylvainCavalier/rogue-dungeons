@@ -1,0 +1,47 @@
+# Guild ranks (GuildRankService). Joining = rank 1 (fee `cost`), then free promotions
+# ("Passer l'épreuve") once every condition of the next rank is met.
+# Conditions: floor (highest tower floor beaten), max_mana, skill_mastery + skills
+# (at least one of these skills at that many dice).
+# Warrior techniques name their rank in techniques.yml (`guild_rank`, default apprenti);
+# academy magics get theirs from their tier (`tier_ranks`).
+guilds:
+  warriors:
+    name: "Guilde des guerriers"
+    building: guild
+    column: warrior_rank
+    skills: ["Arc", "Arme à une main", "Arme à deux mains"]
+    skills_label: "une compétence d'arme"
+    ranks:
+      - key: apprenti
+        name: "Apprenti"
+        cost: 50
+        floor: 10
+      - key: compagnon
+        name: "Compagnon"
+        floor: 30
+        skill_mastery: 5
+      - key: maitre
+        name: "Maître"
+        floor: 50
+        skill_mastery: 7
+
+  mages:
+    name: "Académie des mages"
+    building: academy
+    column: mage_rank
+    skills: ["Feu", "Eau", "Ombre", "Lumière", "Nature", "Invocation"]
+    skills_label: "une compétence magique"
+    tier_ranks: { 1: apprenti, 2: apprenti, 3: apprenti, 4: compagnon, 5: compagnon, 6: maitre, 7: maitre }
+    ranks:
+      - key: apprenti
+        name: "Apprenti"
+        cost: 50
+        max_mana: 20
+      - key: compagnon
+        name: "Compagnon"
+        max_mana: 30
+        skill_mastery: 5
+      - key: maitre
+        name: "Maître"
+        max_mana: 40
+        skill_mastery: 7

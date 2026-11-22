@@ -23,6 +23,7 @@ Eau
 Ombre
 Lumière
 Nature
+Invocation
 Enchantement
 Alchimie
 

@@ -76,11 +76,19 @@ class CombatService
   def player_action(action_type, params = {})
     return { error: "Aucun combat en cours" } unless @state && @state[:status] == "active"
 
+    if action_type == "technique" && (unavailable = technique_unavailable(params[:key]))
+      return { error: unavailable }
+    end
+    if action_type == "magic" && GameCatalog.magic_data(params[:key].to_s)&.dig("type") == "raise_dead" && raisable_corpse.nil?
+      return { error: "Aucun ennemi tombé à relever (les boss ne peuvent pas l'être)" }
+    end
+
     @log = []
     resume_legacy_combat!
     # A stance/counter covers the enemy actions until the player's next action.
     @state[:player_counter] = nil
     @state[:player_stance] = nil
+    @used_technique = nil
 
     skip = check_player_status_effects
     unless skip
@@ -101,6 +109,9 @@ class CombatService
       end
     end
 
+    tick_technique_cooldowns!(except: @used_technique)
+    resolve_ally_turns
+    tick_player_statuses
     close_round
   end
 
@@ -111,6 +122,7 @@ class CombatService
     resume_legacy_combat!
     @state[:player_counter] = nil
     @state[:player_stance] = nil
+    tick_technique_cooldowns!
 
     escape_roll = DiceRoller.roll(character_dex_mastery, character_dex_bonus)
     difficulty = @state[:floor] / 10 + 3
@@ -120,6 +132,8 @@ class CombatService
       finish_combat(:fled)
     else
       @log << "Tentative de fuite échouée ! (#{escape_roll[:total]} vs #{difficulty})"
+      resolve_ally_turns
+      tick_player_statuses
       close_round
     end
   end
@@ -138,7 +152,13 @@ class CombatService
         max_mana: @state[:player][:max_mana],
         statuses: @state[:player_statuses] || [],
         defense: self.class.defense_info(character),
-        initiative: @state[:player_initiative]
+        initiative: @state[:player_initiative],
+        technique_cooldowns: (@state[:technique_cooldowns] || {}).select { |_, v| v.to_i.positive? }.transform_keys(&:to_s)
+      },
+      allies: (@state[:allies] || []).map { |a|
+        { key: a[:key], name: a[:name], hp: a[:hp], max_hp: a[:max_hp], alive: a[:hp] > 0,
+          taunt: a[:taunt], role: a[:role], reborn: a[:reborn] || false,
+          undead: a[:undead] || false, image_dir: a[:image_dir] || "summons" }
       },
       enemies: (@state[:enemies] || []).map.with_index { |e, i|
         {
@@ -313,10 +333,9 @@ class CombatService
       return
     end
 
-    has_tech = character.learned_techniques.exists?(technique_key: technique_key)
-    unless has_tech
-      @log << "Vous ne connaissez pas cette technique."
-      return
+    if tech_data["cooldown"].to_i.positive?
+      (@state[:technique_cooldowns] ||= {})[technique_key.to_sym] = tech_data["cooldown"].to_i
+      @used_technique = technique_key
     end
 
     case tech_data["type"]
@@ -334,7 +353,7 @@ class CombatService
       resolve_debuff_attack(tech_data)
     when "status_attack"
       resolve_status_attack(tech_data)
-    when "counter", "combo"
+    when "counter"
       resolve_counter_stance(tech_data)
     when "stance"
       resolve_stance(tech_data)
@@ -391,6 +410,10 @@ class CombatService
       resolve_magic_buff(magic_data)
     when "cure"
       resolve_magic_cure(magic_data)
+    when "summon"
+      resolve_magic_summon(magic_data)
+    when "raise_dead"
+      resolve_magic_raise_dead(magic_data)
     else
       @log << "#{magic_data["name"]} : effet magique non implémenté."
     end
@@ -430,7 +453,7 @@ class CombatService
     when "damage"
       resolve_item_damage(item_data)
     when "combat_buff"
-      apply_status_to_player(item_data["status"], item_data["status_duration"] || 3)
+      apply_status_to_player(item_data["status"], item_data["status_duration"] || 3, fresh: true)
       @log << "Vous buvez #{item_data["name"]} : vous êtes #{item_data["status"]} (#{item_data["status_duration"] || 3} tours)."
     when "enemy_status"
       targets = item_data["target"] == "all_enemies" ? living_enemies : living_enemies.first(1)
@@ -502,11 +525,15 @@ class CombatService
     return @log << "Aucune cible." unless target
 
     weapon_data = equipped_weapon_data
-    acc_m, acc_b = player_accuracy(weapon_data)
-    acc_b += (tech["accuracy_bonus"] || 0)
-    def_m, def_b = enemy_defense(target)
-
-    hit = DiceRoller.opposed_roll(acc_m, acc_b, def_m, def_b)
+    hit =
+      if tech["auto_hit"]
+        { hit: true, graze: false }
+      else
+        acc_m, acc_b = player_accuracy(weapon_data)
+        acc_b += (tech["accuracy_bonus"] || 0)
+        def_m, def_b = enemy_defense(target)
+        DiceRoller.opposed_roll(acc_m, acc_b, def_m, def_b)
+      end
 
     if hit[:hit] || hit[:graze]
       dmg_m, dmg_b = player_damage(weapon_data)
@@ -699,9 +726,9 @@ class CombatService
 
       dmg = DiceRoller.roll(dmg_m, dmg_b)
       res = DiceRoller.roll(res_m, res_b)
-      raw = [dmg[:total] - res[:total], 0].max
+      raw = [dmg[:total] - res[:total], 1].max
       mod = apply_target_resistance(raw, target, "physical")
-      final = mod[:immune] ? 0 : [mod[:damage], 0].max
+      final = mod[:immune] ? 0 : [mod[:damage], 1].max
 
       target[:hp] = [target[:hp] - final, 0].max
 
@@ -739,9 +766,9 @@ class CombatService
 
       dmg = DiceRoller.roll(dmg_m, dmg_b)
       res = DiceRoller.roll(res_m, res_b)
-      raw = [dmg[:total] - res[:total], 0].max
+      raw = [dmg[:total] - res[:total], 1].max
       mod = apply_target_resistance(raw, target, "physical")
-      final = mod[:immune] ? 0 : [mod[:damage], 0].max
+      final = mod[:immune] ? 0 : [mod[:damage], 1].max
 
       target[:hp] = [target[:hp] - final, 0].max
       if hit[:hit]
@@ -757,22 +784,22 @@ class CombatService
     end
   end
 
+  # Every enemy attack the player dodges or parries until their next action is countered.
   def resolve_counter_stance(tech)
-    @state[:player_counter] = {
-      parade_bonus: tech["parade_bonus"] || 0,
-      esquive_bonus: tech["esquive_bonus"] || 0,
-      counter_on_success: tech["counter_on_success"] || false,
-      counter_damage_bonus: tech["counter_damage_bonus"] || 0
-    }
-    @log << "#{tech["name"]} : posture de contre-attaque activée."
+    @state[:player_counter] = { counter_damage_bonus: tech["counter_damage_bonus"].to_i }
+    @log << "#{tech["name"]} : vous guettez la moindre ouverture."
   end
 
+  # Defense dice (dodge or parry, whichever is active) and/or resistance dice
+  # until the player's next action.
   def resolve_stance(tech)
-    esquive_bonus = tech["esquive_bonus"] || 0
-    parade_bonus = tech["parade_bonus"] || 0
-    dr_bonus = tech["dr_bonus"] || 0
-    @state[:player_stance] = { esquive_bonus: esquive_bonus, parade_bonus: parade_bonus, dr_bonus: dr_bonus }
-    @log << "#{tech["name"]} : posture défensive (+#{esquive_bonus} esquive, +#{parade_bonus} parade, +#{dr_bonus} DR)."
+    defense = tech["defense_mastery"].to_i
+    dr = tech["dr_mastery"].to_i
+    @state[:player_stance] = { defense_mastery: defense, dr_mastery: dr }
+    effects = []
+    effects << "+#{defense}D #{parry_mode? ? 'parade' : 'esquive'}" if defense.positive?
+    effects << "+#{dr}D résistance" if dr.positive?
+    @log << "#{tech["name"]} : #{effects.join(', ')} jusqu'à votre prochaine action."
   end
 
   def resolve_technique_heal(tech)
@@ -792,25 +819,19 @@ class CombatService
     return @log << "Aucune cible." unless target
 
     element = magic["element"]
-    skill = find_player_skill_for_element(element)
-    acc_m = skill ? skill.mastery : character.intelligence
-    acc_b = skill ? skill.bonus : 0
-    acc_m, acc_b = add_precision_enchantment(acc_m, acc_b)
-
+    acc_m, acc_b = magic_accuracy(element)
     def_m, def_b = enemy_defense(target)
 
     hit = DiceRoller.opposed_roll(acc_m, acc_b, def_m, def_b)
     if hit[:hit] || hit[:graze]
-      dmg_m = magic["damage_mastery"] || 1
-      dmg_m = graze_mastery(dmg_m, hit)
-      dmg = DiceRoller.roll(dmg_m, magic["damage_bonus"] || 0)
+      dmg = spell_damage(magic, hit)
       mod = apply_target_resistance(dmg[:total], target, "magical", element)
       final = mod[:immune] ? 0 : [mod[:damage], 0].max
       target[:hp] = [target[:hp] - final, 0].max
       suffix = hit[:graze] ? " (touché de peu)" : ""
       @log << "#{magic["name"]} sur #{target[:name]} : #{final} dégâts !#{suffix}#{mod[:descriptor]} (#{target[:hp]}/#{target[:max_hp]})"
 
-      if hit[:hit] && with_status && magic["inflict_status"]
+      if hit[:hit] && with_status && magic["inflict_status"] && !mod[:immune]
         chance = magic["status_chance"] || 50
         if rand(100) < chance
           apply_status_to_enemy(target, magic["inflict_status"], magic["status_duration"] || 2)
@@ -825,26 +846,21 @@ class CombatService
 
   def resolve_magic_aoe(magic)
     element = magic["element"]
-    skill = find_player_skill_for_element(element)
-    acc_m = skill ? skill.mastery : character.intelligence
-    acc_b = skill ? skill.bonus : 0
-    acc_m, acc_b = add_precision_enchantment(acc_m, acc_b)
+    acc_m, acc_b = magic_accuracy(element)
 
     living_enemies.each do |target|
       def_m, def_b = enemy_defense(target)
       hit = DiceRoller.opposed_roll(acc_m, acc_b, def_m, def_b)
 
       if hit[:hit] || hit[:graze]
-        dmg_m = magic["damage_mastery"] || 1
-        dmg_m = graze_mastery(dmg_m, hit)
-        dmg = DiceRoller.roll(dmg_m, magic["damage_bonus"] || 0)
+        dmg = spell_damage(magic, hit)
         mod = apply_target_resistance(dmg[:total], target, "magical", element)
         final = mod[:immune] ? 0 : [mod[:damage], 0].max
         target[:hp] = [target[:hp] - final, 0].max
         suffix = hit[:graze] ? " (touché de peu)" : ""
         @log << "#{magic["name"]} → #{target[:name]} : #{final} dégâts#{suffix}#{mod[:descriptor]} (#{target[:hp]}/#{target[:max_hp]})"
 
-        if hit[:hit] && magic["inflict_status"]
+        if hit[:hit] && magic["inflict_status"] && !mod[:immune]
           chance = magic["status_chance"] || 50
           if rand(100) < chance
             apply_status_to_enemy(target, magic["inflict_status"], magic["status_duration"] || 2)
@@ -859,9 +875,12 @@ class CombatService
   end
 
   def resolve_magic_heal(magic, cure: false)
-    heal_m = magic["heal_mastery"] || 1
-    heal_b = magic["heal_bonus"] || 0
-    heal = DiceRoller.roll(heal_m, heal_b)[:total]
+    heal =
+      if magic["heal_percent"]
+        (@state[:player][:max_hp] * magic["heal_percent"] / 100.0).ceil
+      else
+        DiceRoller.roll(magic["heal_mastery"] || 1, magic["heal_bonus"] || 0)[:total]
+      end
     @state[:player][:hp] = [@state[:player][:hp] + heal, @state[:player][:max_hp]].min
     @log << "#{magic["name"]} : +#{heal} PV (#{@state[:player][:hp]}/#{@state[:player][:max_hp]})"
 
@@ -872,20 +891,40 @@ class CombatService
     end
   end
 
+  # Opposed roll like any spell: a clean hit applies the status, a graze only
+  # deals the (reduced) damage, an element immunity blocks both.
   def resolve_magic_status(magic)
     target = living_enemies.first
     return @log << "Aucune cible." unless target
 
-    if magic["damage_mastery"] && magic["damage_mastery"] > 0
-      dmg = DiceRoller.roll(magic["damage_mastery"], magic["damage_bonus"] || 0)
-      mod = apply_target_resistance(dmg[:total], target, "magical", magic["element"])
-      final = mod[:immune] ? 0 : [mod[:damage], 0].max
-      target[:hp] = [target[:hp] - final, 0].max
-      @log << "#{magic["name"]} inflige #{final} dégâts à #{target[:name]}#{mod[:descriptor]}."
+    element = magic["element"]
+    if immune_to_element?(target, element)
+      @log << "#{magic["name"]} : #{target[:name]} est immunisé (#{ELEMENT_LABELS[element] || element}), aucun effet."
+      return
     end
 
-    apply_status_to_enemy(target, magic["inflict_status"], magic["status_duration"] || 2)
-    @log << "#{target[:name]} est #{magic["inflict_status"]} !"
+    acc_m, acc_b = magic_accuracy(element)
+    def_m, def_b = enemy_defense(target)
+    hit = DiceRoller.opposed_roll(acc_m, acc_b, def_m, def_b)
+    unless hit[:hit] || hit[:graze]
+      @log << "#{magic["name"]} sur #{target[:name]} : raté ! (#{hit[:attack][:total]} vs #{hit[:defense][:total]})"
+      return
+    end
+
+    if magic["damage_mastery"].to_i.positive?
+      dmg = spell_damage(magic, hit)
+      mod = apply_target_resistance(dmg[:total], target, "magical", element)
+      final = [mod[:damage], 0].max
+      target[:hp] = [target[:hp] - final, 0].max
+      @log << "#{magic["name"]} inflige #{final} dégâts à #{target[:name]}#{mod[:descriptor]} (#{target[:hp]}/#{target[:max_hp]})."
+    end
+
+    if hit[:hit]
+      apply_status_to_enemy(target, magic["inflict_status"], magic["status_duration"] || 2)
+      @log << "#{target[:name]} est #{magic["inflict_status"]} !"
+    else
+      @log << "#{magic["name"]} : touché de peu, #{target[:name]} n'est pas #{magic["inflict_status"]}."
+    end
     @log << "#{target[:name]} est vaincu !" if target[:hp] <= 0
   end
 
@@ -894,17 +933,12 @@ class CombatService
     return @log << "Aucune cible." unless target
 
     element = magic["element"]
-    skill = find_player_skill_for_element(element)
-    acc_m = skill ? skill.mastery : character.intelligence
-    acc_b = skill ? skill.bonus : 0
-    acc_m, acc_b = add_precision_enchantment(acc_m, acc_b)
+    acc_m, acc_b = magic_accuracy(element)
     def_m, def_b = enemy_defense(target)
 
     hit = DiceRoller.opposed_roll(acc_m, acc_b, def_m, def_b)
     if hit[:hit] || hit[:graze]
-      dmg_m = magic["damage_mastery"] || 1
-      dmg_m = graze_mastery(dmg_m, hit)
-      dmg = DiceRoller.roll(dmg_m, magic["damage_bonus"] || 0)
+      dmg = spell_damage(magic, hit)
       mod = apply_target_resistance(dmg[:total], target, "magical", element)
       final = mod[:immune] ? 0 : [mod[:damage], 0].max
       target[:hp] = [target[:hp] - final, 0].max
@@ -921,10 +955,10 @@ class CombatService
   end
 
   def resolve_magic_buff(magic)
-    buff_name = magic["buff_status"]
+    buffs = Array(magic["buff_statuses"] || magic["buff_status"])
     buff_duration = magic["buff_duration"] || 2
-    apply_status_to_player(buff_name, buff_duration)
-    @log << "#{magic["name"]} : #{buff_name} pendant #{buff_duration} tours."
+    buffs.each { |name| apply_status_to_player(name, buff_duration, fresh: true) }
+    @log << "#{magic["name"]} : #{buffs.join(' et ')} pendant #{buff_duration} tour#{'s' if buff_duration > 1}."
 
     if magic["heal_mastery"]
       heal = DiceRoller.roll(magic["heal_mastery"], magic["heal_bonus"] || 0)[:total]
@@ -993,6 +1027,8 @@ class CombatService
 
   def start_round_log!
     @state[:round_attacks] = 0
+    (@state[:allies] || []).each { |a| a[:round_attacks] = 0 }
+    @state[:riposte_used] = false
     @log << "--- Tour #{@state[:turn]} ---"
   end
 
@@ -1032,28 +1068,48 @@ class CombatService
 
       intent = enemy.delete(:intent) || roll_enemy_intent(enemy)
       enemy.delete(:intent_known)
-      next if enemy_is_stunned?(enemy)
-      next if enemy_is_paralyzed?(enemy)
-
-      if intent[:ability]
-        resolve_enemy_ability(enemy, intent[:ability])
-      else
-        resolve_enemy_attack(enemy)
+      ally = intent[:target] && allies[intent[:target]]
+      unless enemy_is_stunned?(enemy) || enemy_is_paralyzed?(enemy)
+        if ally && ally[:hp] > 0
+          resolve_enemy_vs_ally(enemy, ally, intent[:ability])
+        elsif intent[:ability]
+          resolve_enemy_ability(enemy, intent[:ability])
+        else
+          resolve_enemy_attack(enemy)
+        end
       end
+      # Statuses count down at the end of their bearer's own turn (see tick_player_statuses).
+      tick_enemy_statuses(enemy) if enemy[:hp] > 0
     end
   end
 
   # Next action of an enemy: one of its abilities (ability_chance %) or a basic attack.
   def roll_enemy_intent(enemy)
     use_ability = enemy[:abilities]&.any? && rand(100) < (enemy[:ability_chance] || DEFAULT_ABILITY_CHANCE)
-    { ability: use_ability ? enemy[:abilities].sample : nil }
+    ability = use_ability ? enemy[:abilities].sample : nil
+    { ability: ability, target: roll_enemy_target(ability) }
+  end
+
+  # Index of the summoned creature an enemy blow aims at (nil = the player), from
+  # each creature's `taunt` %. Heals and non-damage spells always concern the player.
+  def roll_enemy_target(ability_key)
+    return nil if living_allies.empty?
+
+    if ability_key
+      data = GameCatalog.technique_data(ability_key) || GameCatalog.magic_data(ability_key)
+      return nil if data && data["mana_cost"] && !%w[damage damage_status drain].include?(data["type"])
+    end
+    allies.each_with_index { |a, i| return i if a[:hp] > 0 && rand(100) < a[:taunt].to_i }
+    nil
   end
 
   def intent_label(intent)
-    return "attaque" unless intent&.dig(:ability)
+    target = intent&.dig(:target) && allies[intent[:target]]
+    suffix = target && target[:hp] > 0 ? " (vise #{target[:name]})" : ""
+    return "attaque#{suffix}" unless intent&.dig(:ability)
 
     ability = GameCatalog.technique_data(intent[:ability]) || GameCatalog.magic_data(intent[:ability])
-    ability ? ability["name"] : "attaque"
+    (ability ? ability["name"] : "attaque") + suffix
   end
 
   # Decides every enemy's next action in advance, then one Intuition roll
@@ -1092,40 +1148,22 @@ class CombatService
     hit = DiceRoller.opposed_roll(att_m, att_b, def_m, def_b)
     @state[:round_attacks] = @state[:round_attacks].to_i + 1
     if hit[:hit] || hit[:graze]
-      counter = @state[:player_counter]
-      if hit[:hit] && counter && counter[:counter_on_success]
-        @log << "#{enemy[:name]} vous attaque mais vous contre-attaquez !"
-        resolve_player_counter_hit(enemy, counter)
-        return
-      end
-
-      dmg_m = enemy[:damage][:mastery]
-      dmg_b = enemy[:damage][:bonus]
+      dmg_m, dmg_b = enemy_damage_dice(enemy)
       dmg_m = graze_mastery(dmg_m, hit)
-      res_m = character.vigueur
-      res_b = character.total_dr_bonus
-      stance_dr = @state.dig(:player_stance, :dr_bonus) || 0
-
-      protected_status = (@state[:player_statuses] || []).find { |s| s[:name] == "Protégé" }
-      extra_dr_m = protected_status ? 1 : 0
+      res_m, res_b = player_resistance_dice
 
       dmg = DiceRoller.roll(dmg_m, dmg_b)
-      res = DiceRoller.roll(res_m + character.total_dr_mastery + extra_dr_m, res_b + stance_dr)
+      res = DiceRoller.roll(res_m, res_b)
       final = [dmg[:total] - res[:total], 1].max
 
-      @state[:player][:hp] -= final
+      hurt_player!(final)
       suffix = hit[:graze] ? " (touché de peu)" : ""
       @log << "#{enemy[:name]} vous attaque : #{final} dégâts !#{suffix} (#{@state[:player][:hp]}/#{@state[:player][:max_hp]} PV)"
       @log << "Vous êtes tombé au combat !" if @state[:player][:hp] <= 0
       thorns_hit!(enemy)
     else
       defended!("#{enemy[:name]} vous attaque")
-
-      counter = @state[:player_counter]
-      if counter && counter[:counter_on_success]
-        @log << "Contre-attaque !"
-        resolve_player_counter_hit(enemy, counter)
-      end
+      counter_after_defense(enemy)
     end
   end
 
@@ -1153,18 +1191,15 @@ class CombatService
     hit = DiceRoller.opposed_roll(att_m, att_b, def_m, def_b)
     @state[:round_attacks] = @state[:round_attacks].to_i + 1
     if hit[:hit] || hit[:graze]
-      dmg_m = enemy[:damage][:mastery] + (tech["damage_mastery_mod"] || 0)
-      dmg_m = [dmg_m, 1].max
+      dmg_m, dmg_b = enemy_damage_dice(enemy, tech["damage_mastery_mod"].to_i, tech["damage_bonus"].to_i)
       dmg_m = graze_mastery(dmg_m, hit)
-      dmg_b = enemy[:damage][:bonus] + (tech["damage_bonus"] || 0)
-      res_m = character.vigueur + character.total_dr_mastery
-      res_b = character.total_dr_bonus
+      res_m, res_b = player_resistance_dice
 
       dmg = DiceRoller.roll(dmg_m, dmg_b)
       res = DiceRoller.roll(res_m, res_b)
       final = [dmg[:total] - res[:total], 1].max
 
-      @state[:player][:hp] -= final
+      hurt_player!(final)
       suffix = hit[:graze] ? " (touché de peu)" : ""
       @log << "#{enemy[:name]} utilise #{tech["name"]} : #{final} dégâts !#{suffix}"
       thorns_hit!(enemy)
@@ -1175,6 +1210,7 @@ class CombatService
       end
     else
       defended!("#{enemy[:name]} utilise #{tech["name"]}")
+      counter_after_defense(enemy)
     end
   end
 
@@ -1195,7 +1231,7 @@ class CombatService
         dmg_m = magic["damage_mastery"] || 1
         dmg_m = graze_mastery(dmg_m, hit)
         dmg = reduce_by_magic_resistance(DiceRoller.roll(dmg_m, magic["damage_bonus"] || 0)[:total])
-        @state[:player][:hp] -= dmg
+        hurt_player!(dmg)
         suffix = hit[:graze] ? " (touché de peu)" : ""
         @log << "#{enemy[:name]} lance #{magic["name"]} : #{dmg} dégâts !#{suffix}"
 
@@ -1214,7 +1250,7 @@ class CombatService
         dmg_m = magic["damage_mastery"] || 1
         dmg_m = graze_mastery(dmg_m, hit)
         dmg = reduce_by_magic_resistance(DiceRoller.roll(dmg_m, magic["damage_bonus"] || 0)[:total])
-        @state[:player][:hp] -= dmg
+        hurt_player!(dmg)
         healed = (dmg * (magic["drain_percent"] || 50) / 100.0).ceil
         enemy[:hp] = [enemy[:hp] + healed, enemy[:max_hp]].min
         suffix = hit[:graze] ? " (touché de peu)" : ""
@@ -1263,7 +1299,7 @@ class CombatService
     @log << "Vous êtes #{status_name} !"
   end
 
-  def resolve_player_counter_hit(enemy, counter)
+  def resolve_player_counter_hit(enemy, counter, label = "Contre-attaque")
     weapon_data = equipped_weapon_data
     dmg_m, dmg_b = player_damage(weapon_data)
     dmg_b += (counter[:counter_damage_bonus] || 0)
@@ -1276,9 +1312,263 @@ class CombatService
     final = mod[:immune] ? 0 : [mod[:damage], 1].max
 
     enemy[:hp] = [enemy[:hp] - final, 0].max
-    @log << "Contre-attaque ! #{final} dégâts à #{enemy[:name]}#{mod[:descriptor]} (#{enemy[:hp]}/#{enemy[:max_hp]})"
+    @log << "#{label} ! #{final} dégâts à #{enemy[:name]}#{mod[:descriptor]} (#{enemy[:hp]}/#{enemy[:max_hp]})"
     weapon_enchantment_hit!(enemy)
     @log << "#{enemy[:name]} est vaincu !" if enemy[:hp] <= 0
+  end
+
+  # After a dodged/parried enemy blow: the "Contre-attaque" stance counters every one,
+  # the "Riposte" passive the first parried blow of each round.
+  def counter_after_defense(enemy)
+    return if enemy[:hp] <= 0 || player_dead?
+
+    if @state[:player_counter]
+      resolve_player_counter_hit(enemy, @state[:player_counter])
+    elsif parry_mode? && !@state[:riposte_used] && passive_technique?("riposte")
+      @state[:riposte_used] = true
+      resolve_player_counter_hit(enemy, {}, "Riposte")
+    end
+  end
+
+  # Every damage the player takes goes through here, for the "Survie" passive:
+  # once per fight, a blow that would kill the player leaves them at 1 PV.
+  def hurt_player!(amount)
+    hp = @state[:player][:hp]
+    if hp.positive? && hp - amount <= 0 && !@state[:survival_used] && passive_technique?("survival")
+      @state[:survival_used] = true
+      @state[:player][:hp] = 1
+      @log << "Survie : vous encaissez un coup fatal et tenez bon à 1 PV !"
+    else
+      @state[:player][:hp] = hp - amount
+    end
+  end
+
+  # ═══════════════════════════════════════════
+  # Summoned creatures (Invocation)
+  # One creature at a time, fighting on the player's side until it is destroyed
+  # or the fight ends. It acts right after the player; enemies aim at it with
+  # its `taunt` % (decided with their intent). It never receives statuses.
+  # ═══════════════════════════════════════════
+
+  def allies
+    @state[:allies] ||= []
+  end
+
+  def living_allies
+    allies.select { |a| a[:hp] > 0 }
+  end
+
+  def resolve_magic_summon(magic)
+    data = GameCatalog.summon(magic["summon"])
+    return @log << "#{magic["name"]} : invocation inconnue." unless data
+
+    ally = build_ally(data)
+    place_ally!(ally)
+    @log << "Vous invoquez #{ally[:name]} (#{ally[:hp]} PV) ! Il agira dès votre prochain tour."
+  end
+
+  # One creature at a time (summoned or raised): the new one replaces the previous.
+  def place_ally!(ally)
+    living_allies.each { |a| @log << "#{a[:name]} #{a[:undead] ? "retombe en poussière" : "retourne d'où il vient"}." }
+    @state[:allies] = [ally]
+    # Enemies already planned their next action: let them pick their target again.
+    living_enemies.each { |e| e[:intent][:target] = roll_enemy_target(e[:intent][:ability]) if e[:intent] }
+  end
+
+  # Nécromancie: the strongest fallen enemy of this fight, except the boss, once each.
+  def raisable_corpse
+    (@state[:enemies] || []).select { |e| e[:hp] <= 0 && !e[:boss] && !e[:raised] }.max_by { |e| e[:max_hp] }
+  end
+
+  NECROMANCY_GRADES = [
+    { margin: 10, hp_percent: 100, dice: 1, label: "réussite éclatante" },
+    { margin: 5, hp_percent: 75, dice: 0, label: "bonne réussite" },
+    { margin: 0, hp_percent: 50, dice: -1, label: "réussite de peu" }
+  ].freeze
+
+  # Ombre roll (fallback Intelligence) vs 5 + 2 × the corpse's attack dice; the margin
+  # sets the undead's PV (% of the monster's) and attack/damage dice. A failure
+  # crumbles the corpse. Basic attacks only, never statuses, like a summon.
+  def resolve_magic_raise_dead(magic)
+    corpse = raisable_corpse
+    return @log << "#{magic["name"]} : aucun ennemi tombé à relever." unless corpse
+
+    corpse[:raised] = true
+    skill = find_player_skill_for_element("ombre")
+    mastery, bonus = skill ? [skill.mastery, skill.bonus] : [character.intelligence, 0]
+    total = DiceRoller.roll(mastery, bonus)[:total]
+    difficulty = intuition_difficulty(corpse)
+    label = "#{magic["name"]} (Ombre #{DiceRoller.notation(mastery, bonus)}) : #{total} vs #{difficulty}"
+    grade = NECROMANCY_GRADES.find { |g| total - difficulty >= g[:margin] }
+    unless grade
+      @log << "#{label} — le cadavre de #{corpse[:name]} se désagrège."
+      return
+    end
+
+    hp = [(corpse[:max_hp] * grade[:hp_percent] / 100.0).ceil, 1].max
+    dice = ->(h, add = 0) { { mastery: [h[:mastery].to_i + add, 1].max, bonus: h[:bonus].to_i } }
+    ally = {
+      key: corpse[:key], name: "#{corpse[:name]} (mort-vivant)", hp: hp, max_hp: hp,
+      attack: dice.(corpse[:attack], grade[:dice]), damage: dice.(corpse[:damage], grade[:dice]),
+      esquive: dice.(corpse[:esquive]), vigueur: dice.(corpse[:vigueur]), dr: dice.(corpse[:dr]),
+      taunt: (magic["taunt"] || 50).to_i, role: "attack", damage_kind: "physical", aoe: false, rebirth: false,
+      status_chance: 0, status_duration: 2, summoned_turn: @state[:turn], round_attacks: 0,
+      undead: true, image_dir: "monsters"
+    }
+    @log << "#{label} — #{grade[:label]} !"
+    place_ally!(ally)
+    @log << "#{corpse[:name]} se relève sous vos ordres (#{hp} PV) ! Il agira dès votre prochain tour."
+  end
+
+  # Creature stats grow with the Invocation skill: +hp_per_die PV per die above 1,
+  # +1D attack/damage (+1 heal) per `attack_dice_per_dice` dice above 1.
+  def build_ally(data)
+    level = [character.invocation_mastery - 1, 0].max
+    extra = level / [GameCatalog.summons_data.dig("scaling", "attack_dice_per_dice").to_i, 1].max
+    dice = ->(h, add = 0) { h && { mastery: h["mastery"].to_i + add, bonus: h["bonus"].to_i } }
+    hp = data["hp"].to_i + data["hp_per_die"].to_i * level
+    {
+      key: data["key"], name: data["name"], hp: hp, max_hp: hp,
+      attack: dice.(data["attack"], extra), damage: dice.(data["damage"], extra),
+      esquive: dice.(data["esquive"]), vigueur: dice.(data["vigueur"]), dr: dice.(data["dr"]),
+      heal: data["heal"] && { mastery: data["heal"]["mastery"].to_i, bonus: data["heal"]["bonus"].to_i + extra },
+      taunt: data["taunt"].to_i, role: data["role"] || "attack", damage_kind: data["damage_kind"] || "physical",
+      element: data["element"], aoe: data["aoe"] || false, rebirth: data["rebirth"] || false,
+      inflict_status: data["inflict_status"], status_chance: data["status_chance"].to_i,
+      status_duration: data["status_duration"] || 2, summoned_turn: @state[:turn], round_attacks: 0
+    }
+  end
+
+  # Right after the player's action (even a lost turn). Not on the turn it was summoned.
+  def resolve_ally_turns
+    living_allies.each do |ally|
+      next if ally[:summoned_turn] == @state[:turn]
+      break if enemies_all_dead?
+
+      if ally[:role] == "heal"
+        before = @state[:player][:hp]
+        heal = DiceRoller.roll(ally[:heal][:mastery], ally[:heal][:bonus])[:total]
+        @state[:player][:hp] = [before + heal, @state[:player][:max_hp]].min
+        @log << "#{ally[:name]} vous soigne : +#{@state[:player][:hp] - before} PV (#{@state[:player][:hp]}/#{@state[:player][:max_hp]})"
+      else
+        targets = ally[:aoe] ? living_enemies : living_enemies.first(1)
+        targets.each { |t| resolve_ally_attack(ally, t) }
+      end
+    end
+  end
+
+  def resolve_ally_attack(ally, target)
+    def_m, def_b = enemy_defense(target)
+    hit = DiceRoller.opposed_roll(ally[:attack][:mastery], ally[:attack][:bonus], def_m, def_b)
+    unless hit[:hit] || hit[:graze]
+      @log << "#{ally[:name]} attaque #{target[:name]} : raté !"
+      return
+    end
+
+    dmg = DiceRoller.roll(graze_mastery(ally[:damage][:mastery], hit), ally[:damage][:bonus])[:total]
+    if ally[:damage_kind] == "magical"
+      mod = apply_target_resistance(dmg, target, "magical", ally[:element])
+    else
+      res_m, res_b = enemy_resistance(target)
+      mod = apply_target_resistance([dmg - DiceRoller.roll(res_m, res_b)[:total], 1].max, target, "physical")
+    end
+    final = mod[:immune] ? 0 : [mod[:damage], 1].max
+    target[:hp] = [target[:hp] - final, 0].max
+    suffix = hit[:graze] ? " (touché de peu)" : ""
+    @log << "#{ally[:name]} attaque #{target[:name]} : #{final} dégâts#{suffix}#{mod[:descriptor]} (#{target[:hp]}/#{target[:max_hp]})"
+
+    if hit[:hit] && ally[:inflict_status] && !mod[:immune] && target[:hp] > 0 && rand(100) < ally[:status_chance]
+      apply_status_to_enemy(target, ally[:inflict_status], ally[:status_duration])
+      @log << "#{target[:name]} est #{ally[:inflict_status]} !"
+    end
+    @log << "#{target[:name]} est vaincu !" if target[:hp] <= 0
+  end
+
+  # An enemy blow aimed at the creature: attack vs its esquive (−1D per earlier
+  # attack on it this round), then physical damage − its resistance roll, or the
+  # spell's dice. Statuses carried by the ability are ignored.
+  def resolve_enemy_vs_ally(enemy, ally, ability_key)
+    ability = ability_key && (GameCatalog.technique_data(ability_key) || GameCatalog.magic_data(ability_key))
+    magic = ability && ability["mana_cost"]
+    label = ability ? "#{enemy[:name]} utilise #{ability["name"]} sur #{ally[:name]}" : "#{enemy[:name]} attaque #{ally[:name]}"
+
+    accuracy_mod = magic ? 0 : ability&.dig("accuracy_bonus").to_i
+    apply_enemy_status_mods_attack(enemy, enemy[:attack][:mastery], enemy[:attack][:bonus] + accuracy_mod) => { mastery: att_m, bonus: att_b }
+    def_m = [ally[:esquive][:mastery] - ally[:round_attacks].to_i, 1].max
+    ally[:round_attacks] = ally[:round_attacks].to_i + 1
+    hit = DiceRoller.opposed_roll(att_m, att_b, def_m, ally[:esquive][:bonus])
+    return @log << "#{label} : raté !" unless hit[:hit] || hit[:graze]
+
+    if magic
+      dmg = DiceRoller.roll(graze_mastery(ability["damage_mastery"] || 1, hit), ability["damage_bonus"] || 0)[:total]
+      if ability["type"] == "drain"
+        enemy[:hp] = [enemy[:hp] + (dmg * (ability["drain_percent"] || 50) / 100.0).ceil, enemy[:max_hp]].min
+      end
+    else
+      dmg_m, dmg_b = enemy_damage_dice(enemy, ability&.dig("damage_mastery_mod").to_i, ability&.dig("damage_bonus").to_i)
+      res = DiceRoller.roll(ally[:vigueur][:mastery] + ally[:dr][:mastery], ally[:vigueur][:bonus] + ally[:dr][:bonus])[:total]
+      dmg = [DiceRoller.roll(graze_mastery(dmg_m, hit), dmg_b)[:total] - res, 1].max
+    end
+    suffix = hit[:graze] ? " (touché de peu)" : ""
+    hurt_ally!(ally, dmg, "#{label} : #{dmg} dégâts#{suffix}")
+  end
+
+  def hurt_ally!(ally, amount, message)
+    ally[:hp] = [ally[:hp] - amount, 0].max
+    @log << "#{message} (#{ally[:hp]}/#{ally[:max_hp]} PV)"
+    return if ally[:hp].positive?
+
+    if ally[:rebirth] && !ally[:reborn]
+      ally[:reborn] = true
+      ally[:hp] = (ally[:max_hp] / 2.0).ceil
+      @log << "#{ally[:name]} renaît de ses cendres ! (#{ally[:hp]}/#{ally[:max_hp]} PV)"
+    else
+      @log << "#{ally[:name]} est détruit !"
+    end
+  end
+
+  # ═══════════════════════════════════════════
+  # Techniques: cooldowns and passives
+  # ═══════════════════════════════════════════
+
+  # Error message when the technique can't be used right now (the turn isn't spent).
+  def technique_unavailable(technique_key)
+    tech = GameCatalog.technique_data(technique_key.to_s)
+    return "Technique inconnue" unless tech
+    return "Vous ne connaissez pas cette technique" unless learned_technique_keys.include?(technique_key.to_s)
+    return "#{tech['name']} est une technique passive, toujours active" if tech["type"] == "passive"
+
+    remaining = (@state[:technique_cooldowns] || {})[technique_key.to_sym].to_i
+    "#{tech['name']} est en recharge (#{remaining} tour#{'s' if remaining > 1})" if remaining.positive?
+  end
+
+  # One player turn passed: every cooldown but the one just set goes down by 1.
+  def tick_technique_cooldowns!(except: nil)
+    cooldowns = @state[:technique_cooldowns]
+    return if cooldowns.blank?
+
+    cooldowns.each_key do |key|
+      next if key.to_s == except.to_s
+      cooldowns[key] = [cooldowns[key].to_i - 1, 0].max
+    end
+    cooldowns.reject! { |_, v| v.zero? }
+  end
+
+  def learned_technique_keys
+    @learned_technique_keys ||= character.learned_techniques.pluck(:technique_key)
+  end
+
+  def passive_technique?(passive_key)
+    @passive_keys ||= learned_technique_keys.filter_map { |k| GameCatalog.technique_data(k)&.dig("passive") }
+    @passive_keys.include?(passive_key)
+  end
+
+  # "Rage du désespoir": +1D weapon damage under its PV threshold.
+  def desperate_rage?
+    return false unless passive_technique?("desperate_rage")
+
+    threshold = GameCatalog.technique_data("rage_du_desespoir")&.dig("hp_threshold") || 30
+    @state[:player][:hp] <= @state[:player][:max_hp] * threshold / 100.0
   end
 
   # ═══════════════════════════════════════════
@@ -1302,7 +1592,7 @@ class CombatService
       when "Confus"
         if rand(100) < 25
           dmg = DiceRoller.roll(1, 0)[:total]
-          @state[:player][:hp] -= dmg
+          hurt_player!(dmg)
           @log << "Confus, vous vous frappez vous-même ! #{dmg} dégâts."
           confused = true
         end
@@ -1312,21 +1602,26 @@ class CombatService
     skip || confused
   end
 
+  # End of round: per-round equipment effects only. Statuses count down at the
+  # end of their bearer's own turn, so "1 round" always means "its next turn",
+  # whatever the initiative order.
   def tick_all_statuses
-    tick_player_statuses
     tick_player_enchantments
-    @state[:enemies].each { |e| tick_enemy_statuses(e) if e[:hp] > 0 }
   end
 
+  # End of the player's turn. A status the player gave themselves this very turn
+  # (spell, elixir) is skipped once, so a 1-round Invisible lasts until the next action.
   def tick_player_statuses
     @state[:player_statuses] ||= []
     @state[:player_statuses].each do |s|
+      next s.delete(:fresh) if s[:fresh]
+
       status_data = GameCatalog.all_statuses_data[s[:name]]
       next unless status_data
 
       if status_data["tick_damage_mastery"]
         dmg = DiceRoller.roll(status_data["tick_damage_mastery"], status_data["tick_damage_bonus"] || 0)[:total]
-        @state[:player][:hp] -= dmg
+        hurt_player!(dmg)
         @log << "#{s[:name]} : vous subissez #{dmg} dégâts (#{@state[:player][:hp]}/#{@state[:player][:max_hp]})"
       end
 
@@ -1369,13 +1664,15 @@ class CombatService
     end
   end
 
-  def apply_status_to_player(status_name, duration)
+  # `fresh`: self-applied during the player's turn (not counted down at the end of it).
+  def apply_status_to_player(status_name, duration, fresh: false)
     @state[:player_statuses] ||= []
     existing = @state[:player_statuses].find { |s| s[:name] == status_name }
     if existing
       existing[:remaining] = [existing[:remaining], duration].max
+      existing[:fresh] = true if fresh
     else
-      @state[:player_statuses] << { name: status_name, remaining: duration }
+      @state[:player_statuses] << { name: status_name, remaining: duration, fresh: fresh || nil }.compact
     end
   end
 
@@ -1443,12 +1740,38 @@ class CombatService
     esquive_m = enemy[:esquive][:mastery]
     esquive_b = enemy[:esquive][:bonus]
 
+    (enemy[:statuses] || []).each do |s|
+      data = GameCatalog.all_statuses_data[s[:name]]
+      next unless data
+      esquive_m -= data["defense_mastery_penalty"].to_i + data["mastery_penalty"].to_i
+    end
+
     debuffs = enemy[:debuffs] || {}
     if debuffs["parade_reduction"]
       esquive_b = [esquive_b - debuffs["parade_reduction"], 0].max
     end
 
-    [esquive_m, esquive_b]
+    [[esquive_m, 1].max, esquive_b]
+  end
+
+  # Enemy damage dice (basic attacks and techniques) with its statuses:
+  # Affaibli -1D, Enragé +1D, Terrorisé/Gelé -1D.
+  def enemy_damage_dice(enemy, mastery_mod = 0, bonus_mod = 0)
+    mastery = enemy[:damage][:mastery] + mastery_mod
+    (enemy[:statuses] || []).each do |s|
+      data = GameCatalog.all_statuses_data[s[:name]]
+      next unless data
+      mastery += data["damage_mastery_bonus"].to_i - data["damage_mastery_penalty"].to_i - data["mastery_penalty"].to_i
+    end
+    [[mastery, 1].max, enemy[:damage][:bonus] + bonus_mod]
+  end
+
+  # Player resistance to physical blows: Vigueur + equipment DR, + "Protégé" and stances.
+  def player_resistance_dice
+    protected_status = (@state[:player_statuses] || []).any? { |s| s[:name] == "Protégé" }
+    mastery = character.vigueur + character.total_dr_mastery + (protected_status ? 1 : 0) +
+              @state.dig(:player_stance, :dr_mastery).to_i
+    [mastery, character.total_dr_bonus]
   end
 
   def enemy_resistance(enemy)
@@ -1476,6 +1799,13 @@ class CombatService
     elsif resistances.key?(kind.to_s)
       value = resistances[kind.to_s].to_i
       key = kind.to_s
+    end
+
+    # "Maudit": resistances lowered (a missing one becomes a vulnerability), immunities kept.
+    penalty = (target[:statuses] || []).sum { |s| GameCatalog.all_statuses_data.dig(s[:name], "resistance_penalty").to_i }
+    if penalty.positive? && value.to_i < 100
+      value = value.to_i - penalty
+      key ||= element ? element.to_s : kind.to_s
     end
 
     return { damage: raw_damage, descriptor: "", immune: false, multiplier: 1.0 } if value.nil? || value.zero?
@@ -1509,22 +1839,22 @@ class CombatService
     mastery, bonus = character.defense_roll
     bonus += PARRY_ROLL_BONUS if parry_mode?
 
-    [@state[:player_stance], @state[:player_counter]].compact.each do |mods|
-      if parry_mode?
-        bonus += (mods[:parade_bonus] || 0)
-      else
-        mastery += (mods[:esquive_bonus] || 0)
-      end
-    end
+    mastery += @state.dig(:player_stance, :defense_mastery).to_i
 
     accel = (@state[:player_statuses] || []).find { |s| s[:name] == "Accéléré" }
     bonus += 1 if accel
+    # Béni / Inspiré (+1) and Maudit (-1) apply to every roll, defense included.
+    (@state[:player_statuses] || []).each do |s|
+      data = GameCatalog.all_statuses_data[s[:name]]
+      bonus += data["bonus_all"].to_i - data["bonus_penalty"].to_i if data
+    end
 
     penalty = @state[:round_attacks].to_i
+    penalty -= 1 if penalty.positive? && passive_technique?("veteran_instinct")
     if penalty > 0
       mastery = [mastery - penalty, 1].max
       label = parry_mode? ? "Parade" : "Esquive"
-      @log << "#{label} affaiblie (-#{penalty}D, attaque n°#{penalty + 1} du tour)"
+      @log << "#{label} affaiblie (-#{penalty}D, attaque n°#{@state[:round_attacks].to_i + 1} du tour)"
     end
 
     [mastery, bonus]
@@ -1537,7 +1867,7 @@ class CombatService
       return
     end
 
-    @state[:player][:hp] -= PARRY_CHIP_DAMAGE
+    hurt_player!(PARRY_CHIP_DAMAGE)
     @log << "#{action_label} : paré ! #{PARRY_CHIP_DAMAGE} dégât subi (#{@state[:player][:hp]}/#{@state[:player][:max_hp]} PV)"
     @log << "Vous êtes tombé au combat !" if @state[:player][:hp] <= 0
   end
@@ -1572,6 +1902,7 @@ class CombatService
       bonus += (data["bonus_all"] || 0)
       bonus -= (data["bonus_penalty"] || 0)
     end
+    mastery += 1 if desperate_rage?
     [[mastery, 1].max, bonus]
   end
 
@@ -1607,6 +1938,29 @@ class CombatService
   def equipped_weapon_data
     weapon = character.equipped_weapon
     weapon ? GameCatalog.equipment(weapon.item_key) : nil
+  end
+
+  # Spell accuracy: element skill (fallback Intelligence) + precision enchantment
+  # + the player's statuses (Aveuglé, Concentré, Invisible…), like weapons.
+  def magic_accuracy(element)
+    skill = find_player_skill_for_element(element)
+    mastery, bonus = skill ? [skill.mastery, skill.bonus] : [character.intelligence, 0]
+    mastery, bonus = add_precision_enchantment(mastery, bonus)
+    apply_player_accuracy_mods(mastery, bonus)
+  end
+
+  # Damage spells: +1 per 2 dice of the element skill (fallback Intelligence).
+  def spell_power(element)
+    (@spell_power ||= {})[element] ||= character.spell_power(element)
+  end
+
+  def spell_damage(magic, hit)
+    mastery = graze_mastery(magic["damage_mastery"] || 1, hit)
+    DiceRoller.roll(mastery, (magic["damage_bonus"] || 0) + spell_power(magic["element"]))
+  end
+
+  def immune_to_element?(target, element)
+    (target[:resistances] || {}).transform_keys(&:to_s)[element.to_s].to_i >= 100
   end
 
   def find_player_skill_for_element(element)

@@ -13,8 +13,12 @@
         </div>
       </div>
 
+      <GuildRankPanel guild="warriors" :info="gameStore.guildRanks.warriors"
+        accent-class="text-red-400" button-class="bg-red-800 hover:bg-red-700 text-red-100" />
+
       <p class="text-stone-500 text-sm mb-6 animate-fade-in-up stagger-1">
         Choisissez une technique à apprendre. La durée dépend du rang de la technique et de votre vigueur.
+        Certaines techniques sont réservées aux compagnons et aux maîtres de la guilde.
       </p>
 
       <div v-for="(techniques, category) in gameStore.availableTechniques" :key="category"
@@ -40,7 +44,11 @@
               </div>
               <div class="flex-shrink-0">
                 <span v-if="tech.learned" class="text-green-400 text-xs font-semibold px-2 py-1 bg-green-900/30 rounded-full">Appris</span>
-                <button v-else @click="openConfirm(tech)" :disabled="gameStore.isBusy"
+                <span v-else-if="!tech.rank_met" class="text-stone-500 text-xs px-2 py-1 bg-stone-900 rounded-full whitespace-nowrap">
+                  Rang {{ tech.required_rank_name }}
+                </span>
+                <button v-else @click="openConfirm(tech)" :disabled="gameStore.isBusy || !tech.requirement_met"
+                  :title="tech.requirement_met ? '' : `Requiert ${tech.requires}`"
                   class="text-xs bg-red-800 hover:bg-red-700 text-red-200 px-3 py-1.5 rounded-lg transition disabled:opacity-30 active:scale-95">
                   Apprendre
                 </button>
@@ -48,6 +56,12 @@
             </div>
             <p v-if="tech.description" class="text-stone-500 text-xs mt-2 leading-snug pl-10">
               {{ tech.description }}
+            </p>
+            <p v-if="tech.cooldown || tech.requires" class="flex flex-wrap gap-x-3 text-xs mt-1 pl-10">
+              <span v-if="tech.cooldown" class="text-sky-300">Recharge {{ tech.cooldown }} tour{{ tech.cooldown > 1 ? 's' : '' }}</span>
+              <span v-if="tech.requires" :class="tech.requirement_met ? 'text-stone-500' : 'text-orange-300'">
+                Requiert {{ tech.requires }}
+              </span>
             </p>
           </div>
         </div>
@@ -87,6 +101,7 @@
 import { ref, onMounted } from 'vue'
 import { useGameStore } from '../stores/game'
 import StatusBar from '../components/game/StatusBar.vue'
+import GuildRankPanel from '../components/game/GuildRankPanel.vue'
 
 const gameStore = useGameStore()
 const selectedTech = ref(null)
@@ -98,6 +113,7 @@ function categoryLabel(cat) {
     defensive: 'Techniques défensives',
     effect: 'Techniques à effet',
     advanced: 'Techniques avancées',
+    passive: 'Techniques passives (toujours actives)',
   }
   return labels[cat] || cat
 }
