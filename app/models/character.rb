@@ -61,8 +61,19 @@ class Character < ApplicationRecord
 
   # --- Défense ---
 
+  # A ranged weapon can't parry: the player always dodges with one equipped.
+  def can_parry?
+    weapon = equipped_weapon
+    weapon.nil? || weapon.catalog_data&.dig("category") != "arme_a_distance"
+  end
+
+  # Defense mode actually used in combat (the saved choice, unless parry is impossible).
+  def effective_defense_mode
+    defense_mode == "parade" && can_parry? ? "parade" : "esquive"
+  end
+
   # Base dice of the chosen defense skill ("Esquive" or "Parade"), falling back to Dextérité.
-  def defense_roll(mode = defense_mode)
+  def defense_roll(mode = effective_defense_mode)
     skill = skills.find_by(name: mode == "parade" ? "Parade" : "Esquive")
     skill ? [skill.mastery, skill.bonus] : [dexterite, 0]
   end

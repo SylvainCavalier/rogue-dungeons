@@ -11,7 +11,8 @@ class CombatService
     esq_m, esq_b = character.defense_roll("esquive")
     par_m, par_b = character.defense_roll("parade")
     {
-      mode: character.defense_mode,
+      mode: character.effective_defense_mode,
+      can_parry: character.can_parry?,
       esquive: DiceRoller.notation(esq_m, esq_b),
       parade: DiceRoller.notation(par_m, par_b + PARRY_ROLL_BONUS)
     }
@@ -1278,7 +1279,8 @@ class CombatService
   end
 
   def parry_mode?
-    character.defense_mode == "parade"
+    @parry_mode = character.effective_defense_mode == "parade" if @parry_mode.nil?
+    @parry_mode
   end
 
   # Esquive: higher roll needed, full avoidance. Parade: easier roll

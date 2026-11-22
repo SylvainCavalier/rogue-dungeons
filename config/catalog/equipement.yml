@@ -194,31 +194,19 @@ equipment:
       category: "arme_a_distance"
       weapon_type: "arc"
       tier: 1
-      price: 25
+      price: 30
       damage_mastery: 0
       damage_bonus: 1
       accuracy_bonus: 1
       two_handed: true
       notes: "Facile à viser."
 
-    - key: sling
-      name: "Fronde"
-      category: "arme_a_distance"
-      weapon_type: "fronde"
-      tier: 1
-      price: 10
-      damage_mastery: 0
-      damage_bonus: 1
-      accuracy_bonus: 0
-      two_handed: true
-      notes: "Simple et fiable."
-
     - key: crossbow_light
       name: "Arbalète légère"
       category: "arme_a_distance"
       weapon_type: "arbalete"
       tier: 1
-      price: 45
+      price: 40
       damage_mastery: 0
       damage_bonus: 2
       accuracy_bonus: -1
@@ -230,7 +218,7 @@ equipment:
       category: "arme_a_distance"
       weapon_type: "arc"
       tier: 2
-      price: 95
+      price: 100
       damage_mastery: 1
       damage_bonus: 0
       accuracy_bonus: 1
@@ -249,27 +237,15 @@ equipment:
       two_handed: true
       notes: "Plus de puissance, moins maniable."
 
-    - key: bow_composite
-      name: "Arc composite"
-      category: "arme_a_distance"
-      weapon_type: "arc"
-      tier: 2
-      price: 140
-      damage_mastery: 1
-      damage_bonus: 2
-      accuracy_bonus: 0
-      two_handed: true
-      notes: "Bon compromis."
-
     - key: bow_elite
       name: "Arc d’élite"
       category: "arme_a_distance"
       weapon_type: "arc"
       tier: 3
-      price: 280
+      price: 260
       damage_mastery: 2
       damage_bonus: 0
-      accuracy_bonus: 2
+      accuracy_bonus: 1
       two_handed: true
       notes: "Précision premium."
 
@@ -278,34 +254,22 @@ equipment:
       category: "arme_a_distance"
       weapon_type: "arbalete"
       tier: 3
-      price: 340
+      price: 300
       damage_mastery: 2
       damage_bonus: 1
-      accuracy_bonus: -2
+      accuracy_bonus: -1
       two_handed: true
-      notes: "Très puissante, très exigeante."
-
-    - key: bow_runic
-      name: "Arc runique"
-      category: "arme_a_distance"
-      weapon_type: "arc"
-      tier: 3
-      price: 390
-      damage_mastery: 2
-      damage_bonus: 2
-      accuracy_bonus: 1
-      two_handed: true
-      notes: "Runes stabilisantes."
+      notes: "Très puissante, exigeante."
 
     - key: bow_ancient_winds
       name: "Arc des vents anciens"
       category: "arme_a_distance"
       weapon_type: "arc"
-      tier: 5
-      price: 980
+      tier: 4
+      price: 780
       damage_mastery: 3
-      damage_bonus: 0
-      accuracy_bonus: 2
+      damage_bonus: 2
+      accuracy_bonus: 1
       two_handed: true
       notes: "Légendaire : très précis."
 
@@ -313,10 +277,10 @@ equipment:
       name: "Arbalète impériale"
       category: "arme_a_distance"
       weapon_type: "arbalete"
-      tier: 5
-      price: 1100
-      damage_mastery: 3
-      damage_bonus: 1
+      tier: 4
+      price: 750
+      damage_mastery: 4
+      damage_bonus: 0
       accuracy_bonus: -1
       two_handed: true
       notes: "Puissance extrême."

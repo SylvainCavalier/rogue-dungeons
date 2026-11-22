@@ -145,14 +145,11 @@ groups:
       executioner_royal: a giant royal executioner greatsword with a wide squared blade, gold and crimson hilt, crown emblem, shown diagonally from bottom-left to top-right filling the frame
       # Ranged weapons
       bow_short_crude: a crude short bow made of a bent branch with rough twine string, shown diagonally from bottom-left to top-right filling the frame
-      sling: a simple leather sling with a smooth stone in its pouch, shown diagonally from bottom-left to top-right filling the frame
       crossbow_light: a light wooden crossbow with a small iron prod and a bolt loaded, shown diagonally from bottom-left to top-right filling the frame
       bow_long: a tall yew longbow with a leather grip and three arrows lying across it, warm light on the wood, shown diagonally from bottom-left to top-right filling the frame
       crossbow_reinforced: a reinforced crossbow with steel bands, a steel prod and a winding crank, shown diagonally from bottom-left to top-right filling the frame
-      bow_composite: a recurve composite bow of horn and wood with bone tips and decorated grip, shown diagonally from bottom-left to top-right filling the frame
       bow_elite: an elite recurve bow of dark lacquered wood with silver fittings and fine engravings, shown diagonally from bottom-left to top-right filling the frame
       crossbow_heavy: a heavy siege-like crossbow with a thick steel prod, cranequin winch and big bolt, shown diagonally from bottom-left to top-right filling the frame
-      bow_runic: a runic bow with glowing blue runes carved along its limbs, silver string, shown diagonally from bottom-left to top-right filling the frame
       bow_ancient_winds: a legendary ancient bow of pale white wood with swirling wind spirits and feathers, faint green glow, shown diagonally from bottom-left to top-right filling the frame
       crossbow_imperial: an ornate imperial crossbow of black steel and gold with an eagle motif, glowing bolt, shown diagonally from bottom-left to top-right filling the frame
       # Body armor
@@ -234,3 +231,13 @@ groups:
         fountain. The four quarters between the streets are densely packed with timber houses
         with slate and red tile roofs, glowing windows, small gardens. Outside the walls: a dirt
         road leaves each gate, muddy fields and dark forest
+
+# Removed from the game: prompts kept for reference, images in config/art/archive/items/.
+# Not read by art:generate (outside `groups`).
+archived:
+  items:
+    club_primitive: a primitive wooden club studded with rough stones and bone shards, shown diagonally from bottom-left to top-right filling the frame
+    hammer_arms: a massive steel war hammer with a square head and a long iron-banded handle, shown diagonally from bottom-left to top-right filling the frame
+    sling: a simple leather sling with a smooth stone in its pouch, shown diagonally from bottom-left to top-right filling the frame
+    bow_composite: a recurve composite bow of horn and wood with bone tips and decorated grip, shown diagonally from bottom-left to top-right filling the frame
+    bow_runic: a runic bow with glowing blue runes carved along its limbs, silver string, shown diagonally from bottom-left to top-right filling the frame

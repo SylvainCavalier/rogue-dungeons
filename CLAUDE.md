@@ -49,6 +49,7 @@ Two kinds of files, and the pairing matters:
 | `monstres.yml` | Monster stats + `name_to_key` map (names in `tour.md` → monster keys, plural forms included). |
 | `equipement.yml`, `objets.yaml` | Equipment and consumable items. |
 | `siege.yml` | Traps, synergies, siege monsters, waves, watchtower/workshop levels, repair costs. |
+| `config/art/prompts.yml` | Prompts for `bin/rails art:generate` (fal.ai, paid). Removed items keep their prompt under `archived:` and their image in `config/art/archive/items/` — don't delete artwork, archive it. |
 | `competences.md` | Human-readable skill list. **Documentation only** — the source of truth is `Character::SKILLS_MAP`. Keep both in sync. |
 
 A technique/magic must exist in **both** its `.md` and `.yml` with matching keys: the `.md` makes it appear in the guild/academy, the `.yml` makes it do something in combat (`GameCatalog.technique_data` / `magic_data`).
@@ -114,6 +115,7 @@ Turn order: player action → (victory check) → every living enemy acts → st
 - **Player defense mode** (`characters.defense_mode`, `esquive` | `parade`): a toggle in the combat screen (`DefenseToggle.vue`, `PATCH /api/character/defense_mode`), persisted until the player changes it, applied automatically to every enemy attack (basic attacks, techniques, damage/drain spells).
   - *Esquive*: Esquive skill roll; a success avoids all damage. Technique/stance `esquive_bonus` adds dice.
   - *Parade*: Parade skill roll + `CombatService::PARRY_ROLL_BONUS` (easier), but a success still deals `PARRY_CHIP_DAMAGE` (1) — logged as "paré !". Technique/stance `parade_bonus` adds flat bonus.
+  - With a ranged weapon equipped, parry is impossible: `Character#effective_defense_mode` forces esquive (the saved choice is kept for when a melee weapon comes back) and the toggle greys out Parade.
   - Bonuses of the other mode are ignored. Snapshots expose `player.defense` (`{ mode, esquive, parade }` dice notations).
 - **Player accuracy**: weapon skill (+ weapon `accuracy_bonus`) ± status modifiers. **Magic accuracy**: element skill (fallback Intelligence), against the enemy's `esquive`.
 - **Enemies**: 30% chance per turn to use one of their `abilities` (keys of `techniques.yml` or `magies.yml`; a `mana_cost` key means it's resolved as a magic), otherwise a basic attack.

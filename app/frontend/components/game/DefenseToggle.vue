@@ -6,8 +6,8 @@
     </div>
     <div class="grid grid-cols-2 gap-1 bg-stone-800 rounded-lg p-1">
       <button v-for="opt in options" :key="opt.mode" type="button"
-        :disabled="saving || disabled"
-        :title="opt.title"
+        :disabled="saving || disabled || (opt.mode === 'parade' && !canParry)"
+        :title="opt.mode === 'parade' && !canParry ? 'Impossible avec une arme à distance' : opt.title"
         class="text-xs py-1.5 rounded-md transition disabled:opacity-60"
         :class="current === opt.mode ? 'bg-amber-700 text-white font-semibold' : 'text-stone-400 hover:text-stone-200'"
         @click="select(opt.mode)">
@@ -37,7 +37,11 @@ const saving = ref(false)
 
 watch(() => props.defense?.mode, (mode) => { if (mode) current.value = mode })
 
-const hint = computed(() => current.value === 'parade'
+const canParry = computed(() => props.defense?.can_parry !== false)
+
+const hint = computed(() => !canParry.value
+  ? 'Arme à distance : esquive uniquement'
+  : current.value === 'parade'
   ? 'Plus facile, 1 dégât subi'
   : 'Plus difficile, aucun dégât')
 
