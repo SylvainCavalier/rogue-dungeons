@@ -4,6 +4,9 @@
     <div class="max-w-3xl mx-auto px-4 py-8">
       <div class="flex items-center justify-between mb-6 animate-fade-in-up">
         <h1 class="text-2xl font-bold text-amber-400">Inventaire</h1>
+        <span class="text-violet-400 text-sm ml-auto mr-4" title="Obtenues en battant des monstres, utilisées pour enchanter à l'académie">
+          {{ gameStore.character?.soul_stones || 0 }} pierre(s) d'âme
+        </span>
         <router-link to="/town" class="text-stone-400 hover:text-amber-400 text-sm">Retour</router-link>
       </div>
 
@@ -18,6 +21,9 @@
               <ItemIcon :type="'equipment'" :category="slotCategory(slot.key)" :item-key="gameStore.equipment[slot.key].item_key" size="xl" class="mx-auto mb-1" />
               <div class="text-xs text-stone-200 leading-tight">
                 {{ gameStore.equipment[slot.key].name }}
+              </div>
+              <div v-if="gameStore.equipment[slot.key].enchantment" class="text-[11px] text-violet-400 leading-tight mt-0.5">
+                {{ gameStore.equipment[slot.key].enchantment.label }}
               </div>
               <button @click="unequip(gameStore.equipment[slot.key].id)"
                 class="mt-2 text-xs text-red-400 hover:text-red-300 transition">Retirer</button>
@@ -45,6 +51,7 @@
             <div class="flex-1 min-w-0">
               <span class="text-stone-200 text-sm font-medium">{{ item.name }}</span>
               <span v-if="item.quantity > 1" class="text-stone-500 text-xs ml-1">x{{ item.quantity }}</span>
+              <span v-if="item.enchantment" class="text-violet-400 text-xs ml-2">{{ item.enchantment.label }}</span>
               <p class="text-stone-500 text-xs truncate">
                 <span v-if="item.data?.two_handed" class="text-amber-500 mr-1">Deux mains ·</span>{{ item.data?.notes }}
               </p>

@@ -49,6 +49,7 @@ module Api
         mana_upgrade_cost: char.mana_upgrade_cost,
         xp: char.xp,
         gold: char.gold,
+        soul_stones: char.soul_stones,
         status: char.status,
         status_duration: char.status_duration,
         skills: skills_by_category.transform_values { |skills|
@@ -127,6 +128,7 @@ module Api
         mana_upgrade_cost: char.mana_upgrade_cost,
         xp: char.xp,
         gold: char.gold,
+        soul_stones: char.soul_stones,
         current_floor: char.current_floor,
         date: char.formatted_date,
         day: char.day,
@@ -168,6 +170,7 @@ module Api
             id: item.id,
             item_key: item.item_key,
             name: catalog&.dig("name") || item.item_key,
+            enchantment: item.enchantment_effect,
             data: catalog
           }
         end

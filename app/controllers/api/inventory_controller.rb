@@ -130,6 +130,7 @@ module Api
         quantity: inv_item.quantity,
         equipped: inv_item.equipped,
         slot: inv_item.slot,
+        enchantment: inv_item.enchantment_effect,
         data: catalog
       }
     end

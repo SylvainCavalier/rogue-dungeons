@@ -26,6 +26,42 @@ class InventoryItem < ApplicationRecord
     equipped
   end
 
+  # Resolved enchantment ({ key, name, level, ladder, mastery, bonus, percent, label })
+  # from the stored { "effect", "level" } and the current catalog values.
+  def enchantment_effect
+    return nil unless item_type == "equipment" && enchantment.is_a?(Hash)
+
+    self.class.resolve_enchantment(catalog_data&.dig("category"), enchantment["effect"], enchantment["level"].to_i)
+  end
+
+  def self.resolve_enchantment(category, effect_key, level)
+    effect = GameCatalog.enchantment_effects_for(category).find { |e| e["key"] == effect_key }
+    return nil unless effect && level.positive?
+
+    ladder = GameCatalog.enchantments_data.dig("ladders", effect["ladder"]) || []
+    value = ladder[[level, ladder.size].min - 1]
+    return nil unless value
+
+    resolved = { key: effect["key"], name: effect["name"], level: level, ladder: effect["ladder"],
+                 mastery: 0, bonus: 0, percent: 0 }
+    if effect["ladder"] == "percent"
+      resolved[:percent] = value.to_i
+      resolved[:label] = "#{effect['name']} #{value}%"
+    else
+      resolved[:mastery] = value["mastery"].to_i
+      resolved[:bonus] = value["bonus"].to_i
+      resolved[:label] = "#{effect['name']} #{dice_label(resolved[:mastery], resolved[:bonus])}"
+    end
+    resolved
+  end
+
+  # "+2", "+1D", "+1D+2"
+  def self.dice_label(mastery, bonus)
+    return "+#{bonus}" if mastery.zero?
+
+    bonus.positive? ? "+#{mastery}D+#{bonus}" : "+#{mastery}D"
+  end
+
   private
 
   def only_one_equipped_per_slot

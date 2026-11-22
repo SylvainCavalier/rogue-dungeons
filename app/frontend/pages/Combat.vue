@@ -24,6 +24,7 @@
         </h2>
         <div v-if="combat.rewards" class="text-amber-400 text-lg mb-4">
           +{{ combat.rewards.xp }} XP, +{{ combat.rewards.gold }} Or
+          <span v-if="combat.rewards.soul_stones" class="text-violet-400">, +{{ combat.rewards.soul_stones }} pierre{{ combat.rewards.soul_stones > 1 ? 's' : '' }} d'âme</span>
         </div>
         <button @click="returnToTower"
           class="bg-stone-700 hover:bg-stone-600 text-white px-6 py-2 rounded-lg transition">

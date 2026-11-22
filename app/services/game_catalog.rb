@@ -173,7 +173,18 @@ class GameCatalog
       load_siege_data["defense_repair_ratio"] || 0.4
     end
 
+    # config/catalog/enchantements.yml (thresholds, ladders, costs, effects per category)
+    def enchantments_data
+      @enchantments_data ||= YAML.load_file(CATALOG_PATH.join("enchantements.yml"), aliases: true)
+    end
+
+    # Effects available for an equipment category ([] when the category can't be enchanted).
+    def enchantment_effects_for(category)
+      enchantments_data.dig("effects", category) || []
+    end
+
     def reload!
+      @enchantments_data = nil
       @all_equipment = @all_items = @all_techniques = @all_magics = nil
       @all_skills = @all_statuses = @all_floors = @all_monsters = nil
       @all_techniques_data = @all_magics_data = @all_statuses_data = nil

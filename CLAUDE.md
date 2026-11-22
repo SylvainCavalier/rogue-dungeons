@@ -31,7 +31,7 @@ bundle exec brakeman ; bundle exec bundler-audit
   - `CombatService` — the whole combat engine (tower and siege fights). Combat state is a JSON hash in `characters.combat_state`.
   - `DiceRoller` — `roll(mastery, bonus)`, `opposed_roll(...)`, `notation(mastery, bonus)`.
   - `GameCatalog` — loads and caches all game data from `config/catalog/` (call `GameCatalog.reload!` after editing a catalog in a console; restart the server otherwise).
-  - `MonsterFactory` (tower enemies), `SiegeService` + `SiegeWaveFactory` (siege), `GuildService` / `AcademyService` (learning), `WorkService` (forge work), `SkillUpgradeService`, `WatchtowerIntelService`.
+  - `MonsterFactory` (tower enemies), `SiegeService` + `SiegeWaveFactory` (siege), `GuildService` / `AcademyService` (learning), `WorkService` (forge work), `EnchantmentService` (academy enchantments), `SkillUpgradeService`, `WatchtowerIntelService`.
 - Combat animations are frontend-only and derived from the action type + HP diff + log lines: `app/frontend/composables/useCombatFx.js`. If you add a technique/magic type, map it in `describe()` there (scope `target` / `all` / `self`).
 
 ## Game data (`config/catalog/`)
@@ -49,6 +49,7 @@ Two kinds of files, and the pairing matters:
 | `monstres.yml` | Monster stats + `name_to_key` map (names in `tour.md` → monster keys, plural forms included). |
 | `equipement.yml`, `objets.yaml` | Equipment and consumable items. |
 | `siege.yml` | Traps, synergies, siege monsters, waves, watchtower/workshop levels, repair costs. |
+| `enchantements.yml` | Enchantment roll thresholds, value ladders, costs, soul stone drop rates, effects per equipment category. |
 | `config/art/prompts.yml` | Prompts for `bin/rails art:generate` (fal.ai, paid). Removed items keep their prompt under `archived:` and their image in `config/art/archive/items/` — don't delete artwork, archive it. |
 | `competences.md` | Human-readable skill list. **Documentation only** — the source of truth is `Character::SKILLS_MAP`. Keep both in sync. |
 
@@ -84,6 +85,7 @@ Each character gets every skill of `Character::SKILLS_MAP` at creation, with `ma
 |---|---|---|
 | Forge (Vigueur) | Gold earned working at the forge (roll × 3 gold) | `WorkService`, `Character#forge_roll`, `ForgeController` |
 | Alchimie (Intelligence) | Gold earned working at the apothecary (roll × 3 gold) | `WorkService`, `Character#alchemy_roll`, `ApothecaryController` |
+| Enchantement (Intelligence) | Enchanting equipment at the academy: the roll total sets the enchantment level | `EnchantmentService`, `Character#enchantment_roll` |
 | Arc (Dextérité) | Accuracy with `arme_a_distance` (all ranged weapons are `two_handed` for the shield rule, but keep using Arc) | `CombatService#weapon_skill_name` |
 | Arme à une main (Dextérité) | Accuracy with one-handed melee (and default) | same |
 | Arme à deux mains (Dextérité) | Accuracy with `two_handed: true` melee (can't be equipped with a shield: equipping one unequips the other, `InventoryController#free_hands_for`) | same |
@@ -95,7 +97,6 @@ Each character gets every skill of `Character::SKILLS_MAP` at creation, with `ma
 | Fouille (Perception) | Gold multiplier after a tower victory | `resolve_search_loot` |
 | Endurance, Escalade, Natation, Bras de fer, Résistance à l'alcool (Vigueur) | **Not used yet** | — |
 | Discrétion (Dextérité) | **Not used yet, hidden** (see below) | — |
-| Enchantement (Intelligence) | **Not used yet** | — |
 | Persuasion, Marchandage, Dressage (Charisme) | **Not used yet** | — |
 | Intuition, Sang-Froid (Perception) | **Not used yet** | — |
 
@@ -163,6 +164,8 @@ Siege monsters (`siege.yml`) have `vitesse` too.
 ## Town, time and siege
 
 - Work (`WorkService`, `POST /api/town/work` with `place`): a day at the forge (Forge skill) or the apothecary (Alchimie skill) earns `roll × gold_per_point` gold (forge 3, apothecary 3). Add a workplace in `WorkService::WORKPLACES` + `Character#work_roll`.
+- Enchantments (academy "Enchantement" tab, `EnchantmentService`, `config/catalog/enchantements.yml`): Enchantement roll → level 0 (fail, < 5) to 6 (30+); thresholds every 5. Cost = item tier × (40 gold + 1 soul stone), paid even on failure; a success replaces the item's previous enchantment. Stored as `inventory_items.enchantment` (`{ effect, level }`), resolved against the catalog ladders by `InventoryItem#enchantment_effect` (so values can be rebalanced). Effects per category: weapons = elemental damage (feu/eau/lumiere/nature/ombre, +1…+2D, magic damage added after every landed weapon hit, `CombatService#weapon_enchantment_hit!`); armor = protection (DR dice) / résistance magique (% off enemy spells) / régénération (PV per round); helmet = parade / clairvoyance (accuracy) / méditation (mana per round); boots = esquive / célérité (initiative) / fuite; shield = protection / parade / épines (damage to an enemy whose blow lands). Character helpers: `enchantment_dice(key)`, `enchantment_percent(key)`, `weapon_enchantment`; DR enchantments are folded into `total_dr_mastery/bonus`.
+- Soul stones (`characters.soul_stones`): each defeated monster has `drop_chance_percent` (10%) to drop one on victory; a tower boss always drops `boss_base + floor / boss_floors_step` (`CombatService#soul_stones_reward`, shown in `rewards.soul_stones`).
 - Shops: the apothecary sells catalog items with `vendor: "apothecary"` (`GameCatalog.apothecary_items`), the shop sells the other items; both buy/sell through `ShopController`.
 - Time: `Character#advance_day` (7 days/week, 4 weeks/month, 12 months). Working, the inn, learning days and entering the tower (once per tower session) each cost a day. A new week triggers a pending **siege** (`siege_state`).
 - Buildings (`SiegeService::BUILDINGS`: `shop academy guild forge watchtower workshop apothecary`) can be damaged (penalties: −30% forge gold, +2 learning days) or destroyed (unusable) by sieges; repaired with gold.

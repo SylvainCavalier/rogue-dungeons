@@ -169,6 +169,15 @@ export function useCombatFx() {
       }
     }
 
+    // Enchanted weapon: elemental burst on each enemy it hit
+    log.forEach(line => {
+      const m = line.match(/^Enchantement \((.+?)\) : \+\d+ dégâts à (.+?) \(/)
+      if (!m) return
+      const element = m[1].normalize('NFD').replace(/[̀-ͯ]/g, '')
+      const idx = next.findIndex(e => e.name === m[2])
+      if (idx !== -1) play(enemy(idx), ELEMENT_FX[element] || 'arcane', { delay: IMPACT_MS + 220, element })
+    })
+
     // Player gains (heal / mana) read from the log
     const healed = log.map(l => l.match(/récupérez (\d+) PV|: \+(\d+) PV/)).find(Boolean)
     if (healed) float(player, `+${healed[1] || healed[2]}`, 'heal', IMPACT_MS)

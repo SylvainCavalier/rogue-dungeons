@@ -36,6 +36,7 @@
         </h2>
         <div v-if="siege.rewards" class="text-amber-400 text-lg mb-2">
           +{{ siege.rewards.xp }} XP, +{{ siege.rewards.gold }} Or
+          <span v-if="siege.rewards.soul_stones" class="text-violet-400">, +{{ siege.rewards.soul_stones }} pierre{{ siege.rewards.soul_stones > 1 ? 's' : '' }} d'âme</span>
         </div>
         <p v-if="siege.status === 'defeat'" class="text-red-400/70 text-sm mb-4">
           Des bâtiments de la ville ont été endommagés.

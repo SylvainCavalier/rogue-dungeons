@@ -81,7 +81,8 @@ class Character < ApplicationRecord
   def defense_roll(mode = effective_defense_mode)
     skill = skills.find_by(name: mode == "parade" ? "Parade" : "Esquive")
     mastery, bonus = skill ? [skill.mastery, skill.bonus] : [dexterite, 0]
-    [mastery, bonus + equipment_bonus(mode == "parade" ? "parade_bonus" : "esquive_bonus")]
+    ench_m, ench_b = enchantment_dice(mode == "parade" ? "parade" : "esquive")
+    [mastery + ench_m, bonus + ench_b + equipment_bonus(mode == "parade" ? "parade_bonus" : "esquive_bonus")]
   end
 
   # --- Temps ---
@@ -175,18 +176,47 @@ class Character < ApplicationRecord
     inventory_items.find_by(equipped: true, slot: "shield")
   end
 
+  # Equipment DR, including the "Protection" enchantments (armor, shield).
   def total_dr_mastery
     %w[armor helmet boots shield].sum do |slot|
       item = inventory_items.find_by(equipped: true, slot: slot)
       item ? catalog_for(item)&.dig("dr_mastery").to_i : 0
-    end
+    end + enchantment_dice("protection")[0]
   end
 
   def total_dr_bonus
     %w[armor helmet boots shield].sum do |slot|
       item = inventory_items.find_by(equipped: true, slot: slot)
       item ? catalog_for(item)&.dig("dr_bonus").to_i : 0
-    end
+    end + enchantment_dice("protection")[1]
+  end
+
+  # --- Enchantements ---
+
+  # Enchantment skill dice (fallback Intelligence).
+  def enchantment_roll
+    skill = skills.find_by(name: "Enchantement")
+    skill ? [skill.mastery, skill.bonus] : [intelligence, 0]
+  end
+
+  # Resolved enchantments of the equipped items (see InventoryItem#enchantment_effect).
+  def equipped_enchantments
+    inventory_items.where(equipped: true).where.not(enchantment: nil).filter_map(&:enchantment_effect)
+  end
+
+  # [mastery, bonus] summed over the equipped items enchanted with this effect.
+  def enchantment_dice(effect_key)
+    matching = equipped_enchantments.select { |e| e[:key] == effect_key }
+    [matching.sum { |e| e[:mastery] }, matching.sum { |e| e[:bonus] }]
+  end
+
+  def enchantment_percent(effect_key)
+    equipped_enchantments.select { |e| e[:key] == effect_key }.sum { |e| e[:percent] }
+  end
+
+  # Elemental enchantment of the equipped weapon ({ key: "feu", mastery:, bonus:, … }) or nil.
+  def weapon_enchantment
+    equipped_weapon&.enchantment_effect
   end
 
   # Sum of a catalog field over equipped items (esquive_bonus, parade_bonus, flee_bonus, speed_bonus…).
@@ -198,7 +228,8 @@ class Character < ApplicationRecord
   def initiative_roll
     skill = skills.find_by(name: "Vitesse")
     mastery, bonus = skill ? [skill.mastery, skill.bonus] : [dexterite, 0]
-    [mastery, bonus + equipment_bonus("speed_bonus")]
+    ench_m, ench_b = enchantment_dice("vitesse")
+    [mastery + ench_m, bonus + ench_b + equipment_bonus("speed_bonus")]
   end
 
   def total_accuracy_bonus_from_equipment

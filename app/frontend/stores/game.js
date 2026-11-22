@@ -12,6 +12,7 @@ export const useGameStore = defineStore('game', {
     apothecary: { items: [], work: null },
     availableMagics: {},
     availableTechniques: {},
+    enchantments: { items: [], thresholds: [], soul_stones: 0 },
     townStatus: null,
     towerInfo: null,
     combatState: null,
@@ -318,6 +319,28 @@ export const useGameStore = defineStore('game', {
       const { data } = await apiClient.get('/town/available_magics')
       this.availableMagics = data.magics
       return data
+    },
+
+    async fetchEnchantments() {
+      const { data } = await apiClient.get('/town/academy/enchantments')
+      this.enchantments = data
+      return data
+    },
+
+    async enchantItem(itemId, effect) {
+      try {
+        const { data } = await apiClient.post('/town/academy/enchant', { item_id: itemId, effect })
+        this.notify(data.message, data.enchanted ? 'success' : 'error')
+        if (this.character) {
+          this.character.gold = data.gold
+          this.character.soul_stones = data.soul_stones
+        }
+        await this.fetchEnchantments()
+        return data
+      } catch (e) {
+        this.notify(e.response?.data?.error || 'Erreur', 'error')
+        throw e
+      }
     },
 
     async fetchAvailableTechniques() {

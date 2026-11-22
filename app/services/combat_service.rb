@@ -284,6 +284,7 @@ class CombatService
       @log << "Vous attaquez #{target[:name]} : #{hit_label} ! (#{hit_result[:attack][:total]} vs #{hit_result[:defense][:total]})"
       tail = mod[:descriptor].present? ? "#{mod[:descriptor]} → #{final_damage}" : ""
       @log << "Dégâts : #{dmg_roll[:total]} - #{res_roll[:total]} résistance = #{raw}#{tail} (#{target[:hp]}/#{target[:max_hp]} PV)"
+      weapon_enchantment_hit!(target)
       @log << "#{target[:name]} est vaincu !" if target[:hp] <= 0
     else
       @log << "Vous attaquez #{target[:name]} : raté ! (#{hit_result[:attack][:total]} vs #{hit_result[:defense][:total]})"
@@ -480,6 +481,7 @@ class CombatService
         end
       end
 
+      weapon_enchantment_hit!(target)
       @log << "#{target[:name]} est vaincu !" if target[:hp] <= 0
     else
       @log << "#{tech["name"]} sur #{target[:name]} : raté !"
@@ -516,6 +518,7 @@ class CombatService
         target[:hp] = [target[:hp] - final, 0].max
         suffix = hit[:graze] ? " (touché de peu)" : ""
         @log << "#{tech["name"]} (frappe #{i + 1}) sur #{target[:name]} : #{final} dégâts#{suffix}#{mod[:descriptor]} (#{target[:hp]}/#{target[:max_hp]})"
+        weapon_enchantment_hit!(target)
         @log << "#{target[:name]} est vaincu !" if target[:hp] <= 0
       else
         @log << "#{tech["name"]} (frappe #{i + 1}) : raté !"
@@ -550,6 +553,7 @@ class CombatService
         target[:hp] = [target[:hp] - final, 0].max
         suffix = hit[:graze] ? " (touché de peu)" : ""
         @log << "#{tech["name"]} → #{target[:name]} : #{final} dégâts#{suffix}#{mod[:descriptor]} (#{target[:hp]}/#{target[:max_hp]})"
+        weapon_enchantment_hit!(target)
         @log << "#{target[:name]} est vaincu !" if target[:hp] <= 0
       else
         @log << "#{tech["name"]} → #{target[:name]} : raté !"
@@ -583,6 +587,7 @@ class CombatService
       target[:hp] = [target[:hp] - final, 0].max
       suffix = hit[:graze] ? " (touché de peu)" : ""
       @log << "#{tech["name"]} perce la défense de #{target[:name]} : #{final} dégâts !#{suffix}#{mod[:descriptor]} (#{target[:hp]}/#{target[:max_hp]})"
+      weapon_enchantment_hit!(target)
       @log << "#{target[:name]} est vaincu !" if target[:hp] <= 0
     else
       @log << "#{tech["name"]} : raté !"
@@ -617,6 +622,7 @@ class CombatService
       target[:hp] = [target[:hp] - final, 0].max
       bonus_text = (low_hp && hit[:hit]) ? " (EXÉCUTION !)" : (hit[:graze] ? " (touché de peu)" : "")
       @log << "#{tech["name"]} sur #{target[:name]}#{bonus_text} : #{final} dégâts#{mod[:descriptor]} (#{target[:hp]}/#{target[:max_hp]})"
+      weapon_enchantment_hit!(target)
       @log << "#{target[:name]} est vaincu !" if target[:hp] <= 0
     else
       @log << "#{tech["name"]} : raté !"
@@ -656,6 +662,7 @@ class CombatService
       else
         @log << "#{tech["name"]} : #{final} dégâts#{mod[:descriptor]} (touché de peu, pas de debuff) (#{target[:name]})"
       end
+      weapon_enchantment_hit!(target)
       @log << "#{target[:name]} est vaincu !" if target[:hp] <= 0
     else
       @log << "#{tech["name"]} : raté !"
@@ -691,6 +698,7 @@ class CombatService
       else
         @log << "#{tech["name"]} : #{final} dégâts#{mod[:descriptor]} (touché de peu, pas de statut) sur #{target[:name]} (#{target[:hp]}/#{target[:max_hp]})"
       end
+      weapon_enchantment_hit!(target)
       @log << "#{target[:name]} est vaincu !" if target[:hp] <= 0
     else
       @log << "#{tech["name"]} : raté !"
@@ -735,6 +743,7 @@ class CombatService
     skill = find_player_skill_for_element(element)
     acc_m = skill ? skill.mastery : character.intelligence
     acc_b = skill ? skill.bonus : 0
+    acc_m, acc_b = add_precision_enchantment(acc_m, acc_b)
 
     def_m, def_b = enemy_defense(target)
 
@@ -767,6 +776,7 @@ class CombatService
     skill = find_player_skill_for_element(element)
     acc_m = skill ? skill.mastery : character.intelligence
     acc_b = skill ? skill.bonus : 0
+    acc_m, acc_b = add_precision_enchantment(acc_m, acc_b)
 
     living_enemies.each do |target|
       def_m, def_b = enemy_defense(target)
@@ -835,6 +845,7 @@ class CombatService
     skill = find_player_skill_for_element(element)
     acc_m = skill ? skill.mastery : character.intelligence
     acc_b = skill ? skill.bonus : 0
+    acc_m, acc_b = add_precision_enchantment(acc_m, acc_b)
     def_m, def_b = enemy_defense(target)
 
     hit = DiceRoller.opposed_roll(acc_m, acc_b, def_m, def_b)
@@ -966,7 +977,6 @@ class CombatService
       break if player_dead?
       next if enemy[:hp] <= 0
       next if enemy_is_stunned?(enemy)
-
       next if enemy_is_paralyzed?(enemy)
 
       if enemy[:abilities]&.any? && rand(100) < (enemy[:ability_chance] || DEFAULT_ABILITY_CHANCE)
@@ -1012,6 +1022,7 @@ class CombatService
       suffix = hit[:graze] ? " (touché de peu)" : ""
       @log << "#{enemy[:name]} vous attaque : #{final} dégâts !#{suffix} (#{@state[:player][:hp]}/#{@state[:player][:max_hp]} PV)"
       @log << "Vous êtes tombé au combat !" if @state[:player][:hp] <= 0
+      thorns_hit!(enemy)
     else
       defended!("#{enemy[:name]} vous attaque")
 
@@ -1061,6 +1072,7 @@ class CombatService
       @state[:player][:hp] -= final
       suffix = hit[:graze] ? " (touché de peu)" : ""
       @log << "#{enemy[:name]} utilise #{tech["name"]} : #{final} dégâts !#{suffix}"
+      thorns_hit!(enemy)
 
       if hit[:hit] && tech["inflict_status"]
         chance = tech["status_chance"] || 100
@@ -1091,7 +1103,7 @@ class CombatService
       if hit[:hit] || hit[:graze]
         dmg_m = magic["damage_mastery"] || 1
         dmg_m = graze_mastery(dmg_m, hit)
-        dmg = DiceRoller.roll(dmg_m, magic["damage_bonus"] || 0)[:total]
+        dmg = reduce_by_magic_resistance(DiceRoller.roll(dmg_m, magic["damage_bonus"] || 0)[:total])
         @state[:player][:hp] -= dmg
         suffix = hit[:graze] ? " (touché de peu)" : ""
         @log << "#{enemy[:name]} lance #{magic["name"]} : #{dmg} dégâts !#{suffix}"
@@ -1113,7 +1125,7 @@ class CombatService
       if hit[:hit] || hit[:graze]
         dmg_m = magic["damage_mastery"] || 1
         dmg_m = graze_mastery(dmg_m, hit)
-        dmg = DiceRoller.roll(dmg_m, magic["damage_bonus"] || 0)[:total]
+        dmg = reduce_by_magic_resistance(DiceRoller.roll(dmg_m, magic["damage_bonus"] || 0)[:total])
         @state[:player][:hp] -= dmg
         healed = (dmg * (magic["drain_percent"] || 50) / 100.0).ceil
         enemy[:hp] = [enemy[:hp] + healed, enemy[:max_hp]].min
@@ -1141,6 +1153,7 @@ class CombatService
 
     enemy[:hp] = [enemy[:hp] - final, 0].max
     @log << "Contre-attaque ! #{final} dégâts à #{enemy[:name]}#{mod[:descriptor]} (#{enemy[:hp]}/#{enemy[:max_hp]})"
+    weapon_enchantment_hit!(enemy)
     @log << "#{enemy[:name]} est vaincu !" if enemy[:hp] <= 0
   end
 
@@ -1177,6 +1190,7 @@ class CombatService
 
   def tick_all_statuses
     tick_player_statuses
+    tick_player_enchantments
     @state[:enemies].each { |e| tick_enemy_statuses(e) if e[:hp] > 0 }
   end
 
@@ -1282,6 +1296,7 @@ class CombatService
       bonus = 0
     end
 
+    mastery, bonus = add_precision_enchantment(mastery, bonus)
     apply_player_accuracy_mods(mastery, bonus)
   end
 
@@ -1481,14 +1496,105 @@ class CombatService
     character.skills.find_by(name: name)
   end
 
+  # Flee roll: Dextérité (+ "Fuite" boots enchantment dice).
   def character_dex_mastery
-    character.dexterite
+    character.dexterite + character.enchantment_dice("fuite")[0]
   end
 
   # Flee roll bonus: Esquive skill bonus + equipment flee_bonus (boots).
   def character_dex_bonus
     skill = character.skills.find_by(name: "Esquive")
-    (skill ? skill.bonus : 0) + character.equipment_bonus("flee_bonus")
+    (skill ? skill.bonus : 0) + character.equipment_bonus("flee_bonus") + character.enchantment_dice("fuite")[1]
+  end
+
+  # ═══════════════════════════════════════════
+  # Enchantments (config/catalog/enchantements.yml, EnchantmentService)
+  # ═══════════════════════════════════════════
+
+  ENCHANT_ELEMENTS = %w[feu eau lumiere nature ombre].freeze
+
+  def weapon_enchantment
+    return @weapon_enchantment if defined?(@weapon_enchantment)
+
+    @weapon_enchantment = character.weapon_enchantment
+  end
+
+  def enchantment_dice(effect_key)
+    @enchantment_dice ||= {}
+    @enchantment_dice[effect_key] ||= character.enchantment_dice(effect_key)
+  end
+
+  # Elemental damage of an enchanted weapon, added after each landed weapon hit.
+  # Magic damage: no resistance roll, but the target's elemental resistances apply.
+  def weapon_enchantment_hit!(target)
+    return if target[:hp] <= 0
+
+    ench = weapon_enchantment
+    return unless ench && ENCHANT_ELEMENTS.include?(ench[:key])
+
+    roll = DiceRoller.roll(ench[:mastery], ench[:bonus])
+    mod = apply_target_resistance(roll[:total], target, "magical", ench[:key])
+    dmg = mod[:immune] ? 0 : [mod[:damage], 0].max
+    target[:hp] = [target[:hp] - dmg, 0].max
+    @log << "Enchantement (#{ench[:name].downcase}) : +#{dmg} dégâts à #{target[:name]} " \
+            "(#{target[:hp]}/#{target[:max_hp]} PV)#{mod[:descriptor]}"
+  end
+
+  # "Clairvoyance" helmet enchantment: added to weapon and magic accuracy.
+  def add_precision_enchantment(mastery, bonus)
+    ench_m, ench_b = enchantment_dice("precision")
+    [mastery + ench_m, bonus + ench_b]
+  end
+
+  # "Résistance magique" armor enchantment: % off enemy spell damage.
+  def reduce_by_magic_resistance(damage)
+    @magic_resistance ||= character.enchantment_percent("resistance_magique").clamp(0, 90)
+    return damage if @magic_resistance.zero?
+
+    reduced = (damage * (100 - @magic_resistance) / 100.0).round
+    @log << "Résistance magique (#{@magic_resistance}%) : -#{damage - reduced} dégâts" if reduced < damage
+    reduced
+  end
+
+  # "Épines" shield enchantment: hurts an enemy whose blow lands.
+  def thorns_hit!(enemy)
+    return if player_dead? || enemy[:hp] <= 0
+
+    ench_m, ench_b = enchantment_dice("epines")
+    return if (ench_m + ench_b).zero?
+
+    dmg = DiceRoller.roll(ench_m, ench_b)[:total]
+    enemy[:hp] = [enemy[:hp] - dmg, 0].max
+    @log << "Épines : #{enemy[:name]} subit #{dmg} dégâts (#{enemy[:hp]}/#{enemy[:max_hp]} PV)"
+    @log << "#{enemy[:name]} est vaincu !" if enemy[:hp] <= 0
+  end
+
+  # "Régénération" (armor) and "Méditation" (helmet): end of round recovery.
+  def tick_player_enchantments
+    player = @state[:player]
+    regen_m, regen_b = enchantment_dice("regeneration")
+    if (regen_m + regen_b).positive? && player[:hp] < player[:max_hp]
+      heal = [DiceRoller.roll(regen_m, regen_b)[:total], player[:max_hp] - player[:hp]].min
+      player[:hp] += heal
+      @log << "Régénération : +#{heal} PV (#{player[:hp]}/#{player[:max_hp]})"
+    end
+
+    med_m, med_b = enchantment_dice("meditation")
+    return unless (med_m + med_b).positive? && player[:mana].to_i < player[:max_mana].to_i
+
+    mana = [DiceRoller.roll(med_m, med_b)[:total], player[:max_mana] - player[:mana]].min
+    player[:mana] += mana
+    @log << "Méditation : vous récupérez #{mana} mana (#{player[:mana]}/#{player[:max_mana]})"
+  end
+
+  # Tower bosses always drop soul stones; every other defeated monster has a chance.
+  def soul_stones_reward
+    cfg = GameCatalog.enchantments_data["soul_stones"] || {}
+    floor = @state[:floor].to_i
+    boss = floor.positive? && GameCatalog.floor(floor)&.dig("boss")
+    stones = boss ? cfg["boss_base"].to_i + (floor / [cfg["boss_floors_step"].to_i, 1].max) : 0
+    others = boss ? @state[:enemies].size - 1 : @state[:enemies].size
+    stones + others.times.count { rand(100) < cfg["drop_chance_percent"].to_i }
   end
 
   # ═══════════════════════════════════════════
@@ -1516,10 +1622,12 @@ class CombatService
         gold_reward = base_gold
         search = nil
       end
+      stones = soul_stones_reward
 
       character.update!(
         xp: character.xp + xp_reward,
         gold: character.gold + gold_reward,
+        soul_stones: character.soul_stones + stones,
         current_hp: [@state[:player][:hp], 1].max,
         current_mana: @state[:player][:mana],
         current_floor: [@state[:floor], character.current_floor].max,
@@ -1529,8 +1637,9 @@ class CombatService
 
       @state[:log].concat(@log)
       @state[:log] << search[:message] if search
-      @state[:log] << "Victoire ! +#{xp_reward} XP, +#{gold_reward} or."
-      rewards = { xp: xp_reward, gold: gold_reward }
+      stones_text = stones.positive? ? ", +#{stones} pierre#{'s' if stones > 1} d'âme" : ""
+      @state[:log] << "Victoire ! +#{xp_reward} XP, +#{gold_reward} or#{stones_text}."
+      rewards = { xp: xp_reward, gold: gold_reward, soul_stones: stones }
 
       CombatLog.create!(character: character, floor: @state[:floor], result: "victory",
                          xp_gained: xp_reward, gold_gained: gold_reward,

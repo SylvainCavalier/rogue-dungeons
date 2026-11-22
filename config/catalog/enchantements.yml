@@ -1,0 +1,55 @@
+# Enchantments (Academy, "Enchantement" tab — EnchantmentService).
+#
+# The player rolls the Enchantement skill (fallback Intelligence). The total gives
+# the enchantment level: below the first threshold the attempt fails (gold and
+# soul stones are lost, the item keeps its previous enchantment).
+# A successful enchantment replaces the previous one.
+thresholds: [5, 10, 15, 20, 25, 30] # level 1 from 5, level 2 from 10… level 6 from 30
+
+# Value per level (index 0 = level 1)
+ladders:
+  dice: # XD+Y, like every roll of the game
+    - { mastery: 0, bonus: 1 }
+    - { mastery: 0, bonus: 2 }
+    - { mastery: 1, bonus: 0 }
+    - { mastery: 1, bonus: 1 }
+    - { mastery: 1, bonus: 2 }
+    - { mastery: 2, bonus: 0 }
+  percent: [10, 15, 20, 25, 30, 40]
+
+# Cost = item tier × these values (+25% gold when the academy is damaged)
+cost:
+  gold_per_tier: 40
+  soul_stones_per_tier: 1
+
+# Soul stones dropped by monsters (tower and siege victories)
+soul_stones:
+  drop_chance_percent: 10 # per defeated monster
+  boss_base: 1            # a tower boss always drops boss_base + floor / boss_floors_step
+  boss_floors_step: 25
+
+# Effects available per equipment category. ladder: dice | percent
+effects:
+  arme_de_melee: &weapon_effects
+    - { key: feu, name: "Feu", ladder: dice, description: "Dégâts de feu ajoutés à chaque coup porté avec l'arme." }
+    - { key: eau, name: "Eau", ladder: dice, description: "Dégâts d'eau ajoutés à chaque coup porté avec l'arme." }
+    - { key: lumiere, name: "Lumière", ladder: dice, description: "Dégâts de lumière ajoutés à chaque coup porté avec l'arme." }
+    - { key: nature, name: "Nature", ladder: dice, description: "Dégâts de nature ajoutés à chaque coup porté avec l'arme." }
+    - { key: ombre, name: "Ombre", ladder: dice, description: "Dégâts d'ombre ajoutés à chaque coup porté avec l'arme." }
+  arme_a_distance: *weapon_effects
+  armure:
+    - { key: protection, name: "Protection", ladder: dice, description: "Ajouté au jet de résistance contre les dégâts physiques." }
+    - { key: resistance_magique, name: "Résistance magique", ladder: percent, description: "Réduit les dégâts des sorts ennemis." }
+    - { key: regeneration, name: "Régénération", ladder: dice, description: "Rend des PV à la fin de chaque tour de combat." }
+  casque:
+    - { key: parade, name: "Parade", ladder: dice, description: "Ajouté au jet de défense en mode Parade." }
+    - { key: precision, name: "Clairvoyance", ladder: dice, description: "Ajouté à la précision des attaques et des sorts." }
+    - { key: meditation, name: "Méditation", ladder: dice, description: "Rend du mana à la fin de chaque tour de combat." }
+  bottes:
+    - { key: esquive, name: "Esquive", ladder: dice, description: "Ajouté au jet de défense en mode Esquive." }
+    - { key: vitesse, name: "Célérité", ladder: dice, description: "Ajouté au jet d'initiative." }
+    - { key: fuite, name: "Fuite", ladder: dice, description: "Ajouté au jet de fuite." }
+  bouclier:
+    - { key: protection, name: "Protection", ladder: dice, description: "Ajouté au jet de résistance contre les dégâts physiques." }
+    - { key: parade, name: "Parade", ladder: dice, description: "Ajouté au jet de défense en mode Parade." }
+    - { key: epines, name: "Épines", ladder: dice, description: "Blesse l'ennemi qui vous touche au corps à corps." }

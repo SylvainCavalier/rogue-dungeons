@@ -53,6 +53,8 @@ Rails.application.routes.draw do
     post "town/guild/advance", to: "town#guild_advance"
     get "town/available_magics", to: "town#available_magics"
     get "town/available_techniques", to: "town#available_techniques"
+    get "town/academy/enchantments", to: "enchantments#index"
+    post "town/academy/enchant", to: "enchantments#create"
 
     # Tower & Combat
     get "tower", to: "tower#info"
