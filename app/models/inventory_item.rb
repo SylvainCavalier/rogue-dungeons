@@ -35,6 +35,32 @@ class InventoryItem < ApplicationRecord
     (price / 2.0).ceil + bonus.ceil
   end
 
+  # --- Durability (weapons and armor) ---
+
+  MAX_DURABILITY = 100
+  WEAR_PER_FIGHT = 1
+  WEAR_PER_DEFEAT = 10
+
+  def damaged?
+    item_type == "equipment" && durability < MAX_DURABILITY
+  end
+
+  # Durability 0: can't be equipped and has no effect until repaired.
+  def broken?
+    item_type == "equipment" && durability.zero?
+  end
+
+  def wear!(amount)
+    update!(durability: [durability - amount, 0].max)
+  end
+
+  # A full repair (0 → 100) costs half the sell price: each lost point costs 0.5% of it.
+  def repair_cost
+    return 0 unless damaged?
+
+    (sell_price * (MAX_DURABILITY - durability) / (MAX_DURABILITY * 2.0)).ceil
+  end
+
   # Resolved enchantment ({ key, name, level, ladder, mastery, bonus, percent, label })
   # from the stored { "effect", "level" } and the current catalog values.
   def enchantment_effect

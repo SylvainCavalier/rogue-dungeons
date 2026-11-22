@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_11_22_150000) do
+ActiveRecord::Schema[8.0].define(version: 2026_11_22_160000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -183,6 +183,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_11_22_150000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.jsonb "enchantment"
+    t.integer "durability", default: 100, null: false
     t.index ["character_id", "item_key"], name: "index_inventory_items_on_character_id_and_item_key"
     t.index ["character_id"], name: "index_inventory_items_on_character_id"
   end

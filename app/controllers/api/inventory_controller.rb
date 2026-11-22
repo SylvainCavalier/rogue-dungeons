@@ -17,6 +17,11 @@ module Api
         return render json: { error: "Cet objet ne peut pas être équipé" }, status: :unprocessable_entity
       end
 
+      if item.broken?
+        return render json: { error: "#{item.display_name} est hors d'usage : faites-le réparer à la forge" },
+                      status: :unprocessable_entity
+      end
+
       catalog = item.catalog_data
       slot = catalog&.dig("slot") || slot_for_category(catalog&.dig("category"))
 
@@ -132,6 +137,7 @@ module Api
         slot: inv_item.slot,
         enchantment: inv_item.enchantment_effect,
         sell_price: inv_item.sell_price,
+        durability: inv_item.item_type == "equipment" ? inv_item.durability : nil,
         data: catalog
       }
     end

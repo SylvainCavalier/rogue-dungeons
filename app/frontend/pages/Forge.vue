@@ -39,10 +39,62 @@
         <button @click="activeTab = 'sell'"
           :class="activeTab === 'sell' ? 'bg-red-700 text-white' : 'btn-ghost'"
           class="px-4 py-2 rounded-lg text-sm font-medium transition">Vendre</button>
+        <button @click="activeTab = 'repair'"
+          :class="activeTab === 'repair' ? 'bg-sky-700 text-white' : 'btn-ghost'"
+          class="px-4 py-2 rounded-lg text-sm font-medium transition">
+          Réparation<span v-if="repairs.length" class="ml-1 text-xs opacity-80">({{ repairs.length }})</span>
+        </button>
+      </div>
+
+      <!-- Repair tab -->
+      <div v-if="activeTab === 'repair'" class="space-y-2">
+        <p class="text-stone-500 text-xs mb-3">
+          Chaque combat use l'équipement porté (-1 durabilité, -10 en cas de défaite).
+          Une remise à neuf complète coûte la moitié du prix de vente de l'objet.
+        </p>
+        <div v-for="(item, i) in repairs" :key="item.id"
+          @click="toggleRepair(item.id)"
+          class="flex items-center gap-3 card p-4 cursor-pointer animate-fade-in-up"
+          :class="[`stagger-${Math.min(i + 3, 8)}`, selectedRepairs.includes(item.id) ? 'ring-1 ring-sky-600' : '']">
+          <input type="checkbox" :checked="selectedRepairs.includes(item.id)" @click.stop="toggleRepair(item.id)"
+            class="accent-sky-600 w-4 h-4 flex-shrink-0" />
+          <ItemIcon type="equipment" :category="item.data?.category" :item-key="item.item_key" />
+          <div class="flex-1 min-w-0">
+            <span class="text-stone-200 text-sm font-medium">{{ item.name }}</span>
+            <span v-if="item.equipped" class="text-amber-500 text-xs ml-2">porté</span>
+            <span v-if="item.enchantment" class="text-violet-400 text-xs ml-2">{{ item.enchantment.label }}</span>
+            <div class="flex items-center gap-2 mt-1">
+              <div class="h-1.5 w-32 bg-stone-800 rounded-full overflow-hidden">
+                <div class="h-full rounded-full" :class="durabilityColor(item.durability)"
+                  :style="{ width: `${item.durability}%` }"></div>
+              </div>
+              <span class="text-xs" :class="item.durability === 0 ? 'text-red-400' : 'text-stone-400'">
+                {{ item.durability }}/{{ item.max_durability }}
+              </span>
+            </div>
+          </div>
+          <span class="text-yellow-400 text-sm font-bold flex-shrink-0">{{ item.repair_cost }} or</span>
+        </div>
+        <p v-if="repairs.length === 0" class="text-stone-500 text-sm italic text-center py-8">
+          Tout votre équipement est en parfait état.
+        </p>
+        <div v-else class="flex items-center justify-between card p-4 mt-4">
+          <button @click="toggleAllRepairs" class="btn-ghost px-3 py-1.5 rounded-lg text-xs">
+            {{ selectedRepairs.length === repairs.length ? 'Tout désélectionner' : 'Tout sélectionner' }}
+          </button>
+          <div class="flex items-center gap-3">
+            <span class="text-stone-400 text-sm">Total : <span class="text-yellow-400 font-bold">{{ repairTotal }} or</span></span>
+            <button @click="repair"
+              :disabled="!selectedRepairs.length || repairing || (gameStore.character?.gold || 0) < repairTotal"
+              class="bg-sky-700 hover:bg-sky-600 text-white text-sm font-medium px-4 py-2 rounded-lg transition disabled:opacity-40 disabled:cursor-not-allowed active:scale-95">
+              {{ repairing ? 'Réparation...' : 'Réparer' }}
+            </button>
+          </div>
+        </div>
       </div>
 
       <!-- Buy tabs -->
-      <div v-if="activeTab !== 'sell'" class="space-y-2">
+      <div v-else-if="activeTab !== 'sell'" class="space-y-2">
         <div v-for="(item, i) in filteredItems" :key="item.key"
           class="flex items-center gap-3 card p-4 animate-fade-in-up"
           :class="`stagger-${Math.min(i + 3, 8)}`">
@@ -161,6 +213,40 @@ const tabs = [
 ]
 
 const workInfo = computed(() => gameStore.forge.work)
+
+// --- Repair tab ---
+const selectedRepairs = ref([])
+const repairing = ref(false)
+const repairs = computed(() => gameStore.forge.repairs || [])
+const repairTotal = computed(() =>
+  repairs.value.filter(i => selectedRepairs.value.includes(i.id)).reduce((sum, i) => sum + i.repair_cost, 0)
+)
+
+function toggleRepair(id) {
+  selectedRepairs.value = selectedRepairs.value.includes(id)
+    ? selectedRepairs.value.filter(x => x !== id)
+    : [...selectedRepairs.value, id]
+}
+
+function toggleAllRepairs() {
+  selectedRepairs.value = selectedRepairs.value.length === repairs.value.length ? [] : repairs.value.map(i => i.id)
+}
+
+function durabilityColor(value) {
+  if (value >= 70) return 'bg-green-600'
+  if (value >= 30) return 'bg-amber-500'
+  return 'bg-red-600'
+}
+
+async function repair() {
+  repairing.value = true
+  try {
+    await gameStore.repairItems(selectedRepairs.value)
+    selectedRepairs.value = []
+  } finally {
+    repairing.value = false
+  }
+}
 const canWork = computed(() => workInfo.value?.can_work)
 
 const filteredItems = computed(() => {

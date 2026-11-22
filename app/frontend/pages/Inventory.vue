@@ -25,6 +25,9 @@
               <div v-if="gameStore.equipment[slot.key].enchantment" class="text-[11px] text-violet-400 leading-tight mt-0.5">
                 {{ gameStore.equipment[slot.key].enchantment.label }}
               </div>
+              <div class="text-[11px] leading-tight mt-0.5" :class="durabilityClass(gameStore.equipment[slot.key].durability)">
+                Durabilité {{ gameStore.equipment[slot.key].durability }}/100
+              </div>
               <button @click="unequip(gameStore.equipment[slot.key].id)"
                 class="mt-2 text-xs text-red-400 hover:text-red-300 transition">Retirer</button>
             </div>
@@ -52,14 +55,18 @@
               <span class="text-stone-200 text-sm font-medium">{{ item.name }}</span>
               <span v-if="item.quantity > 1" class="text-stone-500 text-xs ml-1">x{{ item.quantity }}</span>
               <span v-if="item.enchantment" class="text-violet-400 text-xs ml-2">{{ item.enchantment.label }}</span>
+              <span v-if="item.item_type === 'equipment' && item.durability < 100" class="text-xs ml-2"
+                :class="durabilityClass(item.durability)">{{ item.durability }}/100</span>
               <p class="text-stone-500 text-xs truncate">
                 <span v-if="item.data?.two_handed" class="text-amber-500 mr-1">Deux mains ·</span>{{ item.data?.notes }}
               </p>
             </div>
             <div class="flex gap-2 flex-shrink-0">
               <button v-if="item.item_type === 'equipment'" @click="equip(item.id)"
-                class="text-xs bg-amber-800 hover:bg-amber-700 text-amber-200 px-3 py-1.5 rounded-lg transition active:scale-95">
-                Équiper
+                :disabled="item.durability === 0"
+                :title="item.durability === 0 ? 'Hors d\'usage : à réparer à la forge' : ''"
+                class="text-xs bg-amber-800 hover:bg-amber-700 text-amber-200 px-3 py-1.5 rounded-lg transition active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed">
+                {{ item.durability === 0 ? 'Hors d\'usage' : 'Équiper' }}
               </button>
               <button v-if="item.data?.consumable" @click="use(item.id)"
                 class="text-xs bg-green-800 hover:bg-green-700 text-green-200 px-3 py-1.5 rounded-lg transition active:scale-95">
@@ -88,6 +95,13 @@ const slots = [
   { key: 'boots', label: 'Bottes' },
   { key: 'shield', label: 'Bouclier' },
 ]
+
+// Durability (0..100), repaired at the forge.
+function durabilityClass(value) {
+  if (value >= 70) return 'text-stone-500'
+  if (value >= 30) return 'text-amber-400'
+  return 'text-red-400'
+}
 
 function slotCategory(slotKey) {
   const map = { weapon: 'arme_de_melee', armor: 'armure', helmet: 'casque', boots: 'bottes', shield: 'bouclier' }

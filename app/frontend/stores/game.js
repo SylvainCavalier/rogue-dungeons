@@ -8,7 +8,7 @@ export const useGameStore = defineStore('game', {
     inventory: [],
     equipment: {},
     shop: { items: [] },
-    forge: { equipment: [], work: null },
+    forge: { equipment: [], work: null, repairs: [] },
     apothecary: { items: [], work: null },
     availableMagics: {},
     availableTechniques: {},
@@ -180,6 +180,21 @@ export const useGameStore = defineStore('game', {
       const { data } = await apiClient.get('/forge')
       this.forge = data
       return data
+    },
+
+    // Repairs the given equipment ids back to full durability at the forge.
+    async repairItems(ids) {
+      try {
+        const { data } = await apiClient.post('/forge/repair', { ids })
+        if (this.character) this.character.gold = data.gold
+        this.forge.repairs = data.repairs
+        this.notify(data.message, 'success')
+        await this.fetchInventory()
+        return data
+      } catch (e) {
+        this.notify(e.response?.data?.error || 'Erreur', 'error')
+        throw e
+      }
     },
 
     // --- Apothecary ---

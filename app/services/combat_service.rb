@@ -2065,6 +2065,24 @@ class CombatService
     @log << "Méditation : vous récupérez #{mana} mana (#{player[:mana]}/#{player[:max_mana]})"
   end
 
+  # Every equipped weapon/armor piece loses durability at the end of a fight
+  # (-1, or -10 on a defeat). At 0 it is unequipped. Repaired at the forge (ForgeController#repair).
+  def wear_equipment!(result)
+    amount = result == :defeat ? InventoryItem::WEAR_PER_DEFEAT : InventoryItem::WEAR_PER_FIGHT
+    worn = character.inventory_items.where(equipped: true, item_type: "equipment").where("durability > 0").to_a
+    return if worn.empty?
+
+    worn.each { |item| item.wear!(amount) }
+    # A broken item (0) is unequipped: back in the bag, no effect until repaired.
+    broken = worn.select { |item| item.durability.zero? }
+    broken.each { |item| item.update!(equipped: false) }
+    message = "Usure de l'équipement : -#{amount} durabilité"
+    if broken.any?
+      message += " (hors d'usage et retiré#{'s' if broken.size > 1} : #{broken.map(&:display_name).join(', ')})"
+    end
+    @state[:log] << message
+  end
+
   # Tower bosses always drop soul stones; every other defeated monster has a chance.
   def soul_stones_reward
     cfg = GameCatalog.enchantments_data["soul_stones"] || {}
@@ -2235,6 +2253,8 @@ class CombatService
       CombatLog.create!(character: character, floor: @state[:floor], result: "fled",
                          log_data: @state[:log].last(50))
     end
+
+    wear_equipment!(result)
 
     {
       floor: @state[:floor],
