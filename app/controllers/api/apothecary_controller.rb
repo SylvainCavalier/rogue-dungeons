@@ -5,22 +5,21 @@ module Api
     # Potions, remedies and elixirs (items with `vendor: "apothecary"`) + alchemy work info.
     # Buying and selling go through ShopController.
     def index
-      damaged = current_character.building_damaged?("apothecary")
       render json: {
-        items: GameCatalog.apothecary_items.map { |i| apothecary_item(i, damaged) },
-        work: WorkService.info(current_character, "apothecary")
+        items: GameCatalog.apothecary_items.map { |i| apothecary_item(i) },
+        work: WorkService.info(current_character, "apothecary"),
+        haggle: current_character.haggle_info
       }
     end
 
     private
 
-    def apothecary_item(catalog, damaged)
-      price = catalog["price"].to_i
+    def apothecary_item(catalog)
       {
         key: catalog["key"],
         name: catalog["name"],
         category: catalog["category"],
-        price: damaged ? (price * 1.25).ceil : price,
+        price: current_character.buy_price(catalog["price"], "apothecary"),
         item_type: "item",
         data: catalog
       }

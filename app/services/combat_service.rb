@@ -8,6 +8,10 @@ class CombatService
   PARRY_ROLL_BONUS = 2
   PARRY_CHIP_DAMAGE = 1
 
+  # % chance that an enemy blow the player dodged lands anyway: even a very high
+  # Esquive never protects 100% (a class attribute so tests can turn it off).
+  class_attribute :unavoidable_hit_chance, default: 1
+
   # % chance per turn that an enemy uses one of its abilities (monster
   # `ability_chance` overrides it: casters rely on their spells).
   DEFAULT_ABILITY_CHANCE = 30
@@ -158,7 +162,8 @@ class CombatService
       allies: (@state[:allies] || []).map { |a|
         { key: a[:key], name: a[:name], hp: a[:hp], max_hp: a[:max_hp], alive: a[:hp] > 0,
           taunt: a[:taunt], role: a[:role], reborn: a[:reborn] || false,
-          undead: a[:undead] || false, image_dir: a[:image_dir] || "summons" }
+          undead: a[:undead] || false, defender: a[:defender] || false,
+          image_dir: a[:image_dir] || "summons" }
       },
       enemies: (@state[:enemies] || []).map.with_index { |e, i|
         {
@@ -1090,16 +1095,30 @@ class CombatService
     { ability: ability, target: roll_enemy_target(ability) }
   end
 
-  # Index of the summoned creature an enemy blow aims at (nil = the player), from
-  # each creature's `taunt` %. Heals and non-damage spells always concern the player.
+  # Index of the ally an enemy blow aims at (nil = the player). Weighted draw:
+  # each living ally weighs its `taunt`, the player 100 − the highest taunt
+  # (min PLAYER_MIN_TARGET_WEIGHT), so a lone creature is aimed at exactly
+  # `taunt` % of the time and several allies (siege defenders) share the blows.
+  # Heals and non-damage spells always concern the player.
+  PLAYER_MIN_TARGET_WEIGHT = 10
+
   def roll_enemy_target(ability_key)
-    return nil if living_allies.empty?
+    candidates = allies.each_index.select { |i| allies[i][:hp] > 0 && allies[i][:taunt].to_i.positive? }
+    return nil if candidates.empty?
 
     if ability_key
       data = GameCatalog.technique_data(ability_key) || GameCatalog.magic_data(ability_key)
       return nil if data && data["mana_cost"] && !%w[damage damage_status drain].include?(data["type"])
     end
-    allies.each_with_index { |a, i| return i if a[:hp] > 0 && rand(100) < a[:taunt].to_i }
+    player_weight = [100 - candidates.map { |i| allies[i][:taunt].to_i }.max, PLAYER_MIN_TARGET_WEIGHT].max
+    pick = rand(player_weight + candidates.sum { |i| allies[i][:taunt].to_i })
+    return nil if pick < player_weight
+
+    pick -= player_weight
+    candidates.each do |i|
+      return i if pick < allies[i][:taunt].to_i
+      pick -= allies[i][:taunt].to_i
+    end
     nil
   end
 
@@ -1145,7 +1164,7 @@ class CombatService
 
     def_m, def_b = player_defense_vs(enemy)
 
-    hit = DiceRoller.opposed_roll(att_m, att_b, def_m, def_b)
+    hit = unavoidable_blow(DiceRoller.opposed_roll(att_m, att_b, def_m, def_b))
     @state[:round_attacks] = @state[:round_attacks].to_i + 1
     if hit[:hit] || hit[:graze]
       dmg_m, dmg_b = enemy_damage_dice(enemy)
@@ -1188,7 +1207,7 @@ class CombatService
     apply_enemy_status_mods_attack(enemy, att_m, att_b) => { mastery: att_m, bonus: att_b }
     def_m, def_b = player_defense_vs(enemy)
 
-    hit = DiceRoller.opposed_roll(att_m, att_b, def_m, def_b)
+    hit = unavoidable_blow(DiceRoller.opposed_roll(att_m, att_b, def_m, def_b))
     @state[:round_attacks] = @state[:round_attacks].to_i + 1
     if hit[:hit] || hit[:graze]
       dmg_m, dmg_b = enemy_damage_dice(enemy, tech["damage_mastery_mod"].to_i, tech["damage_bonus"].to_i)
@@ -1225,7 +1244,7 @@ class CombatService
       return
     when "damage", "damage_status"
       def_m, def_b = player_defense_vs(enemy)
-      hit = DiceRoller.opposed_roll(acc_m, acc_b, def_m, def_b)
+      hit = unavoidable_blow(DiceRoller.opposed_roll(acc_m, acc_b, def_m, def_b))
       @state[:round_attacks] = @state[:round_attacks].to_i + 1
       if hit[:hit] || hit[:graze]
         dmg_m = magic["damage_mastery"] || 1
@@ -1244,7 +1263,7 @@ class CombatService
       end
     when "drain"
       def_m, def_b = player_defense_vs(enemy)
-      hit = DiceRoller.opposed_roll(acc_m, acc_b, def_m, def_b)
+      hit = unavoidable_blow(DiceRoller.opposed_roll(acc_m, acc_b, def_m, def_b))
       @state[:round_attacks] = @state[:round_attacks].to_i + 1
       if hit[:hit] || hit[:graze]
         dmg_m = magic["damage_mastery"] || 1
@@ -1368,9 +1387,11 @@ class CombatService
   end
 
   # One creature at a time (summoned or raised): the new one replaces the previous.
+  # Siege defenders (`defender: true`) are not creatures and stay.
   def place_ally!(ally)
-    living_allies.each { |a| @log << "#{a[:name]} #{a[:undead] ? "retombe en poussière" : "retourne d'où il vient"}." }
-    @state[:allies] = [ally]
+    defenders, creatures = allies.partition { |a| a[:defender] }
+    creatures.select { |a| a[:hp] > 0 }.each { |a| @log << "#{a[:name]} #{a[:undead] ? "retombe en poussière" : "retourne d'où il vient"}." }
+    @state[:allies] = defenders + [ally]
     # Enemies already planned their next action: let them pick their target again.
     living_enemies.each { |e| e[:intent][:target] = roll_enemy_target(e[:intent][:ability]) if e[:intent] }
   end
@@ -1872,6 +1893,15 @@ class CombatService
     @log << "Vous êtes tombé au combat !" if @state[:player][:hp] <= 0
   end
 
+  # A dodged blow still lands with unavoidable_hit_chance % (dodge mode only:
+  # a parry already lets chip damage through).
+  def unavoidable_blow(hit)
+    return hit if hit[:hit] || hit[:graze] || parry_mode? || rand(100) >= unavoidable_hit_chance.to_i
+
+    @log << "Coup imparable : malgré votre esquive, le coup porte !"
+    hit.merge(hit: true, graze: false)
+  end
+
   def apply_player_accuracy_mods(mastery, bonus)
     (@state[:player_statuses] || []).each do |s|
       data = GameCatalog.all_statuses_data[s[:name]]
@@ -2199,8 +2229,11 @@ class CombatService
         gold_reward = search[:gold]
         loot = resolve_tower_loot(search[:roll])
       else
-        xp_reward = base_xp
-        gold_reward = base_gold
+        # Siege: a small share of the assailants' value (siege.yml `rewards`),
+        # defending the town is not meant to be the main way to progress.
+        siege_rewards = GameCatalog.siege_rewards
+        xp_reward = (base_xp * siege_rewards["xp_percent"].to_i / 100.0).ceil
+        gold_reward = (base_gold * siege_rewards["gold_percent"].to_i / 100.0).ceil
         search = nil
       end
       stones = soul_stones_reward
@@ -2271,6 +2304,11 @@ class CombatService
       },
       enemies: (@state[:enemies] || []).map.with_index { |e, i|
         { index: i, key: e[:key], name: e[:name], hp: e[:hp], max_hp: e[:max_hp], alive: e[:hp] > 0, statuses: e[:statuses] || [], revealed_resistances: revealed_resistances_for(e) }
+      },
+      # Siege defenders still standing or fallen (SiegeService removes the dead ones).
+      allies: (@state[:allies] || []).map { |a|
+        { key: a[:key], name: a[:name], hp: a[:hp], max_hp: a[:max_hp], alive: a[:hp] > 0,
+          defender: a[:defender] || false, defender_id: a[:defender_id], image_dir: a[:image_dir] || "summons" }
       },
       log: @state[:log].last(20),
       recent_log: @state[:log][log_start..],

@@ -30,6 +30,11 @@ styles:
     to fight beside the hero, faint violet arcane summoning circle glowing under it, ethereal
     magenta light motes, dramatic lighting, dark dungeon background, full body creature
     portrait, centered composition, highly detailed, no text, no watermark, no frame
+  defender: >-
+    dark fantasy oil painting, painterly brushwork, dramatic warm torchlight, a loyal town
+    defender standing guard on a fortified stone rampart at dusk, town roofs in the background,
+    half body portrait, heroic but weathered, centered composition, highly detailed,
+    no text, no watermark, no frame
 
 groups:
   monsters:
@@ -254,6 +259,21 @@ groups:
       elementaire_de_feu: a loyal fire elemental, a humanoid of roaring orange flames and embers, fists blazing, ready to fight
       gardien_de_pierre: a colossal ancient stone guardian of carved granite with a great shield, moss and glowing violet runes, immovable stance
       phenix: a majestic phoenix with wings of blazing gold and crimson fire spread wide, trailing embers and ash
+  # Town defenders recruited at the warriors guild (config/catalog/siege.yml `defenders`)
+  defenders:
+    dir: defenders
+    style: defender
+    size: square_hd
+    output_width: 512
+    items:
+      milicien: a sturdy townsman militia volunteer in a padded gambeson and a dented kettle hat, holding a simple spear
+      archer: a town guard archer in a green and grey tabard drawing a longbow behind a crenellated wall
+      garde: a town guard in chainmail with a large painted kite shield bearing the town crest and a short sword
+      pretre: a kind field priest in a simple white and grey habit, holy symbol raised, soft golden healing light in his hand
+      veteran: a grizzled veteran soldier with a scarred face, brigandine armor and a well-worn longsword
+      arbaletrier: a heavy crossbowman in a steel breastplate and sallet helmet, aiming a large arbalest with a pavise shield beside him
+      chevalier: a noble knight of a holy order in polished full plate armor, white surcoat, greatsword planted before him
+
 # Removed from the game: prompts kept for reference, images in config/art/archive/items/.
 # Not read by art:generate (outside `groups`).
 archived:

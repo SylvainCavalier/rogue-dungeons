@@ -23,9 +23,20 @@
         <div class="bg-stone-900 border border-stone-700 rounded-lg px-4 py-2 text-sm">
           <span class="text-yellow-400">{{ fortressData?.gold || 0 }}</span> or
         </div>
-        <div class="bg-stone-900 border border-stone-700 rounded-lg px-4 py-2 text-sm">
-          Atelier Nv. <span class="text-amber-400">{{ fortressData?.workshop_level || 0 }}</span>
-          — Max <span class="text-amber-400">{{ fortressData?.max_traps_per_direction || 1 }}</span> pièges/direction
+        <div class="bg-stone-900 border border-stone-700 rounded-lg px-4 py-2 text-sm flex flex-wrap items-center gap-x-3 gap-y-1">
+          <span>
+            {{ fortressData?.fortress_level_data?.name || 'Forteresse' }}
+            <span class="text-stone-500">Nv.</span> <span class="text-amber-400">{{ fortressData?.fortress_level || 0 }}</span>
+            — <span class="text-amber-400">{{ fortressData?.max_traps_per_direction || 1 }}</span> pièges/direction,
+            <span class="text-amber-400">{{ fortressData?.max_defenders || 0 }}</span> défenseurs
+          </span>
+          <button v-if="fortressData?.next_fortress_level" @click="upgradeFortress"
+            :disabled="(fortressData?.gold || 0) < fortressData.next_fortress_level.upgrade_cost"
+            :title="`${fortressData.next_fortress_level.name} : ${fortressData.next_fortress_level.max_traps_per_direction} pièges/direction, ${fortressData.next_fortress_level.max_defenders} défenseurs`"
+            class="bg-stone-700 hover:bg-stone-600 disabled:opacity-40 disabled:cursor-not-allowed rounded px-2 py-0.5 text-xs text-amber-300 transition">
+            Améliorer ({{ fortressData.next_fortress_level.upgrade_cost }} or)
+          </button>
+          <span v-else class="text-xs text-green-400">Niveau max</span>
         </div>
         <button v-if="totalRepairCost > 0"
           @click="repairAll"
@@ -129,6 +140,43 @@
             class="w-full bg-stone-800 hover:bg-stone-700 border border-dashed border-stone-600 rounded-lg py-2 text-sm text-stone-400 hover:text-amber-400 transition">
             + Ajouter un piège
           </button>
+
+          <!-- Defenders posted at this gate -->
+          <div class="mt-4 pt-3 border-t border-stone-800">
+            <div class="flex items-center justify-between mb-2">
+              <h4 class="text-sm font-semibold text-stone-300">Défenseurs</h4>
+              <span class="text-xs text-stone-500">{{ allDefenders.length }}/{{ fortressData?.max_defenders || 0 }} en ville</span>
+            </div>
+            <div class="space-y-1.5 mb-2">
+              <div v-for="d in gateDefenders(dir)" :key="d.id"
+                class="bg-stone-800 rounded-lg px-2 py-1.5 flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2 min-w-0">
+                  <MonsterPortrait :monster-key="d.key" :name="d.name" image-dir="defenders" size="sm" />
+                  <div class="min-w-0">
+                    <div class="text-sm truncate">{{ d.name }}</div>
+                    <div class="text-[11px] text-stone-500 truncate">{{ defenderStatParts(d.stats).join(' · ') }}</div>
+                  </div>
+                </div>
+                <button @click="station(d.id, null)" class="text-xs text-stone-400 hover:text-amber-400 shrink-0"
+                  title="Renvoyer en réserve">Retirer</button>
+              </div>
+              <div v-if="!gateDefenders(dir).length" class="text-stone-600 text-xs text-center py-2">
+                Aucun défenseur à cette porte
+              </div>
+            </div>
+            <select v-if="otherDefenders(dir).length" :value="''"
+              @change="e => { if (e.target.value) station(Number(e.target.value), dir); e.target.value = '' }"
+              class="w-full bg-stone-800 border border-dashed border-stone-600 rounded-lg px-2 py-2 text-sm text-stone-400">
+              <option value="">+ Poster un défenseur ici…</option>
+              <option v-for="d in otherDefenders(dir)" :key="d.id" :value="d.id">
+                {{ d.name }} — {{ d.direction ? `porte ${directionLabel(d.direction)}` : 'réserve' }}
+              </option>
+            </select>
+            <router-link v-else-if="!allDefenders.length" to="/town/guild"
+              class="block text-center text-xs text-stone-500 hover:text-amber-400">
+              Recrutez des défenseurs à la guilde des guerriers
+            </router-link>
+          </div>
         </div>
       </div>
 
@@ -149,8 +197,13 @@
             </section>
 
             <section>
-              <h4 class="text-amber-300 font-semibold mb-1">Capacité — l'Atelier</h4>
-              <p>Le niveau de l'<span class="text-amber-400">Atelier</span> détermine le nombre maximum de pièges par direction (1 à 5). Améliorez-le pour empiler plus de défenses et déclencher des synergies.</p>
+              <h4 class="text-amber-300 font-semibold mb-1">Capacité — la Forteresse</h4>
+              <p>Le niveau de la <span class="text-amber-400">Forteresse</span> (bouton "Améliorer" ci-dessus) détermine le nombre maximum de pièges par direction (1 à 5) et de défenseurs en ville. L'<span class="text-amber-400">Atelier</span> débloque, lui, les pièges plus puissants.</p>
+            </section>
+
+            <section>
+              <h4 class="text-amber-300 font-semibold mb-1">Défenseurs</h4>
+              <p>Recrutez des défenseurs à la <span class="text-amber-400">guilde des guerriers</span> (2 recrues par semaine), puis postez-les à une porte. Seuls ceux de la porte attaquée combattent à vos côtés : ils frappent après votre action, ou vous soignent, et attirent une partie des coups ennemis. Un défenseur tombé au combat est perdu ; les survivants reviennent en pleine forme au siège suivant.</p>
             </section>
 
             <section>
@@ -260,6 +313,8 @@ import { ref, computed, onMounted } from 'vue'
 import { useGameStore } from '../stores/game'
 import StatusBar from '../components/game/StatusBar.vue'
 import FortressMap from '../components/game/FortressMap.vue'
+import MonsterPortrait from '../components/game/MonsterPortrait.vue'
+import { defenderStatParts } from '../composables/useDefenders'
 
 const gameStore = useGameStore()
 const selectedDirection = ref(null)
@@ -274,6 +329,27 @@ const availableTraps = computed(() => {
 })
 
 const totalRepairCost = computed(() => fortressData.value?.total_repair_cost || 0)
+
+const allDefenders = computed(() => fortressData.value?.town_defenders || [])
+
+function gateDefenders(dir) {
+  return allDefenders.value.filter(d => d.direction === dir)
+}
+
+// Reserve first, then the defenders posted at other gates
+function otherDefenders(dir) {
+  return allDefenders.value
+    .filter(d => d.direction !== dir)
+    .sort((a, b) => (a.direction ? 1 : 0) - (b.direction ? 1 : 0))
+}
+
+async function station(id, direction) {
+  await gameStore.stationDefender(id, direction)
+}
+
+async function upgradeFortress() {
+  await gameStore.upgradeFortress()
+}
 
 function directionDefenses(dir) {
   return fortressData.value?.defenses?.[dir]?.defenses || []

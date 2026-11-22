@@ -13,6 +13,17 @@
         </div>
       </div>
 
+      <div class="flex gap-2 mb-6">
+        <button v-for="tab in tabs" :key="tab.id" @click="activeTab = tab.id"
+          class="px-4 py-2 rounded-lg text-sm font-medium transition"
+          :class="activeTab === tab.id ? 'bg-red-800 text-red-100' : 'bg-stone-800 text-stone-400 hover:text-stone-200'">
+          {{ tab.label }}
+        </button>
+      </div>
+
+      <RecruitmentPanel v-if="activeTab === 'recruits'" />
+
+      <template v-else>
       <GuildRankPanel guild="warriors" :info="gameStore.guildRanks.warriors"
         accent-class="text-red-400" button-class="bg-red-800 hover:bg-red-700 text-red-100" />
 
@@ -66,6 +77,7 @@
           </div>
         </div>
       </div>
+      </template>
     </div>
 
     <!-- Confirmation modal -->
@@ -102,8 +114,14 @@ import { ref, onMounted } from 'vue'
 import { useGameStore } from '../stores/game'
 import StatusBar from '../components/game/StatusBar.vue'
 import GuildRankPanel from '../components/game/GuildRankPanel.vue'
+import RecruitmentPanel from '../components/game/RecruitmentPanel.vue'
 
 const gameStore = useGameStore()
+const tabs = [
+  { id: 'techniques', label: 'Techniques' },
+  { id: 'recruits', label: 'Recrutement' }
+]
+const activeTab = ref('techniques')
 const selectedTech = ref(null)
 const learning = ref(false)
 

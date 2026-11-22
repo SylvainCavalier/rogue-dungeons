@@ -6,6 +6,7 @@ class Character < ApplicationRecord
   has_many :learned_magics, dependent: :destroy
   has_many :combat_logs, dependent: :destroy
   has_many :fortress_defenses, dependent: :destroy
+  has_many :town_defenders, dependent: :destroy
   has_many :siege_logs, dependent: :destroy
   has_many :monster_knowledges, dependent: :destroy
 
@@ -43,6 +44,43 @@ class Character < ApplicationRecord
 
   before_validation :compute_derived_stats
   after_create :initialize_skills
+
+  # --- Marchandage ---
+
+  # Each skill step above 1D (an upgrade = 1 step, a die = 3 steps) gives
+  # HAGGLE_PERCENT_PER_STEP % off purchases and on top of resale prices, capped.
+  # Buying stays dearer than reselling (sell = half price), so no gold loop.
+  HAGGLE_PERCENT_PER_STEP = 2
+  HAGGLE_MAX_PERCENT = 30
+  DAMAGED_SHOP_SURCHARGE = 1.25
+
+  def haggle_dice
+    skill = skills.find_by(name: "Marchandage")
+    skill ? [skill.mastery, skill.bonus] : [charisme, 0]
+  end
+
+  def haggle_percent
+    mastery, bonus = haggle_dice
+    (((mastery - 1) * 3 + bonus) * HAGGLE_PERCENT_PER_STEP).clamp(0, HAGGLE_MAX_PERCENT)
+  end
+
+  # Unit price paid in a town shop (forge, shop, apothecary): a damaged building
+  # charges more, then Marchandage lowers it.
+  def buy_price(base_price, building)
+    price = base_price.to_f
+    price *= DAMAGED_SHOP_SURCHARGE if building_damaged?(building)
+    [(price * (100 - haggle_percent) / 100.0).ceil, 1].max
+  end
+
+  # Unit price received when selling an item (its base sell price + Marchandage).
+  def sell_price_for(item)
+    (item.sell_price * (100 + haggle_percent) / 100.0).floor
+  end
+
+  def haggle_info
+    mastery, bonus = haggle_dice
+    { notation: DiceRoller.notation(mastery, bonus), percent: haggle_percent }
+  end
 
   # --- Travail ---
 

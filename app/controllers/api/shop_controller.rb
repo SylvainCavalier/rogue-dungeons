@@ -10,7 +10,8 @@ module Api
 
     def index
       render json: {
-        items: GameCatalog.shop_items.map { |i| shop_item(i, "item") }
+        items: GameCatalog.shop_items.map { |i| shop_item(i, "item") },
+        haggle: current_character.haggle_info
       }
     end
 
@@ -28,9 +29,7 @@ module Api
         return render json: { error: DESTROYED_MESSAGES[building] }, status: :unprocessable_entity
       end
 
-      base_price = catalog["price"]
-      base_price = (base_price * 1.25).ceil if current_character.building_damaged?(building)
-      total_price = base_price * quantity
+      total_price = current_character.buy_price(catalog["price"], building) * quantity
       if current_character.gold < total_price
         return render json: { error: "Or insuffisant (#{current_character.gold}/#{total_price} nécessaires)" }, status: :unprocessable_entity
       end
@@ -73,7 +72,7 @@ module Api
         return render json: { error: "Déséquipez l'objet avant de le vendre" }, status: :unprocessable_entity
       end
 
-      sell_price = item.sell_price * quantity
+      sell_price = current_character.sell_price_for(item) * quantity
       current_character.update!(gold: current_character.gold + sell_price)
 
       if item.quantity > quantity
@@ -96,7 +95,7 @@ module Api
         name: catalog["name"],
         category: catalog["category"],
         tier: catalog["tier"],
-        price: catalog["price"],
+        price: current_character.buy_price(catalog["price"], "shop"),
         item_type: type,
         data: catalog
       }

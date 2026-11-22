@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_11_22_160000) do
+ActiveRecord::Schema[8.0].define(version: 2026_11_22_170000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -54,6 +54,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_11_22_160000) do
     t.jsonb "tavern_games", default: {}, null: false
     t.integer "warrior_rank", default: 0, null: false
     t.integer "mage_rank", default: 0, null: false
+    t.integer "fortress_level", default: 0, null: false
+    t.integer "recruit_week", default: 0, null: false
+    t.integer "recruits_this_week", default: 0, null: false
     t.index ["user_id"], name: "index_characters_on_user_id", unique: true
   end
 
@@ -248,6 +251,15 @@ ActiveRecord::Schema[8.0].define(version: 2026_11_22_160000) do
     t.index ["character_id"], name: "index_skills_on_character_id"
   end
 
+  create_table "town_defenders", force: :cascade do |t|
+    t.bigint "character_id", null: false
+    t.string "defender_key", null: false
+    t.string "direction"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["character_id"], name: "index_town_defenders_on_character_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -271,4 +283,5 @@ ActiveRecord::Schema[8.0].define(version: 2026_11_22_160000) do
   add_foreign_key "monster_knowledges", "characters"
   add_foreign_key "siege_logs", "characters"
   add_foreign_key "skills", "characters"
+  add_foreign_key "town_defenders", "characters"
 end

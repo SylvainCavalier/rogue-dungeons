@@ -53,6 +53,7 @@
         <span class="text-stone-400 font-normal">{{ defenses(dir).length }}/{{ maxTraps }}</span>
         <span v-if="!defenses(dir).length" class="text-red-400" title="Aucune défense">!</span>
         <span v-else-if="defenses(dir).some(d => d.broken)" class="text-red-400" title="Défense cassée">⚠</span>
+        <span v-if="defenderCount(dir)" class="text-sky-300" title="Défenseurs postés à cette porte">⚔{{ defenderCount(dir) }}</span>
         <span v-if="synergies(dir).length" class="text-emerald-300" :title="synergies(dir).map(s => s.name).join(', ')">✦{{ synergies(dir).length > 1 ? synergies(dir).length : '' }}</span>
       </button>
     </template>
@@ -87,6 +88,10 @@ const maxTraps = computed(() => props.fortressData?.max_traps_per_direction || 1
 
 function defenses(dir) {
   return props.fortressData?.defenses?.[dir]?.defenses || []
+}
+
+function defenderCount(dir) {
+  return (props.fortressData?.town_defenders || []).filter(d => d.direction === dir).length
 }
 
 function synergies(dir) {

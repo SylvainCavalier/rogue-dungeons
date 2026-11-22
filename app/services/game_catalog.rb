@@ -161,6 +161,33 @@ class GameCatalog
       workshop_levels_data[level.to_i] || workshop_levels_data[level.to_s]
     end
 
+    def fortress_level_data(level)
+      fortress_levels_data[level.to_i] || fortress_levels_data[level.to_s]
+    end
+
+    # Share of the assailants' XP / gold value earned by a siege victory.
+    def siege_rewards
+      load_siege_data["rewards"] || { "xp_percent" => 100, "gold_percent" => 100 }
+    end
+
+    # How siege waves grow with the weeks (enemy count, PV, attack/damage bonus).
+    def siege_wave_scaling
+      load_siege_data["wave_scaling"] || {}
+    end
+
+    # Town defenders recruited at the warriors guild (siege.yml `defenders`).
+    def all_defenders
+      load_siege_data["defenders"] || {}
+    end
+
+    def defender(key)
+      all_defenders[key.to_s]&.merge("key" => key.to_s)
+    end
+
+    def recruitment_data
+      load_siege_data["recruitment"] || {}
+    end
+
     def building_repair_cost(building_key)
       repair_costs = load_siege_data["building_repair_costs"] || {}
       repair_costs[building_key]
@@ -222,7 +249,7 @@ class GameCatalog
       @techniques_data_index = @magics_data_index = nil
       @siege_data = @all_siege_traps = @all_siege_monsters = @siege_waves = nil
       @siege_traps_index = @siege_monsters_index = nil
-      @watchtower_levels_data = @workshop_levels_data = nil
+      @watchtower_levels_data = @workshop_levels_data = @fortress_levels_data = nil
     end
 
     private
@@ -442,6 +469,10 @@ class GameCatalog
 
     def workshop_levels_data
       @workshop_levels_data ||= load_siege_data["workshop_levels"] || {}
+    end
+
+    def fortress_levels_data
+      @fortress_levels_data ||= load_siege_data["fortress_levels"] || {}
     end
 
     def load_siege_data

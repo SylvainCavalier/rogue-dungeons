@@ -16,6 +16,8 @@
         </div>
       </div>
 
+      <HaggleNote :haggle="gameStore.shop.haggle" />
+
       <!-- Tabs -->
       <div class="flex gap-2 mb-6 animate-fade-in-up stagger-1">
         <button v-for="tab in tabs" :key="tab.key" @click="activeTab = tab.key"
@@ -81,6 +83,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useGameStore } from '../stores/game'
 import StatusBar from '../components/game/StatusBar.vue'
 import ItemIcon from '../components/game/ItemIcon.vue'
+import HaggleNote from '../components/game/HaggleNote.vue'
 
 const gameStore = useGameStore()
 const activeTab = ref('items')
@@ -100,8 +103,9 @@ const sellableItems = computed(() =>
   gameStore.inventory.filter(i => !i.equipped && i.item_type !== 'equipment')
 )
 
+// Computed by the server (enchantment, Marchandage)
 function sellPrice(item) {
-  return Math.ceil((item.data?.price || 0) / 2)
+  return item.sell_price ?? Math.ceil((item.data?.price || 0) / 2)
 }
 
 async function buy(item) {

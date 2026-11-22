@@ -5,8 +5,7 @@ module Api
     # GET /api/siege/fortress
     def fortress
       char = current_character
-      workshop_data = GameCatalog.workshop_level_data(char.workshop_level)
-      max_traps = workshop_data ? (workshop_data["max_traps_per_direction"] || 1) : 1
+      max_traps = max_traps_for(char)
 
       grouped = char.fortress_defenses.order(:direction, :position).group_by(&:direction)
       defenses_json = FortressDefense::DIRECTIONS.index_with do |dir|
@@ -34,6 +33,9 @@ module Api
       end
 
       total_repair = char.fortress_defenses.sum(&:repair_cost)
+      level_data = GameCatalog.fortress_level_data(char.fortress_level)
+      next_level_data = GameCatalog.fortress_level_data(char.fortress_level + 1)
+      defender_service = DefenderService.new(char)
 
       render json: {
         defenses: defenses_json,
@@ -42,7 +44,12 @@ module Api
         gold: char.gold,
         workshop_level: char.workshop_level,
         max_traps_per_direction: max_traps,
-        total_repair_cost: total_repair
+        total_repair_cost: total_repair,
+        fortress_level: char.fortress_level,
+        fortress_level_data: level_data,
+        next_fortress_level: next_level_data,
+        max_defenders: defender_service.capacity,
+        town_defenders: defender_service.defenders_json
       }
     end
 
@@ -63,8 +70,7 @@ module Api
         return render json: { error: "Atelier insuffisant pour ce piège" }, status: :unprocessable_entity
       end
 
-      workshop_data = GameCatalog.workshop_level_data(char.workshop_level)
-      max_traps = workshop_data ? (workshop_data["max_traps_per_direction"] || 1) : 1
+      max_traps = max_traps_for(char)
       current_count = char.fortress_defenses.where(direction: direction).count
 
       if current_count >= max_traps
@@ -90,6 +96,31 @@ module Api
         message: "#{trap_data["name"]} placé(e) au #{direction} !",
         gold: char.gold
       }
+    end
+
+    # POST /api/siege/fortress/upgrade
+    # The fortress level sets the trap capacity per direction and the number of defenders.
+    def upgrade_fortress
+      char = current_character
+      next_level = char.fortress_level + 1
+      next_data = GameCatalog.fortress_level_data(next_level)
+      return render json: { error: "Niveau maximum atteint" }, status: :unprocessable_entity unless next_data
+
+      cost = next_data["upgrade_cost"].to_i
+      if char.gold < cost
+        return render json: { error: "Pas assez d'or (#{char.gold}/#{cost})" }, status: :unprocessable_entity
+      end
+
+      char.update!(gold: char.gold - cost, fortress_level: next_level)
+      render json: { message: "Forteresse améliorée : #{next_data['name']} !", gold: char.gold }
+    end
+
+    # POST /api/siege/fortress/station  { id, direction } (blank direction = reserve)
+    def station_defender
+      result = DefenderService.new(current_character).station(params[:id], params[:direction])
+      return render json: { error: result[:error] }, status: :unprocessable_entity unless result[:success]
+
+      render json: { message: result[:message] }
     end
 
     # POST /api/siege/fortress/repair
@@ -398,6 +429,10 @@ module Api
     end
 
     private
+
+    def max_traps_for(char)
+      GameCatalog.fortress_level_data(char.fortress_level)&.dig("max_traps_per_direction") || 1
+    end
 
     def damage_status(level)
       case level

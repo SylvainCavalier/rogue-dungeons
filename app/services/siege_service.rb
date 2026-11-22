@@ -46,6 +46,17 @@ class SiegeService
     end
     barrier_dr_bonus = barrier_dr_bonus.round + synergy_state[:dr_flat]
 
+    # Defenders posted at the attacked gate fight beside the player.
+    allies = character.town_defenders.where(direction: attack_direction).order(:created_at, :id)
+                      .filter_map { |d| DefenderService.build_ally(d) }
+    defender_log = if allies.any?
+      names = allies.map { |a| a[:name] }.tally.map { |n, c| c > 1 ? "#{c}x #{n}" : n }
+      ["Défenseurs en poste : #{names.join(', ')}."]
+    else
+      ["Aucun défenseur ne garde la porte #{attack_direction}."]
+    end
+    enemy_names = enemies.map { |e| e[:name] }.tally.map { |n, c| c > 1 ? "#{c}x #{n}" : n }
+
     # Construire le combat state (compatible avec CombatService)
     combat_state = {
       "floor" => 0,
@@ -57,7 +68,8 @@ class SiegeService
         "max_mana" => character.max_mana
       },
       "enemies" => enemies.map { |e| e.deep_stringify_keys },
-      "log" => trap_log + ["Le siège commence !"],
+      "allies" => allies.map(&:deep_stringify_keys),
+      "log" => trap_log + defender_log + ["Le siège commence ! Assaillants : #{enemy_names.join(', ')}"],
       "status" => "active",
       "player_statuses" => [],
       "player_debuffs" => {}
@@ -80,8 +92,8 @@ class SiegeService
     opening = CombatService.new(character).begin_combat!
     if %w[victory defeat].include?(opening[:status])
       character.reload
-      finish_siege(opening[:status].to_sym, opening, siege_data_backup)
-      return opening.merge(siege: true, siege_week: siege_week, attack_direction: attack_direction)
+      outcome = finish_siege(opening[:status].to_sym, opening, siege_data_backup)
+      return opening.merge(outcome).merge(siege: true, siege_week: siege_week, attack_direction: attack_direction)
     end
 
     siege_snapshot
@@ -99,14 +111,9 @@ class SiegeService
     result = service.player_action(action_type, params)
 
     # Vérifier si le combat est terminé
-    if result[:status] == "victory"
+    if %w[victory defeat].include?(result[:status])
       character.reload
-      @character = character
-      finish_siege(:victory, result, siege_data_backup)
-    elsif result[:status] == "defeat"
-      character.reload
-      @character = character
-      finish_siege(:defeat, result, siege_data_backup)
+      result = result.merge(finish_siege(result[:status].to_sym, result, siege_data_backup))
     end
 
     siege_info_data = character.in_siege? ? siege_info : { siege: true, siege_week: siege_data_backup["siege_week"], attack_direction: siege_data_backup["attack_direction"] }
@@ -254,6 +261,8 @@ class SiegeService
 
     # Usure des défenses dans la direction attaquée, proportionnelle au nombre de tours
     wear_log = apply_defense_wear(attack_direction, turns_taken, result)
+    fallen = remove_fallen_defenders(combat_result[:allies])
+    wear_log += fallen.map { |name| "#{name} est tombé(e) en défendant la ville." }
 
     case result
     when :victory
@@ -283,6 +292,17 @@ class SiegeService
     end
 
     character.update!(siege_state: nil)
+    { fallen_defenders: fallen }
+  end
+
+  # Defenders killed in the fight are lost; the survivors are back at full health next time.
+  def remove_fallen_defenders(allies)
+    ids = (allies || []).select { |a| a[:defender_id] && a[:hp].to_i <= 0 }.map { |a| a[:defender_id] }
+    return [] if ids.empty?
+
+    fallen = character.town_defenders.where(id: ids).to_a
+    fallen.each(&:destroy!)
+    fallen.map(&:name)
   end
 
   def apply_defense_wear(direction, turns_taken, result)

@@ -31,6 +31,8 @@
         </button>
       </div>
 
+      <HaggleNote :haggle="gameStore.forge.haggle" />
+
       <!-- Tabs -->
       <div class="flex flex-wrap gap-2 mb-6 animate-fade-in-up stagger-2">
         <button v-for="tab in tabs" :key="tab.key" @click="activeTab = tab.key"
@@ -193,6 +195,7 @@ import { useRouter } from 'vue-router'
 import { useGameStore } from '../stores/game'
 import StatusBar from '../components/game/StatusBar.vue'
 import ItemIcon from '../components/game/ItemIcon.vue'
+import HaggleNote from '../components/game/HaggleNote.vue'
 
 const gameStore = useGameStore()
 const router = useRouter()

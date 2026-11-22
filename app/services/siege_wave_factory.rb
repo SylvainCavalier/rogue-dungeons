@@ -1,12 +1,21 @@
 class SiegeWaveFactory
   class << self
+    # Core enemies of the week's wave, completed with its `fill` monster up to
+    # the wave size (grows with the weeks, siege.yml `wave_scaling`), then scaled.
     def build_for_week(total_weeks)
       wave_data = find_wave(total_weeks)
-      enemies = wave_data["enemies"].flat_map do |entry|
-        template = GameCatalog.siege_monster(entry["key"])
-        Array.new(entry["count"]) { build_siege_monster(template, entry["key"]) }
-      end
+      keys = wave_data["enemies"].flat_map { |entry| [entry["key"]] * entry["count"].to_i }
+      fill = wave_data["fill"] || keys.first
+      keys += [fill] * (wave_size(total_weeks) - keys.size) if fill
+      enemies = keys.map { |key| build_siege_monster(GameCatalog.siege_monster(key), key) }
       scale_enemies(enemies, total_weeks)
+    end
+
+    def wave_size(total_weeks)
+      cfg = GameCatalog.siege_wave_scaling
+      every = [cfg["extra_enemy_every_weeks"].to_i, 1].max
+      size = cfg.fetch("base_size", 2).to_i + ([total_weeks, 1].max - 1) / every
+      [size, cfg.fetch("max_enemies", 8).to_i].min
     end
 
     private
@@ -47,17 +56,29 @@ class SiegeWaveFactory
       { mastery: raw["mastery"] || 1, bonus: raw["bonus"] || 0 }
     end
 
+    # PV +hp_percent_per_week % per week after hp_scaling_from_week, and +1 attack /
+    # damage bonus every stat_bonus_every_weeks weeks (3 bonus = +1D).
     def scale_enemies(enemies, total_weeks)
-      return enemies if total_weeks <= 4
+      cfg = GameCatalog.siege_wave_scaling
+      from_week = cfg.fetch("hp_scaling_from_week", 4).to_i
+      hp_scaling = 1 + [total_weeks - from_week, 0].max * cfg.fetch("hp_percent_per_week", 5).to_f / 100
+      every = cfg["stat_bonus_every_weeks"].to_i
+      stat_bonus = every.positive? ? total_weeks / every : 0
 
-      scaling = 1 + (total_weeks - 4) * 0.05
       enemies.each do |e|
-        e[:hp] = (e[:hp] * scaling).ceil
+        e[:hp] = (e[:hp] * hp_scaling).ceil
         e[:max_hp] = e[:hp]
-        e[:xp_value] = (e[:xp_value] * scaling).ceil
-        e[:gold_value] = (e[:gold_value] * scaling).ceil
+        next unless stat_bonus.positive?
+
+        e[:attack] = add_bonus(e[:attack], stat_bonus)
+        e[:damage] = add_bonus(e[:damage], stat_bonus)
       end
       enemies
+    end
+
+    def add_bonus(stat, extra)
+      total = stat[:bonus] + extra
+      { mastery: stat[:mastery] + total / 3, bonus: total % 3 }
     end
 
     def fallback_monster

@@ -145,8 +145,8 @@ siege_monsters:
     name: "Gobelin éclaireur"
     hp: 5
     vigueur: { mastery: 1, bonus: 0 }
-    attack: { mastery: 1, bonus: 1 }
-    damage: { mastery: 1, bonus: 0 }
+    attack: { mastery: 2, bonus: 1 }
+    damage: { mastery: 2, bonus: 0 }
     esquive: { mastery: 1, bonus: 1 }
     dr: { mastery: 0, bonus: 0 }
     vitesse: { mastery: 2, bonus: 0 }
@@ -158,8 +158,8 @@ siege_monsters:
     name: "Bandit pillard"
     hp: 8
     vigueur: { mastery: 1, bonus: 1 }
-    attack: { mastery: 2, bonus: 0 }
-    damage: { mastery: 1, bonus: 1 }
+    attack: { mastery: 3, bonus: 0 }
+    damage: { mastery: 2, bonus: 1 }
     esquive: { mastery: 1, bonus: 1 }
     dr: { mastery: 0, bonus: 1 }
     vitesse: { mastery: 1, bonus: 2 }
@@ -171,8 +171,8 @@ siege_monsters:
     name: "Loup enragé"
     hp: 10
     vigueur: { mastery: 2, bonus: 0 }
-    attack: { mastery: 2, bonus: 1 }
-    damage: { mastery: 2, bonus: 0 }
+    attack: { mastery: 3, bonus: 1 }
+    damage: { mastery: 3, bonus: 0 }
     esquive: { mastery: 2, bonus: 1 }
     dr: { mastery: 0, bonus: 0 }
     vitesse: { mastery: 2, bonus: 2 }
@@ -184,8 +184,8 @@ siege_monsters:
     name: "Orc guerrier"
     hp: 15
     vigueur: { mastery: 2, bonus: 1 }
-    attack: { mastery: 2, bonus: 2 }
-    damage: { mastery: 2, bonus: 1 }
+    attack: { mastery: 3, bonus: 2 }
+    damage: { mastery: 3, bonus: 1 }
     esquive: { mastery: 1, bonus: 1 }
     dr: { mastery: 1, bonus: 1 }
     vitesse: { mastery: 2, bonus: 0 }
@@ -197,8 +197,8 @@ siege_monsters:
     name: "Troll assiégeant"
     hp: 22
     vigueur: { mastery: 3, bonus: 1 }
-    attack: { mastery: 3, bonus: 1 }
-    damage: { mastery: 3, bonus: 1 }
+    attack: { mastery: 4, bonus: 1 }
+    damage: { mastery: 4, bonus: 1 }
     esquive: { mastery: 1, bonus: 0 }
     dr: { mastery: 2, bonus: 1 }
     vitesse: { mastery: 1, bonus: 0 }
@@ -210,8 +210,8 @@ siege_monsters:
     name: "Chef orc"
     hp: 28
     vigueur: { mastery: 3, bonus: 2 }
-    attack: { mastery: 3, bonus: 2 }
-    damage: { mastery: 3, bonus: 2 }
+    attack: { mastery: 4, bonus: 2 }
+    damage: { mastery: 4, bonus: 2 }
     esquive: { mastery: 2, bonus: 1 }
     dr: { mastery: 2, bonus: 2 }
     vitesse: { mastery: 2, bonus: 1 }
@@ -223,8 +223,8 @@ siege_monsters:
     name: "Golem de siège"
     hp: 35
     vigueur: { mastery: 4, bonus: 2 }
-    attack: { mastery: 4, bonus: 1 }
-    damage: { mastery: 4, bonus: 2 }
+    attack: { mastery: 5, bonus: 1 }
+    damage: { mastery: 5, bonus: 2 }
     esquive: { mastery: 1, bonus: 0 }
     dr: { mastery: 3, bonus: 2 }
     vitesse: { mastery: 1, bonus: 0 }
@@ -236,8 +236,8 @@ siege_monsters:
     name: "Dragon mineur"
     hp: 45
     vigueur: { mastery: 5, bonus: 2 }
-    attack: { mastery: 5, bonus: 3 }
-    damage: { mastery: 5, bonus: 2 }
+    attack: { mastery: 6, bonus: 3 }
+    damage: { mastery: 6, bonus: 2 }
     esquive: { mastery: 3, bonus: 2 }
     dr: { mastery: 3, bonus: 3 }
     vitesse: { mastery: 3, bonus: 2 }
@@ -245,49 +245,209 @@ siege_monsters:
     gold_value: 40
     abilities: []
 
-# Vagues de siège par semaine totale écoulée
+# Récompenses d'une victoire : part (%) de la valeur XP / or des assaillants.
+# Volontairement faible : la tour reste le moyen de progresser, le siège sert à protéger la ville.
+rewards:
+  xp_percent: 20
+  gold_percent: 20
+
+# Croissance des vagues avec les semaines (semaine N = N-ième semaine de jeu).
+# Taille de la vague = base_size + (semaine - 1) / extra_enemy_every_weeks, plafonnée à max_enemies ;
+# les ennemis "core" de la vague sont toujours présents, le reste est complété avec "fill".
+# Au-delà de la semaine hp_scaling_from_week : +hp_percent_per_week % PV par semaine.
+# Toutes les stat_bonus_every_weeks semaines : +1 bonus en attaque et en dégâts (3 bonus = +1D).
+wave_scaling:
+  base_size: 2
+  extra_enemy_every_weeks: 3
+  max_enemies: 8
+  hp_scaling_from_week: 4
+  hp_percent_per_week: 5
+  stat_bonus_every_weeks: 8
+
+# Vagues de siège par semaine totale écoulée : core = toujours présents, fill = renforts
 waves:
   - week_range: [1, 2]
     enemies:
       - { key: "gobelin_eclaireur", count: 2 }
+    fill: "gobelin_eclaireur"
 
   - week_range: [3, 4]
     enemies:
-      - { key: "gobelin_eclaireur", count: 2 }
+      - { key: "gobelin_eclaireur", count: 1 }
       - { key: "bandit_pillard", count: 1 }
+    fill: "gobelin_eclaireur"
 
   - week_range: [5, 8]
     enemies:
-      - { key: "bandit_pillard", count: 2 }
+      - { key: "bandit_pillard", count: 1 }
       - { key: "loup_enrage", count: 1 }
+    fill: "bandit_pillard"
 
   - week_range: [9, 12]
     enemies:
-      - { key: "loup_enrage", count: 2 }
+      - { key: "loup_enrage", count: 1 }
       - { key: "orc_guerrier", count: 1 }
+    fill: "loup_enrage"
 
   - week_range: [13, 16]
     enemies:
-      - { key: "orc_guerrier", count: 2 }
+      - { key: "orc_guerrier", count: 1 }
       - { key: "troll_assiegeant", count: 1 }
+    fill: "orc_guerrier"
 
   - week_range: [17, 24]
     enemies:
-      - { key: "orc_guerrier", count: 2 }
       - { key: "troll_assiegeant", count: 1 }
       - { key: "chef_orc", count: 1 }
+    fill: "orc_guerrier"
 
   - week_range: [25, 36]
     enemies:
-      - { key: "troll_assiegeant", count: 2 }
       - { key: "chef_orc", count: 1 }
       - { key: "golem_siege", count: 1 }
+    fill: "troll_assiegeant"
 
   - week_range: [37, 999]
     enemies:
-      - { key: "chef_orc", count: 2 }
       - { key: "golem_siege", count: 1 }
       - { key: "dragon_mineur", count: 1 }
+    fill: "chef_orc"
+
+# === Défenseurs de la ville ===
+# Recrutés à la guilde des guerriers (onglet Recrutement), postés à l'une des 4 portes
+# depuis la forteresse. Seuls ceux de la porte attaquée combattent, comme des alliés
+# (stats comme les invocations : taunt = poids dans le choix de cible des ennemis,
+# role attack | heal). Un défenseur tombé au combat est perdu ; les survivants
+# reviennent à pleine santé au siège suivant.
+# guild_rank : rang de la guilde des guerriers requis (absent = ouvert à tous).
+recruitment:
+  recruits_per_week: 2
+
+defenders:
+  milicien:
+    name: "Milicien"
+    description: "Un habitant armé d'une lance, courageux mais peu entraîné"
+    cost: 25
+    hp: 10
+    attack: { mastery: 2, bonus: 0 }
+    damage: { mastery: 1, bonus: 2 }
+    esquive: { mastery: 1, bonus: 1 }
+    vigueur: { mastery: 1, bonus: 1 }
+    dr: { mastery: 0, bonus: 1 }
+    taunt: 35
+
+  archer:
+    name: "Archer de la garde"
+    description: "Tire depuis les remparts : précis, mais fragile au contact"
+    cost: 40
+    hp: 8
+    attack: { mastery: 3, bonus: 0 }
+    damage: { mastery: 2, bonus: 0 }
+    esquive: { mastery: 2, bonus: 0 }
+    vigueur: { mastery: 1, bonus: 0 }
+    dr: { mastery: 0, bonus: 0 }
+    taunt: 15
+
+  garde:
+    name: "Garde de la ville"
+    description: "Un soldat au grand bouclier qui attire les coups sur lui"
+    cost: 60
+    guild_rank: apprenti
+    hp: 18
+    attack: { mastery: 2, bonus: 1 }
+    damage: { mastery: 2, bonus: 0 }
+    esquive: { mastery: 1, bonus: 2 }
+    vigueur: { mastery: 2, bonus: 0 }
+    dr: { mastery: 1, bonus: 1 }
+    taunt: 60
+
+  pretre:
+    name: "Prêtre de campagne"
+    description: "Soigne le héros à chaque tour au lieu de combattre"
+    cost: 80
+    guild_rank: apprenti
+    role: heal
+    hp: 12
+    heal: { mastery: 1, bonus: 2 }
+    attack: { mastery: 1, bonus: 0 }
+    damage: { mastery: 1, bonus: 0 }
+    esquive: { mastery: 2, bonus: 0 }
+    vigueur: { mastery: 1, bonus: 1 }
+    dr: { mastery: 0, bonus: 1 }
+    taunt: 15
+
+  veteran:
+    name: "Soldat vétéran"
+    description: "Des années de campagne : solide et redoutable à l'épée"
+    cost: 100
+    guild_rank: compagnon
+    hp: 22
+    attack: { mastery: 3, bonus: 1 }
+    damage: { mastery: 3, bonus: 0 }
+    esquive: { mastery: 2, bonus: 1 }
+    vigueur: { mastery: 2, bonus: 1 }
+    dr: { mastery: 1, bonus: 1 }
+    taunt: 45
+
+  arbaletrier:
+    name: "Arbalétrier lourd"
+    description: "Ses carreaux percent les armures des assaillants"
+    cost: 110
+    guild_rank: compagnon
+    hp: 12
+    attack: { mastery: 4, bonus: 0 }
+    damage: { mastery: 3, bonus: 2 }
+    esquive: { mastery: 2, bonus: 0 }
+    vigueur: { mastery: 1, bonus: 2 }
+    dr: { mastery: 1, bonus: 0 }
+    taunt: 15
+
+  chevalier:
+    name: "Chevalier de l'ordre"
+    description: "Un chevalier en armure de plates, rempart vivant de la ville"
+    cost: 180
+    guild_rank: maitre
+    hp: 32
+    attack: { mastery: 4, bonus: 0 }
+    damage: { mastery: 3, bonus: 2 }
+    esquive: { mastery: 2, bonus: 0 }
+    vigueur: { mastery: 3, bonus: 0 }
+    dr: { mastery: 2, bonus: 0 }
+    taunt: 60
+
+# Niveaux de la forteresse (améliorée depuis la page Forteresse) :
+# nombre de pièges par direction et nombre total de défenseurs.
+fortress_levels:
+  0:
+    name: "Palissade"
+    description: "Une simple palissade de rondins autour de la ville"
+    max_traps_per_direction: 1
+    max_defenders: 2
+    upgrade_cost: 0
+  1:
+    name: "Murailles de bois"
+    description: "Des remparts de bois avec un chemin de ronde"
+    max_traps_per_direction: 2
+    max_defenders: 3
+    upgrade_cost: 150
+  2:
+    name: "Murailles de pierre"
+    description: "Des murs de pierre et des portes renforcées"
+    max_traps_per_direction: 3
+    max_defenders: 4
+    upgrade_cost: 350
+  3:
+    name: "Forteresse"
+    description: "Tours de guet, casernes et portes à herse"
+    max_traps_per_direction: 4
+    max_defenders: 6
+    upgrade_cost: 600
+  4:
+    name: "Citadelle"
+    description: "Une citadelle imprenable aux remparts doubles"
+    max_traps_per_direction: 5
+    max_defenders: 8
+    upgrade_cost: 1000
 
 # Niveaux de la vigie
 watchtower_levels:
@@ -312,33 +472,29 @@ watchtower_levels:
     info: "precise"
     upgrade_cost: 500
 
-# Niveaux de l'atelier
+# Niveaux de l'atelier : débloquent les pièges plus puissants (`workshop_level` de chaque piège).
+# La capacité (pièges par direction) dépend de la forteresse (fortress_levels).
 workshop_levels:
   0:
     name: "Pas d'atelier"
-    description: "Défenses très limitées"
-    max_traps_per_direction: 1
+    description: "Seules les défenses rudimentaires sont disponibles"
     upgrade_cost: 0
   1:
     name: "Atelier basique"
-    description: "Outils simples pour construire des défenses"
-    max_traps_per_direction: 2
-    upgrade_cost: 150
+    description: "Outils simples : goudron et meurtrières"
+    upgrade_cost: 100
   2:
     name: "Atelier amélioré"
-    description: "Des artisans qualifiés améliorent vos défenses"
-    max_traps_per_direction: 3
-    upgrade_cost: 350
+    description: "Des artisans qualifiés : fosses à pieux et murs renforcés"
+    upgrade_cost: 250
   3:
     name: "Atelier avancé"
-    description: "Un atelier complet avec des matériaux rares"
-    max_traps_per_direction: 4
-    upgrade_cost: 600
+    description: "Matériaux rares : pièges de feu et sceaux magiques"
+    upgrade_cost: 450
   4:
     name: "Atelier de maître"
-    description: "Les meilleurs artisans du royaume à votre service"
-    max_traps_per_direction: 5
-    upgrade_cost: 1000
+    description: "Les meilleurs artisans du royaume : tours d'archers et remparts enchantés"
+    upgrade_cost: 700
 
 # Coûts de réparation des bâtiments
 building_repair_costs:

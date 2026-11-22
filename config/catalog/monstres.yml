@@ -5,8 +5,8 @@ monsters:
     name: "Rat géant"
     hp: 6
     vigueur: { mastery: 1, bonus: 0 }
-    attack: { mastery: 1, bonus: 1 }
-    damage: { mastery: 1, bonus: 0 }
+    attack: { mastery: 2, bonus: 1 }
+    damage: { mastery: 2, bonus: 0 }
     esquive: { mastery: 2, bonus: 0 }
     dr: { mastery: 0, bonus: 0 }
     vitesse: { mastery: 2, bonus: 1 }
@@ -19,8 +19,8 @@ monsters:
     name: "Gobelin"
     hp: 9
     vigueur: { mastery: 1, bonus: 1 }
-    attack: { mastery: 1, bonus: 2 }
-    damage: { mastery: 1, bonus: 1 }
+    attack: { mastery: 2, bonus: 2 }
+    damage: { mastery: 2, bonus: 1 }
     esquive: { mastery: 1, bonus: 2 }
     dr: { mastery: 0, bonus: 1 }
     vitesse: { mastery: 1, bonus: 2 }
@@ -33,8 +33,8 @@ monsters:
     name: "Archer gobelin"
     hp: 7
     vigueur: { mastery: 1, bonus: 0 }
-    attack: { mastery: 2, bonus: 1 }
-    damage: { mastery: 1, bonus: 2 }
+    attack: { mastery: 3, bonus: 1 }
+    damage: { mastery: 2, bonus: 2 }
     esquive: { mastery: 1, bonus: 1 }
     dr: { mastery: 0, bonus: 0 }
     vitesse: { mastery: 1, bonus: 1 }
@@ -47,8 +47,8 @@ monsters:
     name: "Loup affamé"
     hp: 10
     vigueur: { mastery: 1, bonus: 2 }
-    attack: { mastery: 2, bonus: 0 }
-    damage: { mastery: 1, bonus: 2 }
+    attack: { mastery: 3, bonus: 0 }
+    damage: { mastery: 2, bonus: 2 }
     esquive: { mastery: 2, bonus: 1 }
     dr: { mastery: 0, bonus: 1 }
     vitesse: { mastery: 2, bonus: 2 }
@@ -62,8 +62,8 @@ monsters:
     name: "Chef gobelin brutal"
     hp: 28
     vigueur: { mastery: 2, bonus: 1 }
-    attack: { mastery: 2, bonus: 2 }
-    damage: { mastery: 2, bonus: 1 }
+    attack: { mastery: 3, bonus: 2 }
+    damage: { mastery: 3, bonus: 1 }
     esquive: { mastery: 2, bonus: 0 }
     dr: { mastery: 1, bonus: 0 }
     vitesse: { mastery: 3, bonus: 0 }
@@ -78,8 +78,8 @@ monsters:
     name: "Bandit"
     hp: 15
     vigueur: { mastery: 2, bonus: 0 }
-    attack: { mastery: 2, bonus: 1 }
-    damage: { mastery: 2, bonus: 0 }
+    attack: { mastery: 3, bonus: 1 }
+    damage: { mastery: 3, bonus: 0 }
     esquive: { mastery: 2, bonus: 0 }
     dr: { mastery: 0, bonus: 2 }
     vitesse: { mastery: 2, bonus: 0 }
@@ -92,8 +92,8 @@ monsters:
     name: "Mage apprenti"
     hp: 8
     vigueur: { mastery: 1, bonus: 0 }
-    attack: { mastery: 2, bonus: 2 }
-    damage: { mastery: 1, bonus: 1 }
+    attack: { mastery: 3, bonus: 2 }
+    damage: { mastery: 2, bonus: 1 }
     esquive: { mastery: 1, bonus: 1 }
     dr: { mastery: 0, bonus: 0 }
     vitesse: { mastery: 1, bonus: 2 }
@@ -107,8 +107,8 @@ monsters:
     name: "Ogre mineur"
     hp: 30
     vigueur: { mastery: 3, bonus: 0 }
-    attack: { mastery: 1, bonus: 2 }
-    damage: { mastery: 3, bonus: 0 }
+    attack: { mastery: 2, bonus: 2 }
+    damage: { mastery: 4, bonus: 0 }
     esquive: { mastery: 1, bonus: 0 }
     dr: { mastery: 1, bonus: 0 }
     vitesse: { mastery: 1, bonus: 0 }
@@ -122,8 +122,8 @@ monsters:
     name: "Ogre des profondeurs"
     hp: 55
     vigueur: { mastery: 3, bonus: 2 }
-    attack: { mastery: 2, bonus: 1 }
-    damage: { mastery: 4, bonus: 0 }
+    attack: { mastery: 3, bonus: 1 }
+    damage: { mastery: 5, bonus: 0 }
     esquive: { mastery: 1, bonus: 0 }
     dr: { mastery: 1, bonus: 2 }
     vitesse: { mastery: 1, bonus: 1 }
@@ -138,8 +138,8 @@ monsters:
     name: "Assassin"
     hp: 13
     vigueur: { mastery: 2, bonus: 0 }
-    attack: { mastery: 3, bonus: 0 }
-    damage: { mastery: 2, bonus: 2 }
+    attack: { mastery: 4, bonus: 0 }
+    damage: { mastery: 3, bonus: 2 }
     esquive: { mastery: 3, bonus: 0 }
     dr: { mastery: 0, bonus: 1 }
     vitesse: { mastery: 3, bonus: 1 }
@@ -152,8 +152,8 @@ monsters:
     name: "Loup noir"
     hp: 16
     vigueur: { mastery: 2, bonus: 1 }
-    attack: { mastery: 2, bonus: 2 }
-    damage: { mastery: 2, bonus: 1 }
+    attack: { mastery: 3, bonus: 2 }
+    damage: { mastery: 3, bonus: 1 }
     esquive: { mastery: 2, bonus: 2 }
     dr: { mastery: 0, bonus: 2 }
     vitesse: { mastery: 3, bonus: 0 }
@@ -166,8 +166,8 @@ monsters:
     name: "Sorcier renégat"
     hp: 11
     vigueur: { mastery: 1, bonus: 2 }
-    attack: { mastery: 3, bonus: 0 }
-    damage: { mastery: 1, bonus: 2 }
+    attack: { mastery: 4, bonus: 0 }
+    damage: { mastery: 2, bonus: 2 }
     esquive: { mastery: 1, bonus: 2 }
     dr: { mastery: 0, bonus: 1 }
     vitesse: { mastery: 2, bonus: 0 }
@@ -181,8 +181,8 @@ monsters:
     name: "Golem d'argile"
     hp: 36
     vigueur: { mastery: 3, bonus: 1 }
-    attack: { mastery: 2, bonus: 0 }
-    damage: { mastery: 2, bonus: 2 }
+    attack: { mastery: 3, bonus: 0 }
+    damage: { mastery: 3, bonus: 2 }
     esquive: { mastery: 1, bonus: 0 }
     dr: { mastery: 2, bonus: 0 }
     vitesse: { mastery: 1, bonus: 0 }
@@ -196,8 +196,8 @@ monsters:
     name: "Maître assassin"
     hp: 30
     vigueur: { mastery: 2, bonus: 1 }
-    attack: { mastery: 4, bonus: 1 }
-    damage: { mastery: 3, bonus: 1 }
+    attack: { mastery: 5, bonus: 1 }
+    damage: { mastery: 4, bonus: 1 }
     esquive: { mastery: 3, bonus: 2 }
     dr: { mastery: 0, bonus: 2 }
     vitesse: { mastery: 4, bonus: 0 }
@@ -212,8 +212,8 @@ monsters:
     name: "Bandit vétéran"
     hp: 20
     vigueur: { mastery: 2, bonus: 2 }
-    attack: { mastery: 2, bonus: 3 }
-    damage: { mastery: 2, bonus: 2 }
+    attack: { mastery: 3, bonus: 3 }
+    damage: { mastery: 3, bonus: 2 }
     esquive: { mastery: 2, bonus: 2 }
     dr: { mastery: 1, bonus: 1 }
     vitesse: { mastery: 2, bonus: 1 }
@@ -226,8 +226,8 @@ monsters:
     name: "Élémentaire de feu"
     hp: 20
     vigueur: { mastery: 2, bonus: 1 }
-    attack: { mastery: 3, bonus: 1 }
-    damage: { mastery: 3, bonus: 0 }
+    attack: { mastery: 4, bonus: 1 }
+    damage: { mastery: 4, bonus: 0 }
     esquive: { mastery: 2, bonus: 0 }
     dr: { mastery: 1, bonus: 0 }
     vitesse: { mastery: 2, bonus: 2 }
@@ -241,8 +241,8 @@ monsters:
     name: "Élémentaire mineur"
     hp: 15
     vigueur: { mastery: 2, bonus: 0 }
-    attack: { mastery: 2, bonus: 2 }
-    damage: { mastery: 2, bonus: 1 }
+    attack: { mastery: 3, bonus: 2 }
+    damage: { mastery: 3, bonus: 1 }
     esquive: { mastery: 2, bonus: 1 }
     dr: { mastery: 1, bonus: 0 }
     vitesse: { mastery: 3, bonus: 0 }
@@ -256,8 +256,8 @@ monsters:
     name: "Chevalier déchu"
     hp: 26
     vigueur: { mastery: 3, bonus: 0 }
-    attack: { mastery: 3, bonus: 0 }
-    damage: { mastery: 3, bonus: 0 }
+    attack: { mastery: 4, bonus: 0 }
+    damage: { mastery: 4, bonus: 0 }
     esquive: { mastery: 1, bonus: 2 }
     dr: { mastery: 2, bonus: 0 }
     vitesse: { mastery: 1, bonus: 2 }
@@ -270,8 +270,8 @@ monsters:
     name: "Minotaure"
     hp: 38
     vigueur: { mastery: 3, bonus: 2 }
-    attack: { mastery: 2, bonus: 2 }
-    damage: { mastery: 4, bonus: 0 }
+    attack: { mastery: 3, bonus: 2 }
+    damage: { mastery: 5, bonus: 0 }
     esquive: { mastery: 1, bonus: 2 }
     dr: { mastery: 1, bonus: 1 }
     vitesse: { mastery: 2, bonus: 1 }
@@ -285,8 +285,8 @@ monsters:
     name: "Seigneur élémentaire"
     hp: 45
     vigueur: { mastery: 3, bonus: 0 }
-    attack: { mastery: 4, bonus: 1 }
-    damage: { mastery: 3, bonus: 0 }
+    attack: { mastery: 5, bonus: 1 }
+    damage: { mastery: 4, bonus: 0 }
     esquive: { mastery: 2, bonus: 2 }
     dr: { mastery: 1, bonus: 2 }
     vitesse: { mastery: 2, bonus: 2 }
@@ -301,8 +301,8 @@ monsters:
     name: "Assassin d'élite"
     hp: 18
     vigueur: { mastery: 2, bonus: 2 }
-    attack: { mastery: 4, bonus: 0 }
-    damage: { mastery: 3, bonus: 1 }
+    attack: { mastery: 5, bonus: 0 }
+    damage: { mastery: 4, bonus: 1 }
     esquive: { mastery: 4, bonus: 0 }
     dr: { mastery: 1, bonus: 0 }
     vitesse: { mastery: 4, bonus: 0 }
@@ -315,8 +315,8 @@ monsters:
     name: "Golem de pierre"
     hp: 50
     vigueur: { mastery: 4, bonus: 0 }
-    attack: { mastery: 2, bonus: 2 }
-    damage: { mastery: 3, bonus: 2 }
+    attack: { mastery: 3, bonus: 2 }
+    damage: { mastery: 4, bonus: 2 }
     esquive: { mastery: 1, bonus: 0 }
     dr: { mastery: 3, bonus: 0 }
     vitesse: { mastery: 1, bonus: 0 }
@@ -329,8 +329,8 @@ monsters:
     name: "Sorcier noir"
     hp: 15
     vigueur: { mastery: 2, bonus: 0 }
-    attack: { mastery: 4, bonus: 0 }
-    damage: { mastery: 2, bonus: 0 }
+    attack: { mastery: 5, bonus: 0 }
+    damage: { mastery: 3, bonus: 0 }
     esquive: { mastery: 2, bonus: 2 }
     dr: { mastery: 0, bonus: 2 }
     vitesse: { mastery: 2, bonus: 2 }
@@ -344,8 +344,8 @@ monsters:
     name: "Chevalier noir"
     hp: 32
     vigueur: { mastery: 3, bonus: 2 }
-    attack: { mastery: 3, bonus: 2 }
-    damage: { mastery: 3, bonus: 2 }
+    attack: { mastery: 4, bonus: 2 }
+    damage: { mastery: 4, bonus: 2 }
     esquive: { mastery: 2, bonus: 0 }
     dr: { mastery: 2, bonus: 2 }
     vitesse: { mastery: 2, bonus: 0 }
@@ -359,8 +359,8 @@ monsters:
     name: "Champion de la Tour"
     hp: 60
     vigueur: { mastery: 4, bonus: 1 }
-    attack: { mastery: 4, bonus: 1 }
-    damage: { mastery: 4, bonus: 0 }
+    attack: { mastery: 5, bonus: 1 }
+    damage: { mastery: 5, bonus: 0 }
     esquive: { mastery: 2, bonus: 2 }
     dr: { mastery: 3, bonus: 1 }
     vitesse: { mastery: 2, bonus: 1 }
@@ -375,8 +375,8 @@ monsters:
     name: "Ombre"
     hp: 14
     vigueur: { mastery: 2, bonus: 0 }
-    attack: { mastery: 3, bonus: 2 }
-    damage: { mastery: 3, bonus: 0 }
+    attack: { mastery: 4, bonus: 2 }
+    damage: { mastery: 4, bonus: 0 }
     esquive: { mastery: 4, bonus: 2 }
     dr: { mastery: 0, bonus: 2 }
     vitesse: { mastery: 4, bonus: 0 }
@@ -390,8 +390,8 @@ monsters:
     name: "Spectre"
     hp: 18
     vigueur: { mastery: 2, bonus: 1 }
-    attack: { mastery: 3, bonus: 2 }
-    damage: { mastery: 3, bonus: 0 }
+    attack: { mastery: 4, bonus: 2 }
+    damage: { mastery: 4, bonus: 0 }
     esquive: { mastery: 4, bonus: 1 }
     dr: { mastery: 1, bonus: 0 }
     vitesse: { mastery: 3, bonus: 2 }
@@ -405,8 +405,8 @@ monsters:
     name: "Vampire mineur"
     hp: 28
     vigueur: { mastery: 3, bonus: 1 }
-    attack: { mastery: 3, bonus: 2 }
-    damage: { mastery: 3, bonus: 2 }
+    attack: { mastery: 4, bonus: 2 }
+    damage: { mastery: 4, bonus: 2 }
     esquive: { mastery: 3, bonus: 1 }
     dr: { mastery: 1, bonus: 2 }
     vitesse: { mastery: 3, bonus: 1 }
@@ -420,8 +420,8 @@ monsters:
     name: "Démon éclaireur"
     hp: 24
     vigueur: { mastery: 3, bonus: 0 }
-    attack: { mastery: 4, bonus: 0 }
-    damage: { mastery: 3, bonus: 1 }
+    attack: { mastery: 5, bonus: 0 }
+    damage: { mastery: 4, bonus: 1 }
     esquive: { mastery: 3, bonus: 2 }
     dr: { mastery: 1, bonus: 1 }
     vitesse: { mastery: 4, bonus: 1 }
@@ -436,8 +436,8 @@ monsters:
     name: "Vampire ancestral"
     hp: 70
     vigueur: { mastery: 4, bonus: 1 }
-    attack: { mastery: 4, bonus: 1 }
-    damage: { mastery: 4, bonus: 0 }
+    attack: { mastery: 5, bonus: 1 }
+    damage: { mastery: 5, bonus: 0 }
     esquive: { mastery: 3, bonus: 2 }
     dr: { mastery: 2, bonus: 1 }
     vitesse: { mastery: 3, bonus: 2 }
@@ -452,8 +452,8 @@ monsters:
     name: "Démon"
     hp: 30
     vigueur: { mastery: 3, bonus: 2 }
-    attack: { mastery: 4, bonus: 1 }
-    damage: { mastery: 4, bonus: 0 }
+    attack: { mastery: 5, bonus: 1 }
+    damage: { mastery: 5, bonus: 0 }
     esquive: { mastery: 3, bonus: 1 }
     dr: { mastery: 2, bonus: 0 }
     vitesse: { mastery: 3, bonus: 0 }
@@ -466,8 +466,8 @@ monsters:
     name: "Diablotin majeur"
     hp: 20
     vigueur: { mastery: 2, bonus: 2 }
-    attack: { mastery: 4, bonus: 2 }
-    damage: { mastery: 3, bonus: 0 }
+    attack: { mastery: 5, bonus: 2 }
+    damage: { mastery: 4, bonus: 0 }
     esquive: { mastery: 4, bonus: 0 }
     dr: { mastery: 1, bonus: 0 }
     vitesse: { mastery: 4, bonus: 2 }
@@ -481,8 +481,8 @@ monsters:
     name: "Bête infernale"
     hp: 42
     vigueur: { mastery: 4, bonus: 1 }
-    attack: { mastery: 4, bonus: 0 }
-    damage: { mastery: 4, bonus: 2 }
+    attack: { mastery: 5, bonus: 0 }
+    damage: { mastery: 5, bonus: 2 }
     esquive: { mastery: 2, bonus: 2 }
     dr: { mastery: 2, bonus: 0 }
     vitesse: { mastery: 3, bonus: 2 }
@@ -495,8 +495,8 @@ monsters:
     name: "Titan mineur"
     hp: 55
     vigueur: { mastery: 4, bonus: 2 }
-    attack: { mastery: 3, bonus: 1 }
-    damage: { mastery: 5, bonus: 0 }
+    attack: { mastery: 4, bonus: 1 }
+    damage: { mastery: 6, bonus: 0 }
     esquive: { mastery: 1, bonus: 2 }
     dr: { mastery: 2, bonus: 2 }
     vitesse: { mastery: 1, bonus: 2 }
@@ -510,8 +510,8 @@ monsters:
     name: "Seigneur infernal"
     hp: 75
     vigueur: { mastery: 5, bonus: 0 }
-    attack: { mastery: 5, bonus: 0 }
-    damage: { mastery: 4, bonus: 3 }
+    attack: { mastery: 6, bonus: 0 }
+    damage: { mastery: 5, bonus: 3 }
     esquive: { mastery: 3, bonus: 1 }
     dr: { mastery: 2, bonus: 2 }
     vitesse: { mastery: 3, bonus: 0 }
@@ -526,8 +526,8 @@ monsters:
     name: "Golem antique"
     hp: 62
     vigueur: { mastery: 5, bonus: 0 }
-    attack: { mastery: 3, bonus: 1 }
-    damage: { mastery: 4, bonus: 2 }
+    attack: { mastery: 4, bonus: 1 }
+    damage: { mastery: 5, bonus: 2 }
     esquive: { mastery: 1, bonus: 1 }
     dr: { mastery: 4, bonus: 0 }
     vitesse: { mastery: 1, bonus: 1 }
@@ -540,8 +540,8 @@ monsters:
     name: "Chimère"
     hp: 40
     vigueur: { mastery: 4, bonus: 0 }
-    attack: { mastery: 4, bonus: 2 }
-    damage: { mastery: 4, bonus: 1 }
+    attack: { mastery: 5, bonus: 2 }
+    damage: { mastery: 5, bonus: 1 }
     esquive: { mastery: 3, bonus: 2 }
     dr: { mastery: 2, bonus: 1 }
     vitesse: { mastery: 4, bonus: 0 }
@@ -555,8 +555,8 @@ monsters:
     name: "Dragonnet"
     hp: 36
     vigueur: { mastery: 3, bonus: 2 }
-    attack: { mastery: 4, bonus: 2 }
-    damage: { mastery: 4, bonus: 1 }
+    attack: { mastery: 5, bonus: 2 }
+    damage: { mastery: 5, bonus: 1 }
     esquive: { mastery: 4, bonus: 0 }
     dr: { mastery: 2, bonus: 0 }
     vitesse: { mastery: 4, bonus: 1 }
@@ -570,8 +570,8 @@ monsters:
     name: "Titan ancien"
     hp: 64
     vigueur: { mastery: 5, bonus: 1 }
-    attack: { mastery: 3, bonus: 2 }
-    damage: { mastery: 5, bonus: 2 }
+    attack: { mastery: 4, bonus: 2 }
+    damage: { mastery: 6, bonus: 2 }
     esquive: { mastery: 2, bonus: 0 }
     dr: { mastery: 3, bonus: 0 }
     vitesse: { mastery: 2, bonus: 0 }
@@ -584,8 +584,8 @@ monsters:
     name: "Dragon jeune"
     hp: 58
     vigueur: { mastery: 5, bonus: 0 }
-    attack: { mastery: 5, bonus: 0 }
-    damage: { mastery: 5, bonus: 0 }
+    attack: { mastery: 6, bonus: 0 }
+    damage: { mastery: 6, bonus: 0 }
     esquive: { mastery: 3, bonus: 0 }
     dr: { mastery: 3, bonus: 0 }
     vitesse: { mastery: 3, bonus: 1 }
@@ -600,8 +600,8 @@ monsters:
     name: "Dragon ancien"
     hp: 90
     vigueur: { mastery: 5, bonus: 1 }
-    attack: { mastery: 5, bonus: 1 }
-    damage: { mastery: 5, bonus: 2 }
+    attack: { mastery: 6, bonus: 1 }
+    damage: { mastery: 6, bonus: 2 }
     esquive: { mastery: 3, bonus: 2 }
     dr: { mastery: 4, bonus: 0 }
     vitesse: { mastery: 3, bonus: 1 }
@@ -616,8 +616,8 @@ monsters:
     name: "Champion déchu"
     hp: 42
     vigueur: { mastery: 4, bonus: 2 }
-    attack: { mastery: 5, bonus: 0 }
-    damage: { mastery: 4, bonus: 2 }
+    attack: { mastery: 6, bonus: 0 }
+    damage: { mastery: 5, bonus: 2 }
     esquive: { mastery: 3, bonus: 2 }
     dr: { mastery: 3, bonus: 0 }
     vitesse: { mastery: 3, bonus: 1 }
@@ -630,8 +630,8 @@ monsters:
     name: "Vampire supérieur"
     hp: 34
     vigueur: { mastery: 4, bonus: 0 }
-    attack: { mastery: 5, bonus: 0 }
-    damage: { mastery: 4, bonus: 1 }
+    attack: { mastery: 6, bonus: 0 }
+    damage: { mastery: 5, bonus: 1 }
     esquive: { mastery: 4, bonus: 2 }
     dr: { mastery: 2, bonus: 0 }
     vitesse: { mastery: 5, bonus: 0 }
@@ -645,8 +645,8 @@ monsters:
     name: "Archimage noir"
     hp: 24
     vigueur: { mastery: 3, bonus: 0 }
-    attack: { mastery: 6, bonus: 0 }
-    damage: { mastery: 3, bonus: 0 }
+    attack: { mastery: 7, bonus: 0 }
+    damage: { mastery: 4, bonus: 0 }
     esquive: { mastery: 3, bonus: 1 }
     dr: { mastery: 1, bonus: 1 }
     vitesse: { mastery: 3, bonus: 0 }
@@ -660,8 +660,8 @@ monsters:
     name: "Béhémoth"
     hp: 75
     vigueur: { mastery: 5, bonus: 2 }
-    attack: { mastery: 4, bonus: 0 }
-    damage: { mastery: 6, bonus: 0 }
+    attack: { mastery: 5, bonus: 0 }
+    damage: { mastery: 7, bonus: 0 }
     esquive: { mastery: 1, bonus: 2 }
     dr: { mastery: 3, bonus: 2 }
     vitesse: { mastery: 1, bonus: 2 }
@@ -674,8 +674,8 @@ monsters:
     name: "Dragon noir"
     hp: 68
     vigueur: { mastery: 5, bonus: 2 }
-    attack: { mastery: 5, bonus: 1 }
-    damage: { mastery: 5, bonus: 2 }
+    attack: { mastery: 6, bonus: 1 }
+    damage: { mastery: 6, bonus: 2 }
     esquive: { mastery: 4, bonus: 0 }
     dr: { mastery: 3, bonus: 1 }
     vitesse: { mastery: 4, bonus: 0 }
@@ -689,8 +689,8 @@ monsters:
     name: "Ombre majeure"
     hp: 26
     vigueur: { mastery: 3, bonus: 2 }
-    attack: { mastery: 5, bonus: 1 }
-    damage: { mastery: 4, bonus: 1 }
+    attack: { mastery: 6, bonus: 1 }
+    damage: { mastery: 5, bonus: 1 }
     esquive: { mastery: 5, bonus: 2 }
     dr: { mastery: 2, bonus: 0 }
     vitesse: { mastery: 5, bonus: 2 }
@@ -705,8 +705,8 @@ monsters:
     name: "Avatar du Chaos"
     hp: 100
     vigueur: { mastery: 6, bonus: 0 }
-    attack: { mastery: 5, bonus: 2 }
-    damage: { mastery: 6, bonus: 0 }
+    attack: { mastery: 6, bonus: 2 }
+    damage: { mastery: 7, bonus: 0 }
     esquive: { mastery: 4, bonus: 0 }
     dr: { mastery: 3, bonus: 1 }
     vitesse: { mastery: 4, bonus: 0 }
@@ -721,8 +721,8 @@ monsters:
     name: "Titan primordial"
     hp: 85
     vigueur: { mastery: 6, bonus: 0 }
-    attack: { mastery: 4, bonus: 2 }
-    damage: { mastery: 6, bonus: 2 }
+    attack: { mastery: 5, bonus: 2 }
+    damage: { mastery: 7, bonus: 2 }
     esquive: { mastery: 2, bonus: 1 }
     dr: { mastery: 4, bonus: 0 }
     vitesse: { mastery: 2, bonus: 0 }
@@ -735,8 +735,8 @@ monsters:
     name: "Archidémon"
     hp: 62
     vigueur: { mastery: 5, bonus: 1 }
-    attack: { mastery: 6, bonus: 0 }
-    damage: { mastery: 5, bonus: 2 }
+    attack: { mastery: 7, bonus: 0 }
+    damage: { mastery: 6, bonus: 2 }
     esquive: { mastery: 4, bonus: 1 }
     dr: { mastery: 3, bonus: 0 }
     vitesse: { mastery: 4, bonus: 1 }
@@ -750,8 +750,8 @@ monsters:
     name: "Gardien céleste"
     hp: 72
     vigueur: { mastery: 6, bonus: 0 }
-    attack: { mastery: 5, bonus: 2 }
-    damage: { mastery: 5, bonus: 2 }
+    attack: { mastery: 6, bonus: 2 }
+    damage: { mastery: 6, bonus: 2 }
     esquive: { mastery: 4, bonus: 2 }
     dr: { mastery: 3, bonus: 2 }
     vitesse: { mastery: 4, bonus: 0 }
@@ -765,8 +765,8 @@ monsters:
     name: "Héraut du Néant"
     hp: 64
     vigueur: { mastery: 5, bonus: 0 }
-    attack: { mastery: 6, bonus: 2 }
-    damage: { mastery: 5, bonus: 0 }
+    attack: { mastery: 7, bonus: 2 }
+    damage: { mastery: 6, bonus: 0 }
     esquive: { mastery: 5, bonus: 1 }
     dr: { mastery: 3, bonus: 0 }
     vitesse: { mastery: 5, bonus: 0 }
@@ -781,8 +781,8 @@ monsters:
     name: "Le Maître de la Tour"
     hp: 130
     vigueur: { mastery: 6, bonus: 2 }
-    attack: { mastery: 6, bonus: 2 }
-    damage: { mastery: 6, bonus: 2 }
+    attack: { mastery: 7, bonus: 2 }
+    damage: { mastery: 7, bonus: 2 }
     esquive: { mastery: 5, bonus: 1 }
     dr: { mastery: 4, bonus: 0 }
     vitesse: { mastery: 5, bonus: 0 }

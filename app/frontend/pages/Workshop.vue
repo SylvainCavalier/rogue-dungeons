@@ -21,7 +21,8 @@
               <h3 class="text-lg font-semibold text-amber-400">{{ data.level_data?.name || 'Pas d\'atelier' }}</h3>
               <p class="text-stone-500 text-sm mt-1">{{ data.level_data?.description }}</p>
               <p class="text-stone-400 text-sm mt-2">
-                Pièges par direction : <span class="text-amber-400 font-bold">{{ data.level_data?.max_traps_per_direction || 1 }}</span>
+                L'atelier débloque les pièges plus puissants. Le nombre de pièges par direction dépend de la
+                <router-link to="/town/fortress" class="text-amber-400 hover:underline">forteresse</router-link>.
               </p>
             </div>
             <div class="text-3xl font-bold text-amber-400">Nv. {{ data.level }}</div>

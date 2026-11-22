@@ -38,6 +38,9 @@
           +{{ siege.rewards.xp }} XP, +{{ siege.rewards.gold }} Or
           <span v-if="siege.rewards.soul_stones" class="text-violet-400">, +{{ siege.rewards.soul_stones }} pierre{{ siege.rewards.soul_stones > 1 ? 's' : '' }} d'âme</span>
         </div>
+        <p v-if="siege.fallen_defenders?.length" class="text-stone-400 text-sm mb-2">
+          Tombés en défendant la ville : {{ siege.fallen_defenders.join(', ') }}
+        </p>
         <p v-if="siege.status === 'defeat'" class="text-red-400/70 text-sm mb-4">
           Des bâtiments de la ville ont été endommagés.
         </p>
@@ -94,7 +97,8 @@
           <div class="bg-stone-900 border border-stone-700 rounded-xl p-4">
             <h3 class="text-sm font-semibold text-red-400 mb-3 uppercase tracking-wider">Assaillants</h3>
             <div v-for="(enemy, i) in siege.enemies" :key="i" class="flex gap-3 mb-3 last:mb-0">
-              <MonsterPortrait :monster-key="enemy.key" :name="enemy.name" :hp="enemy.hp" :alive="enemy.alive" size="lg" :fx-state="enemyFx(enemy.index ?? i)" />
+              <MonsterPortrait :monster-key="enemy.key" :name="enemy.name" :hp="enemy.hp" :alive="enemy.alive"
+                :size="siege.enemies.length > 4 ? 'md' : 'lg'" :fx-state="enemyFx(enemy.index ?? i)" />
               <div class="flex-1 min-w-0">
               <div class="flex justify-between items-center mb-1">
                 <span class="text-sm" :class="enemy.alive ? 'text-stone-200' : 'text-stone-600 line-through'">

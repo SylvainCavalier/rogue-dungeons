@@ -11,5 +11,9 @@ module ActiveSupport
     fixtures :all
 
     # Add more helper methods to be used by all tests here...
+
+    # The 1% "unavoidable blow" on a dodge would make stubbed misses flaky
+    # (test/services/siege_test.rb turns it back on where it is tested).
+    setup { CombatService.unavoidable_hit_chance = 0 }
   end
 end

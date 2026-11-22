@@ -6,7 +6,8 @@ module Api
       render json: {
         equipment: GameCatalog.shop_equipment.map { |e| forge_item(e) },
         work: WorkService.info(current_character, "forge"),
-        repairs: repairable_items.map { |i| repair_json(i) }
+        repairs: repairable_items.map { |i| repair_json(i) },
+        haggle: current_character.haggle_info
       }
     end
 
@@ -67,7 +68,7 @@ module Api
         name: catalog["name"],
         category: catalog["category"],
         tier: catalog["tier"],
-        price: catalog["price"],
+        price: current_character.buy_price(catalog["price"], "forge"),
         item_type: "equipment",
         data: catalog
       }

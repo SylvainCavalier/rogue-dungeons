@@ -23,6 +23,7 @@ export const useGameStore = defineStore('game', {
     fortressData: null,
     watchtowerData: null,
     workshopData: null,
+    recruitsData: null,
     buildingsData: null,
     siegeStatus: null,
     loading: false,
@@ -541,6 +542,64 @@ export const useGameStore = defineStore('game', {
       try {
         const { data } = await apiClient.post('/siege/fortress/reorder', { id: defenseId, move })
         await this.fetchFortress()
+        return data
+      } catch (e) {
+        this.notify(e.response?.data?.error || 'Erreur', 'error')
+        throw e
+      }
+    },
+
+    async upgradeFortress() {
+      try {
+        const { data } = await apiClient.post('/siege/fortress/upgrade')
+        if (this.character) this.character.gold = data.gold
+        this.notify(data.message, 'success')
+        await this.fetchFortress()
+        return data
+      } catch (e) {
+        this.notify(e.response?.data?.error || 'Erreur', 'error')
+        throw e
+      }
+    },
+
+    // direction: a gate, or null to send the defender back to the reserve
+    async stationDefender(defenderId, direction) {
+      try {
+        const { data } = await apiClient.post('/siege/fortress/station', { id: defenderId, direction })
+        this.notify(data.message, 'success')
+        await this.fetchFortress()
+        return data
+      } catch (e) {
+        this.notify(e.response?.data?.error || 'Erreur', 'error')
+        throw e
+      }
+    },
+
+    // --- Recruitment (warriors guild) ---
+    async fetchRecruits() {
+      const { data } = await apiClient.get('/town/recruits')
+      this.recruitsData = data
+      return data
+    },
+
+    async recruitDefender(defenderKey) {
+      try {
+        const { data } = await apiClient.post('/town/recruits', { defender_key: defenderKey })
+        this.recruitsData = data
+        if (this.character) this.character.gold = data.gold
+        this.notify(data.message, 'success')
+        return data
+      } catch (e) {
+        this.notify(e.response?.data?.error || 'Erreur', 'error')
+        throw e
+      }
+    },
+
+    async dismissDefender(defenderId) {
+      try {
+        const { data } = await apiClient.delete(`/town/recruits/${defenderId}`)
+        this.recruitsData = data
+        this.notify(data.message, 'success')
         return data
       } catch (e) {
         this.notify(e.response?.data?.error || 'Erreur', 'error')

@@ -136,7 +136,7 @@ module Api
         equipped: inv_item.equipped,
         slot: inv_item.slot,
         enchantment: inv_item.enchantment_effect,
-        sell_price: inv_item.sell_price,
+        sell_price: current_character.sell_price_for(inv_item),
         durability: inv_item.item_type == "equipment" ? inv_item.durability : nil,
         data: catalog
       }
