@@ -10,6 +10,11 @@ class CombatService
   # `ability_chance` overrides it: casters rely on their spells).
   DEFAULT_ABILITY_CHANCE = 30
 
+  # Statuses the player can shake off with a Sang-Froid roll (vs the enemy's attack roll).
+  MENTAL_STATUSES = %w[Étourdi Paralysé Terrorisé Confus Aveuglé].freeze
+  # Failing the Sang-Froid roll by at most this much shortens the status by 1 round.
+  SANG_FROID_PARTIAL_MARGIN = 2
+
   # Defense mode + dice shown by the combat toggle.
   def self.defense_info(character)
     esq_m, esq_b = character.defense_roll("esquive")
@@ -137,6 +142,7 @@ class CombatService
           statuses: e[:statuses] || [],
           initiative: e[:initiative],
           faster: faster_than_player?(e),
+          intent: e[:intent_known] ? intent_label(e[:intent]) : nil,
           revealed_resistances: revealed_resistances_for(e)
         }
       },
@@ -967,6 +973,7 @@ class CombatService
     return finish_combat(:defeat) if player_dead?
     return finish_combat(:victory) if enemies_all_dead?
 
+    plan_enemy_intents!
     @state[:log].concat(@log)
     save_state!
     combat_snapshot
@@ -976,15 +983,57 @@ class CombatService
     enemies.each do |enemy|
       break if player_dead?
       next if enemy[:hp] <= 0
+
+      intent = enemy.delete(:intent) || roll_enemy_intent(enemy)
+      enemy.delete(:intent_known)
       next if enemy_is_stunned?(enemy)
       next if enemy_is_paralyzed?(enemy)
 
-      if enemy[:abilities]&.any? && rand(100) < (enemy[:ability_chance] || DEFAULT_ABILITY_CHANCE)
-        resolve_enemy_ability(enemy)
+      if intent[:ability]
+        resolve_enemy_ability(enemy, intent[:ability])
       else
         resolve_enemy_attack(enemy)
       end
     end
+  end
+
+  # Next action of an enemy: one of its abilities (ability_chance %) or a basic attack.
+  def roll_enemy_intent(enemy)
+    use_ability = enemy[:abilities]&.any? && rand(100) < (enemy[:ability_chance] || DEFAULT_ABILITY_CHANCE)
+    { ability: use_ability ? enemy[:abilities].sample : nil }
+  end
+
+  def intent_label(intent)
+    return "attaque" unless intent&.dig(:ability)
+
+    ability = GameCatalog.technique_data(intent[:ability]) || GameCatalog.magic_data(intent[:ability])
+    ability ? ability["name"] : "attaque"
+  end
+
+  # Decides every enemy's next action in advance, then one Intuition roll
+  # reveals the intent of each enemy whose difficulty (5 + 2 × its attack dice) it beats.
+  def plan_enemy_intents!
+    enemies = living_enemies
+    return if enemies.empty?
+
+    enemies.each do |enemy|
+      enemy[:intent] = roll_enemy_intent(enemy)
+      enemy[:intent_known] = false
+    end
+
+    skill = character.skills.find_by(name: "Intuition")
+    mastery, bonus = skill ? [skill.mastery, skill.bonus] : [character.perception, 0]
+    total = DiceRoller.roll(mastery, bonus)[:total]
+    guessed = enemies.select { |e| total >= intuition_difficulty(e) }
+    guessed.each { |e| e[:intent_known] = true }
+
+    found = guessed.map { |e| "#{e[:name]} : #{intent_label(e[:intent])}" }
+    @log << "Intuition (#{DiceRoller.notation(mastery, bonus)}) : #{total} — " +
+      (found.any? ? found.join(" · ") : "vous ne devinez pas les intentions ennemies.")
+  end
+
+  def intuition_difficulty(enemy)
+    5 + 2 * enemy[:attack][:mastery].to_i
   end
 
   def resolve_enemy_attack(enemy)
@@ -1034,8 +1083,7 @@ class CombatService
     end
   end
 
-  def resolve_enemy_ability(enemy)
-    ability_key = enemy[:abilities].sample
+  def resolve_enemy_ability(enemy, ability_key = enemy[:abilities].sample)
     ability = GameCatalog.technique_data(ability_key) || GameCatalog.magic_data(ability_key)
 
     unless ability
@@ -1076,10 +1124,7 @@ class CombatService
 
       if hit[:hit] && tech["inflict_status"]
         chance = tech["status_chance"] || 100
-        if rand(100) < chance
-          apply_status_to_player(tech["inflict_status"], tech["status_duration"] || 2)
-          @log << "Vous êtes #{tech["inflict_status"]} !"
-        end
+        inflict_status_on_player(tech["inflict_status"], tech["status_duration"] || 2, enemy) if rand(100) < chance
       end
     else
       defended!("#{enemy[:name]} utilise #{tech["name"]}")
@@ -1110,10 +1155,7 @@ class CombatService
 
         if hit[:hit] && magic["inflict_status"]
           chance = magic["status_chance"] || 50
-          if rand(100) < chance
-            apply_status_to_player(magic["inflict_status"], magic["status_duration"] || 2)
-            @log << "Vous êtes #{magic["inflict_status"]} !"
-          end
+          inflict_status_on_player(magic["inflict_status"], magic["status_duration"] || 2, enemy) if rand(100) < chance
         end
       else
         defended!("#{enemy[:name]} lance #{magic["name"]}")
@@ -1134,9 +1176,44 @@ class CombatService
       else
         defended!("#{enemy[:name]} lance #{magic["name"]}")
       end
+    when "status"
+      def_m, def_b = player_defense_vs(enemy)
+      hit = DiceRoller.opposed_roll(acc_m, acc_b, def_m, def_b)
+      @state[:round_attacks] = @state[:round_attacks].to_i + 1
+      if hit[:hit] && magic["inflict_status"]
+        @log << "#{enemy[:name]} lance #{magic["name"]} !"
+        inflict_status_on_player(magic["inflict_status"], magic["status_duration"] || 2, enemy)
+      else
+        @log << "#{enemy[:name]} lance #{magic["name"]} : raté !"
+      end
     else
       resolve_enemy_attack(enemy)
     end
+  end
+
+  # Negative status from an enemy. Mental ones can be resisted (or shortened)
+  # with a Sang-Froid roll against the enemy's attack roll.
+  def inflict_status_on_player(status_name, duration, enemy)
+    if MENTAL_STATUSES.include?(status_name)
+      skill = character.skills.find_by(name: "Sang-Froid")
+      mastery, bonus = skill ? [skill.mastery, skill.bonus] : [character.perception, 0]
+      own = DiceRoller.roll(mastery, bonus)[:total]
+      against = DiceRoller.roll(enemy[:attack][:mastery], enemy[:attack][:bonus])[:total]
+      label = "Sang-Froid (#{DiceRoller.notation(mastery, bonus)}) : #{own} vs #{against}"
+
+      if own >= against
+        @log << "#{label} — vous résistez à #{status_name} !"
+        return
+      elsif against - own <= SANG_FROID_PARTIAL_MARGIN && duration > 1
+        duration -= 1
+        @log << "#{label} — vous vous ressaisissez en partie (#{status_name} #{duration} tour#{'s' if duration > 1})."
+      else
+        @log << "#{label} — échec."
+      end
+    end
+
+    apply_status_to_player(status_name, duration)
+    @log << "Vous êtes #{status_name} !"
   end
 
   def resolve_player_counter_hit(enemy, counter)
@@ -1594,7 +1671,21 @@ class CombatService
     boss = floor.positive? && GameCatalog.floor(floor)&.dig("boss")
     stones = boss ? cfg["boss_base"].to_i + (floor / [cfg["boss_floors_step"].to_i, 1].max) : 0
     others = boss ? @state[:enemies].size - 1 : @state[:enemies].size
-    stones + others.times.count { rand(100) < cfg["drop_chance_percent"].to_i }
+    stones + others.times.count { rand(100) < soul_stone_drop_chance(cfg) }
+  end
+
+  # % chance per defeated monster to drop a soul stone, from the Fouille skill:
+  # drop_chance_min at 1D, + drop_chance_per_step per skill upgrade, capped at drop_chance_max.
+  def soul_stone_drop_chance(cfg = GameCatalog.enchantments_data["soul_stones"] || {})
+    self.class.soul_stone_drop_chance(character, cfg)
+  end
+
+  def self.soul_stone_drop_chance(character, cfg = GameCatalog.enchantments_data["soul_stones"] || {})
+    skill = character.skills.find_by(name: "Fouille")
+    steps = skill ? (skill.mastery - 1) * 3 + skill.bonus : 0
+    min = cfg.fetch("drop_chance_min", 5).to_i
+    max = cfg.fetch("drop_chance_max", 50).to_i
+    (min + steps * cfg.fetch("drop_chance_per_step", 2).to_i).clamp(min, max)
   end
 
   # ═══════════════════════════════════════════
@@ -1717,6 +1808,6 @@ class CombatService
                  else "trésor exceptionnel"
                  end
     { gold: gold, roll: total, multiplier: multiplier,
-      message: "Fouille (#{notation}) : #{total} — #{descriptor}." }
+      message: "Fouille (#{notation}) : #{total} — #{descriptor} (pierres d'âme : #{soul_stone_drop_chance}% par monstre)." }
   end
 end

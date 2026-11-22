@@ -27,7 +27,11 @@ sell_bonus_percent_per_level: 10
 
 # Soul stones dropped by monsters (tower and siege victories)
 soul_stones:
-  drop_chance_percent: 10 # per defeated monster
+  # % chance per defeated monster, from the Fouille skill: min at 1D,
+  # + per_step per skill upgrade (+1 bonus), capped at max (reached at 8D+2)
+  drop_chance_min: 5
+  drop_chance_per_step: 2
+  drop_chance_max: 50
   boss_base: 1            # a tower boss always drops boss_base + floor / boss_floors_step
   boss_floors_step: 25
 

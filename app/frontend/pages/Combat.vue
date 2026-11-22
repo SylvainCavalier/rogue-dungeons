@@ -95,6 +95,8 @@
                   {{ enemy.hp }}/{{ enemy.max_hp }}
                 </span>
               </div>
+              <p v-if="enemy.alive && enemy.intent" class="text-[11px] text-violet-300 mb-1"
+                title="Deviné grâce à votre Intuition">Intention : {{ enemy.intent }}</p>
               <div v-if="enemy.alive" class="w-full bg-stone-800 rounded-full h-2">
                 <div class="bg-red-700 h-2 rounded-full transition-all duration-500"
                      :style="{ width: (enemy.hp / enemy.max_hp * 100) + '%' }"></div>
@@ -392,6 +394,7 @@ function logLineClass(line) {
   if (line.includes('dégâts')) return 'text-amber-300'
   if (line.includes('PV') && (line.includes('+') || line.includes('récupér'))) return 'text-green-300'
   if (line.startsWith('---')) return 'text-stone-600 font-semibold'
+  if (line.startsWith('Intuition') || line.startsWith('Sang-Froid')) return 'text-violet-300'
   return 'text-stone-400'
 }
 

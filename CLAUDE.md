@@ -76,7 +76,7 @@ A technique/magic must exist in **both** its `.md` and `.yml` with matching keys
 | Dextérité | Ranged damage dice. Fallback for weapon accuracy, dodge and initiative. Flee roll mastery (`Esquive` bonus added). |
 | Intelligence | Max PM = Intelligence×3 (+bonus). Fallback for magic accuracy. Academy learning time (`tier×3 − Intelligence` days). |
 | Charisme | **Not used yet.** |
-| Perception | Fallback for Observation only. |
+| Perception | Fallback for Observation, Intuition and Sang-Froid. |
 
 ## Skills
 
@@ -95,13 +95,14 @@ Each character gets every skill of `Character::SKILLS_MAP` at creation, with `ma
 | Feu / Eau / Ombre / Lumière / Nature (Intelligence) | Accuracy of magics of that element | `find_player_skill_for_element` |
 | Vitesse (Dextérité) | Initiative roll (+ boots `speed_bonus`), once per fight: sets who acts before whom | `Character#initiative_roll`, `CombatService#roll_initiative!` |
 | Observation (Perception) | "Analyser" action (reveals enemy resistances) | `resolve_analyze` |
-| Fouille (Perception) | Gold multiplier after a tower victory | `resolve_search_loot` |
+| Fouille (Perception) | Gold multiplier after a tower victory (roll), and the soul stone drop chance per defeated monster (skill level: 5% at 1D, +2% per upgrade, max 50%) | `resolve_search_loot`, `CombatService.soul_stone_drop_chance` |
+| Intuition (Perception) | Each round, one roll reveals the planned action of every enemy whose difficulty (5 + 2 × its attack dice) it beats, shown on the enemy card | `plan_enemy_intents!` |
+| Sang-Froid (Perception) | Resists mental statuses inflicted by enemies (roll vs the enemy's attack roll) | `inflict_status_on_player` |
 | Bras de fer (Vigueur) | Arm wrestling tavern game at the inn | `TavernService` |
 | Résistance à l'alcool (Vigueur) | Drinking contest tavern game at the inn | `TavernService` |
 | Endurance, Escalade, Natation (Vigueur) | **Not used yet** | — |
 | Discrétion (Dextérité) | **Not used yet, hidden** (see below) | — |
 | Persuasion, Marchandage, Dressage (Charisme) | **Not used yet** | — |
-| Intuition, Sang-Froid (Perception) | **Not used yet** | — |
 
 ### Hidden skills
 
@@ -128,7 +129,8 @@ Each character gets every skill of `Character::SKILLS_MAP` at creation, with `ma
   - Equipment adds a flat bonus to the matching mode: boots `esquive_bonus`, helmets `parade_bonus` (`Character#defense_roll`, `#equipment_bonus`). Boots also have `flee_bonus` (added to the flee roll) and `speed_bonus` (stored for the future Vitesse mechanic, not used yet).
   - Bonuses of the other mode are ignored. Snapshots expose `player.defense` (`{ mode, esquive, parade }` dice notations).
 - **Player accuracy**: weapon skill (+ weapon `accuracy_bonus`) ± status modifiers. **Magic accuracy**: element skill (fallback Intelligence), against the enemy's `esquive`.
-- **Enemies**: `ability_chance`% per turn (default `DEFAULT_ABILITY_CHANCE` = 30) to use one of their `abilities` (keys of `techniques.yml` or `magies.yml`; a `mana_cost` key means it's resolved as a magic), otherwise a basic attack.
+- **Enemies**: `ability_chance`% per turn (default `DEFAULT_ABILITY_CHANCE` = 30) to use one of their `abilities` (keys of `techniques.yml` or `magies.yml`; a `mana_cost` key means it's resolved as a magic), otherwise a basic attack. Enemy spells handled: `heal`, `damage`, `damage_status`, `drain`, `status` (opposed roll, then the status); other types fall back to a basic attack.
+- **Enemy intents (Intuition)**: each enemy's next action is decided **in advance**, at the end of every request (`plan_enemy_intents!`, called by `end_turn_with`), stored as `enemy[:intent]` and consumed when it acts (`resolve_enemy_turns`; a stunned enemy loses it). The same request rolls Intuition (fallback Perception) once: each enemy with `5 + 2 × attack mastery` ≤ roll gets `intent_known`, and the snapshot exposes `intent` (ability name or "attaque") for those only. Legacy states without an intent roll one on the spot.
 - **End** (`finish_combat`): `floor > 0` means a tower fight. Tower victory gives half the XP and gold scaled by the Fouille roll. Siege fights have no floor: full rewards, a day passes, then `SiegeService#finish_siege` applies the siege outcome. Defeat → 1 PV, tower session ends.
 
 ### Technique types (`techniques.yml` → `resolve_technique`)
@@ -141,7 +143,7 @@ All cost `mana_cost` and check the "Silencé" status. `damage`, `damage_status` 
 
 ### Statuses (`statuts.yml`)
 
-Applied as `{ name, remaining }` on the player or an enemy; re-applying refreshes to the max duration. Mechanics are data-driven (`tick_damage_*`, `tick_heal_*`, `mastery_penalty`, `accuracy_mastery_penalty`, `bonus_all`…), except a few hardcoded by name in `CombatService`: Étourdi (lose turn), Paralysé (50% lose turn), Confus (25% self-hit), Invisible (next attack auto-hits), Protégé (+1D resistance), Accéléré (+1 dodge), Silencé (no magic).
+Applied as `{ name, remaining }` on the player or an enemy; re-applying refreshes to the max duration. Statuses from enemies go through `inflict_status_on_player`: the **mental** ones (`MENTAL_STATUSES`: Étourdi, Paralysé, Terrorisé, Confus, Aveuglé) allow a **Sang-Froid** roll (fallback Perception) against the enemy's attack roll — success = resisted, failed by ≤ `SANG_FROID_PARTIAL_MARGIN` (2) = 1 round shorter, otherwise full duration. Monsters with mental abilities: `intimidation_martiale` (Terrorisé), `etourdissement` / `charge_ecrasante` (Étourdi), `terreur_nocturne` (Terrorisé), `cecite` (Aveuglé), mostly bosses, knights, titans, dragons and shadow casters. Mechanics are data-driven (`tick_damage_*`, `tick_heal_*`, `mastery_penalty`, `accuracy_mastery_penalty`, `bonus_all`…), except a few hardcoded by name in `CombatService`: Étourdi (lose turn), Paralysé (50% lose turn), Confus (25% self-hit), Invisible (next attack auto-hits), Protégé (+1D resistance), Accéléré (+1 dodge), Silencé (no magic).
 
 ### Monster design (`monstres.yml`)
 
@@ -168,7 +170,7 @@ Siege monsters (`siege.yml`) have `vitesse` too.
 
 - Work (`WorkService`, `POST /api/town/work` with `place`): a day at the forge (Forge skill) or the apothecary (Alchimie skill) earns `roll × gold_per_point` gold (forge 3, apothecary 3). Add a workplace in `WorkService::WORKPLACES` + `Character#work_roll`.
 - Enchantments (academy "Enchantement" tab, `EnchantmentService`, `config/catalog/enchantements.yml`): Enchantement roll → level 0 (fail, < 5) to 6 (30+); thresholds every 5. Cost = item tier × (40 gold + 1 soul stone), paid even on failure; a success replaces the item's previous enchantment. Stored as `inventory_items.enchantment` (`{ effect, level }`), resolved against the catalog ladders by `InventoryItem#enchantment_effect` (so values can be rebalanced). Effects per category: weapons = elemental damage (feu/eau/lumiere/nature/ombre, +1…+2D, magic damage added after every landed weapon hit, `CombatService#weapon_enchantment_hit!`); armor = protection (DR dice) / résistance magique (% off enemy spells) / régénération (PV per round); helmet = parade / clairvoyance (accuracy) / méditation (mana per round); boots = esquive / célérité (initiative) / fuite; shield = protection / parade / épines (damage to an enemy whose blow lands). Character helpers: `enchantment_dice(key)`, `enchantment_percent(key)`, `weapon_enchantment`; DR enchantments are folded into `total_dr_mastery/bonus`. Resale (`InventoryItem#sell_price`, used by `ShopController#sell`): half the catalog price + `sell_bonus_percent_per_level`% (10) of it per enchantment level.
-- Soul stones (`characters.soul_stones`): each defeated monster has `drop_chance_percent` (10%) to drop one on victory; a tower boss always drops `boss_base + floor / boss_floors_step` (`CombatService#soul_stones_reward`, shown in `rewards.soul_stones`).
+- Soul stones (`characters.soul_stones`): each defeated monster drops one on victory with a chance set by the player's **Fouille** skill (`drop_chance_min` 5% at 1D, `+drop_chance_per_step` 2% per skill upgrade, `drop_chance_max` 50%; `CombatService.soul_stone_drop_chance`, also shown in the post-fight Fouille log line); a tower boss always drops `boss_base + floor / boss_floors_step` (`CombatService#soul_stones_reward`, shown in `rewards.soul_stones`).
 - Shops: the apothecary sells catalog items with `vendor: "apothecary"` (`GameCatalog.apothecary_items`), the shop sells the other items; both buy/sell through `ShopController`.
 - Tavern games (inn, `TavernService`, `config/catalog/taverne.yml`, `GET /api/town/tavern`, `POST /api/town/tavern/play`): arm wrestling (Bras de fer) and drinking contest (Résistance à l'alcool), each **once per day** (`Character#absolute_day`) and **without time passing**. Opposed roll vs an opponent at 1D that gains +1 bonus per win (3 bonus = +1D); win = reward (15 + 5/win), loss = stake lost (5 + 2/win), tie = nothing. Progress in `characters.tavern_games` (`{ game => { wins, last_day } }`).
 - Time: `Character#advance_day` (7 days/week, 4 weeks/month, 12 months). Working, the inn, learning days and entering the tower (once per tower session) each cost a day. A new week triggers a pending **siege** (`siege_state`).

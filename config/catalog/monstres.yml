@@ -69,7 +69,7 @@ monsters:
     vitesse: { mastery: 3, bonus: 0 }
     xp_value: 18
     gold_value: 12
-    abilities: ["coup_charge"]
+    abilities: ["coup_charge", "intimidation_martiale"]
     ability_chance: 35
     resistances: { feu: -25, lumiere: -25 }
 
@@ -129,7 +129,7 @@ monsters:
     vitesse: { mastery: 1, bonus: 1 }
     xp_value: 28
     gold_value: 20
-    abilities: ["coup_charge"]
+    abilities: ["coup_charge", "etourdissement"]
     ability_chance: 35
     resistances: { physical: 25, feu: -50, lumiere: -25 }
 
@@ -277,7 +277,7 @@ monsters:
     vitesse: { mastery: 2, bonus: 1 }
     xp_value: 14
     gold_value: 10
-    abilities: ["coup_charge"]
+    abilities: ["coup_charge", "charge_ecrasante"]
     resistances: { physical: 25, feu: -25, ombre: 25 }
 
   # Boss étage 40
@@ -336,7 +336,7 @@ monsters:
     vitesse: { mastery: 2, bonus: 2 }
     xp_value: 15
     gold_value: 10
-    abilities: ["trait_obscur", "drain_vital"]
+    abilities: ["trait_obscur", "drain_vital", "terreur_nocturne"]
     ability_chance: 60
     resistances: { physical: -25, ombre: 75, lumiere: -75 }
 
@@ -351,7 +351,7 @@ monsters:
     vitesse: { mastery: 2, bonus: 0 }
     xp_value: 16
     gold_value: 12
-    abilities: ["coup_charge"]
+    abilities: ["coup_charge", "intimidation_martiale"]
     resistances: { physical: 50, ombre: 50, lumiere: -50 }
 
   # Boss étage 50
@@ -366,7 +366,7 @@ monsters:
     vitesse: { mastery: 2, bonus: 1 }
     xp_value: 60
     gold_value: 45
-    abilities: ["coup_charge", "contre_attaque"]
+    abilities: ["coup_charge", "contre_attaque", "etourdissement"]
     ability_chance: 35
     resistances: { physical: 50, magical: 25, lumiere: -25 }
 
@@ -397,7 +397,7 @@ monsters:
     vitesse: { mastery: 3, bonus: 2 }
     xp_value: 18
     gold_value: 10
-    abilities: ["cecite"]
+    abilities: ["cecite", "terreur_nocturne"]
     ability_chance: 45
     resistances: { physical: 75, ombre: 75, lumiere: -75, nature: -25 }
 
@@ -502,7 +502,7 @@ monsters:
     vitesse: { mastery: 1, bonus: 2 }
     xp_value: 26
     gold_value: 16
-    abilities: ["coup_charge"]
+    abilities: ["coup_charge", "charge_ecrasante"]
     resistances: { physical: 75, magical: 25, nature: -50 }
 
   # Boss étage 70
@@ -577,7 +577,7 @@ monsters:
     vitesse: { mastery: 2, bonus: 0 }
     xp_value: 32
     gold_value: 22
-    abilities: ["coup_charge"]
+    abilities: ["coup_charge", "charge_ecrasante"]
     resistances: { physical: 75, magical: 50, nature: -50 }
 
   dragon_jeune:
@@ -607,7 +607,7 @@ monsters:
     vitesse: { mastery: 3, bonus: 1 }
     xp_value: 110
     gold_value: 80
-    abilities: ["explosion_ardente", "mur_de_flammes"]
+    abilities: ["explosion_ardente", "mur_de_flammes", "intimidation_martiale"]
     ability_chance: 45
     resistances: { physical: 75, feu: 100, eau: -100, lumiere: -25 }
 
@@ -652,7 +652,7 @@ monsters:
     vitesse: { mastery: 3, bonus: 0 }
     xp_value: 34
     gold_value: 24
-    abilities: ["explosion_ardente", "drain_vital"]
+    abilities: ["explosion_ardente", "drain_vital", "terreur_nocturne"]
     ability_chance: 65
     resistances: { physical: -25, magical: 50, feu: 50, ombre: 50, lumiere: -25 }
 
@@ -667,7 +667,7 @@ monsters:
     vitesse: { mastery: 1, bonus: 2 }
     xp_value: 38
     gold_value: 26
-    abilities: ["coup_charge"]
+    abilities: ["coup_charge", "charge_ecrasante"]
     resistances: { physical: 75, feu: 25, nature: -50, lumiere: -25 }
 
   dragon_noir:
@@ -681,7 +681,7 @@ monsters:
     vitesse: { mastery: 4, bonus: 0 }
     xp_value: 42
     gold_value: 30
-    abilities: ["explosion_ardente", "mur_de_flammes"]
+    abilities: ["explosion_ardente", "mur_de_flammes", "intimidation_martiale"]
     ability_chance: 40
     resistances: { physical: 75, feu: 75, ombre: 50, lumiere: -75, eau: -25 }
 
@@ -712,7 +712,7 @@ monsters:
     vitesse: { mastery: 4, bonus: 0 }
     xp_value: 140
     gold_value: 100
-    abilities: ["explosion_ardente", "drain_vital", "cecite"]
+    abilities: ["explosion_ardente", "drain_vital", "cecite", "terreur_nocturne"]
     ability_chance: 50
     resistances: { physical: 75, magical: 50, ombre: 50, lumiere: -50, nature: -25 }
 
@@ -728,7 +728,7 @@ monsters:
     vitesse: { mastery: 2, bonus: 0 }
     xp_value: 44
     gold_value: 30
-    abilities: ["coup_charge"]
+    abilities: ["coup_charge", "charge_ecrasante"]
     resistances: { physical: 75, magical: 50, feu: 50, nature: -50 }
 
   archidemon:
@@ -757,7 +757,7 @@ monsters:
     vitesse: { mastery: 4, bonus: 0 }
     xp_value: 52
     gold_value: 38
-    abilities: ["rayon_sacre", "soin_leger"]
+    abilities: ["rayon_sacre", "soin_leger", "etourdissement"]
     ability_chance: 40
     resistances: { physical: 75, lumiere: 100, ombre: -75, feu: -25 }
 
@@ -788,7 +788,7 @@ monsters:
     vitesse: { mastery: 5, bonus: 0 }
     xp_value: 300
     gold_value: 500
-    abilities: ["explosion_ardente", "drain_vital", "soin_leger", "mur_de_flammes"]
+    abilities: ["explosion_ardente", "drain_vital", "soin_leger", "mur_de_flammes", "etourdissement"]
     ability_chance: 45
     resistances: { physical: 75, magical: 50, feu: 75, ombre: 50, lumiere: -25, nature: -25 }
 
