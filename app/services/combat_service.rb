@@ -1721,6 +1721,76 @@ class CombatService
     stones + others.times.count { rand(100) < soul_stone_drop_chance(cfg) }
   end
 
+  # ═══════════════════════════════════════════
+  # Tower loot (config/catalog/butin.yml)
+  # ═══════════════════════════════════════════
+
+  # Rolls the loot of a tower victory from the Fouille roll total and adds it
+  # to the inventory. Returns a list of { key, name, tier, item_type } (maybe empty):
+  # a great roll gives a second item, never a better tier.
+  def resolve_tower_loot(fouille_total)
+    cfg = GameCatalog.loot_data
+    floor = @state[:floor].to_i
+    boss = GameCatalog.floor(floor)&.dig("boss").present?
+
+    chance = loot_find_chance(cfg, fouille_total)
+    chance = [chance + cfg["boss_chance_bonus"].to_i, 100].min if boss && chance.positive?
+    return [] unless rand(100) < chance
+
+    count = fouille_total >= loot_difficulty(floor) + cfg["great_margin"].to_i ? 2 : 1
+    tier = loot_tier(cfg, floor, fouille_total, boss)
+    equipment_chance = (boss ? cfg["boss_equipment_chance"] : cfg["equipment_chance"]).to_i
+
+    Array.new(count) do
+      item_type = rand(100) < equipment_chance ? "equipment" : "item"
+      data = pick_loot(item_type, tier)
+      next unless data
+
+      add_loot_to_inventory(data, item_type)
+      { key: data["key"], name: data["name"], tier: data["tier"], item_type: item_type }
+    end.compact
+  end
+
+  def loot_find_chance(cfg, total)
+    row = (cfg["find_chance"] || []).select { |r| total >= r["min_roll"].to_i }.max_by { |r| r["min_roll"].to_i }
+    row ? row["chance"].to_i : 0
+  end
+
+  # The floor sets the tier (hard cap), +1 on a boss floor, −1 on a weak roll.
+  def loot_tier(cfg, floor, total, boss)
+    tier = 1 + ([floor, 1].max - 1) / [cfg["floors_per_tier"].to_i, 1].max
+    tier += cfg["boss_tier_bonus"].to_i if boss
+    tier -= 1 if total < loot_difficulty(floor)
+    [tier, 1].max
+  end
+
+  def loot_difficulty(floor)
+    5 + floor / 5
+  end
+
+  # A random entry of that tier, or of the highest lower tier available.
+  def pick_loot(item_type, tier)
+    pool = GameCatalog.loot_pool(item_type)
+    best = pool.map { |d| d["tier"].to_i }.select { |t| t <= tier }.max
+    best && pool.select { |d| d["tier"].to_i == best }.sample
+  end
+
+  def add_loot_to_inventory(data, item_type)
+    existing = item_type == "item" && character.inventory_items.find_by(item_key: data["key"], item_type: "item", equipped: false)
+    if existing
+      existing.update!(quantity: existing.quantity + 1)
+    else
+      character.inventory_items.create!(item_key: data["key"], item_type: item_type, quantity: 1,
+                                        equipped: false, slot: item_type == "equipment" ? data["slot"] : nil)
+    end
+  end
+
+  def loot_messages(loot)
+    return ["Butin : rien d'autre à récupérer."] if loot.blank?
+
+    loot.map { |l| "Butin : vous trouvez #{l[:name]} (T#{l[:tier]}) !" }
+  end
+
   # % chance per defeated monster to drop a soul stone, from the Fouille skill:
   # drop_chance_min at 1D, + drop_chance_per_step per skill upgrade, capped at drop_chance_max.
   def soul_stone_drop_chance(cfg = GameCatalog.enchantments_data["soul_stones"] || {})
@@ -1755,6 +1825,7 @@ class CombatService
         xp_reward = (base_xp / 2.0).ceil
         search = resolve_search_loot(base_gold)
         gold_reward = search[:gold]
+        loot = resolve_tower_loot(search[:roll])
       else
         xp_reward = base_xp
         gold_reward = base_gold
@@ -1775,9 +1846,11 @@ class CombatService
 
       @state[:log].concat(@log)
       @state[:log] << search[:message] if search
+      @state[:log].concat(loot_messages(loot)) if search
       stones_text = stones.positive? ? ", +#{stones} pierre#{'s' if stones > 1} d'âme" : ""
       @state[:log] << "Victoire ! +#{xp_reward} XP, +#{gold_reward} or#{stones_text}."
       rewards = { xp: xp_reward, gold: gold_reward, soul_stones: stones }
+      rewards[:loot] = loot if loot.present?
 
       CombatLog.create!(character: character, floor: @state[:floor], result: "victory",
                          xp_gained: xp_reward, gold_gained: gold_reward,

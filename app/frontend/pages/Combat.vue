@@ -26,6 +26,13 @@
           +{{ combat.rewards.xp }} XP, +{{ combat.rewards.gold }} Or
           <span v-if="combat.rewards.soul_stones" class="text-violet-400">, +{{ combat.rewards.soul_stones }} pierre{{ combat.rewards.soul_stones > 1 ? 's' : '' }} d'âme</span>
         </div>
+        <div v-if="combat.rewards?.loot?.length" class="flex flex-wrap items-center justify-center gap-4 mb-4">
+          <div v-for="(loot, i) in combat.rewards.loot" :key="i" class="flex items-center gap-2">
+            <ItemIcon :type="loot.item_type" :item-key="loot.key" />
+            <span class="text-emerald-300">{{ loot.name }}
+              <span class="text-stone-500 text-xs">T{{ loot.tier }}</span></span>
+          </div>
+        </div>
         <button @click="returnToTower"
           class="bg-stone-700 hover:bg-stone-600 text-white px-6 py-2 rounded-lg transition">
           Retour à la tour
@@ -257,6 +264,7 @@ import apiClient from '../plugins/axios'
 import MonsterPortrait from '../components/game/MonsterPortrait.vue'
 import FxFrame from '../components/game/FxFrame.vue'
 import DefenseToggle from '../components/game/DefenseToggle.vue'
+import ItemIcon from '../components/game/ItemIcon.vue'
 import { useCombatFx } from '../composables/useCombatFx'
 
 const gameStore = useGameStore()

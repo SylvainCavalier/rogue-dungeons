@@ -184,8 +184,22 @@ class GameCatalog
       enchantments_data.dig("effects", category) || []
     end
 
+    # Tower loot settings (butin.yml).
+    def loot_data
+      @loot_data ||= YAML.load_file(CATALOG_PATH.join("butin.yml"))
+    end
+
+    # Equipment and items that can drop as tower loot, with their tier.
+    def loot_pool(item_type)
+      if item_type == "equipment"
+        all_equipment.select { |e| e["tier"] }
+      else
+        all_items.select { |i| i["tier"] && !i["hidden"] }
+      end
+    end
+
     def reload!
-      @enchantments_data = nil
+      @enchantments_data = @loot_data = nil
       @all_equipment = @all_items = @all_techniques = @all_magics = nil
       @all_skills = @all_statuses = @all_floors = @all_monsters = nil
       @all_techniques_data = @all_magics_data = @all_statuses_data = nil

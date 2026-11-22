@@ -47,7 +47,8 @@ Two kinds of files, and the pairing matters:
 | `statuts.md` / `statuts.yml` | Status list (positive/negative) / status mechanics. |
 | `tour.md` | Floor composition (`12. 2x Bandit + Chef bandit`, boss floors as `### Étage N – Boss`). |
 | `monstres.yml` | Monster stats + `name_to_key` map (names in `tour.md` → monster keys, plural forms included). |
-| `equipement.yml`, `objets.yaml` | Equipment and consumable items. |
+| `equipement.yml`, `objets.yaml` | Equipment and consumable items. Each has a `tier` (items without one never drop as loot). |
+| `butin.yml` | Tower loot: find chance by Fouille roll, tier rules, equipment/consumable split, boss bonuses. |
 | `siege.yml` | Traps, synergies, siege monsters, waves, watchtower/workshop levels, repair costs. |
 | `taverne.yml` | Tavern games at the inn: opponent difficulty curve, rewards, stakes, opponent names. |
 | `enchantements.yml` | Enchantment roll thresholds, value ladders, costs, soul stone drop rates, effects per equipment category. |
@@ -95,7 +96,7 @@ Each character gets every skill of `Character::SKILLS_MAP` at creation, with `ma
 | Feu / Eau / Ombre / Lumière / Nature (Intelligence) | Accuracy of magics of that element | `find_player_skill_for_element` |
 | Vitesse (Dextérité) | Initiative roll (+ boots `speed_bonus`), once per fight: sets who acts before whom | `Character#initiative_roll`, `CombatService#roll_initiative!` |
 | Observation (Perception) | "Analyser" action (reveals enemy resistances) | `resolve_analyze` |
-| Fouille (Perception) | Gold multiplier after a tower victory (roll), and the soul stone drop chance per defeated monster (skill level: 5% at 1D, +2% per upgrade, max 50%) | `resolve_search_loot`, `CombatService.soul_stone_drop_chance` |
+| Fouille (Perception) | Gold multiplier and **tower loot** after a tower victory (one roll for both), and the soul stone drop chance per defeated monster (skill level: 5% at 1D, +2% per upgrade, max 50%) | `resolve_search_loot`, `CombatService.soul_stone_drop_chance` |
 | Intuition (Perception) | Each round, one roll reveals the planned action of every enemy whose difficulty (5 + 2 × its attack dice) it beats, shown on the enemy card | `plan_enemy_intents!` |
 | Sang-Froid (Perception) | Resists mental statuses inflicted by enemies (roll vs the enemy's attack roll) | `inflict_status_on_player` |
 | Bras de fer (Vigueur) | Arm wrestling tavern game at the inn | `TavernService` |
@@ -131,7 +132,8 @@ Each character gets every skill of `Character::SKILLS_MAP` at creation, with `ma
 - **Player accuracy**: weapon skill (+ weapon `accuracy_bonus`) ± status modifiers. **Magic accuracy**: element skill (fallback Intelligence), against the enemy's `esquive`.
 - **Enemies**: `ability_chance`% per turn (default `DEFAULT_ABILITY_CHANCE` = 30) to use one of their `abilities` (keys of `techniques.yml` or `magies.yml`; a `mana_cost` key means it's resolved as a magic), otherwise a basic attack. Enemy spells handled: `heal`, `damage`, `damage_status`, `drain`, `status` (opposed roll, then the status); other types fall back to a basic attack.
 - **Enemy intents (Intuition)**: each enemy's next action is decided **in advance**, at the end of every request (`plan_enemy_intents!`, called by `end_turn_with`), stored as `enemy[:intent]` and consumed when it acts (`resolve_enemy_turns`; a stunned enemy loses it). The same request rolls Intuition (fallback Perception) once: each enemy with `5 + 2 × attack mastery` ≤ roll gets `intent_known`, and the snapshot exposes `intent` (ability name or "attaque") for those only. Legacy states without an intent roll one on the spot.
-- **End** (`finish_combat`): `floor > 0` means a tower fight. Tower victory gives half the XP and gold scaled by the Fouille roll. Siege fights have no floor: full rewards, a day passes, then `SiegeService#finish_siege` applies the siege outcome. Defeat → 1 PV, tower session ends.
+- **End** (`finish_combat`): `floor > 0` means a tower fight. Tower victory gives half the XP, gold scaled by the Fouille roll, and maybe an item (below).
+- **Tower loot** (`resolve_tower_loot`, `config/catalog/butin.yml`), from the same Fouille roll: a roll under 5 finds nothing; otherwise `find_chance` by roll (15% → 75%), +`boss_chance_bonus` on boss floors. Tier = `1 + (floor − 1) / 25` (T1…T4), +1 on bosses — a **hard cap set by the floor**: a weak roll (under `5 + floor / 5`) gives −1, a great roll (beats it by `great_margin`, 10) gives a **second item**, never a better tier. Each item is equipment (25%, bosses 60%) or a consumable, picked among the catalog entries of that tier (`GameCatalog.loot_pool`, hidden/untiered items excluded; falls back to the best lower tier). Added to the inventory, logged ("Butin : …") and returned as a list in `rewards.loot` (shown on the victory screen). Siege victories don't loot. Siege fights have no floor: full rewards, a day passes, then `SiegeService#finish_siege` applies the siege outcome. Defeat → 1 PV, tower session ends.
 
 ### Technique types (`techniques.yml` → `resolve_technique`)
 

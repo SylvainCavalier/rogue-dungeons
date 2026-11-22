@@ -1,0 +1,26 @@
+# Tower loot found after a victory (CombatService#resolve_tower_loot). It uses
+# the same Fouille roll as the gold search (resolve_search_loot).
+
+# % chance to find an item, from the Fouille roll total (highest min_roll reached).
+# Under 5 the player finds nothing at all (no gold either).
+find_chance:
+  - { min_roll: 0, chance: 0 }
+  - { min_roll: 5, chance: 15 }
+  - { min_roll: 10, chance: 30 }
+  - { min_roll: 15, chance: 45 }
+  - { min_roll: 20, chance: 60 }
+  - { min_roll: 25, chance: 75 }
+boss_chance_bonus: 40 # added on boss floors (capped at 100)
+
+# Item tier = 1 + (floor − 1) / floors_per_tier (floors 1-25: T1, 26-50: T2,
+# 51-75: T3, 76-100: T4). It is a hard cap: a good roll never gives a better tier.
+floors_per_tier: 25
+boss_tier_bonus: 1 # bosses drop one tier above their floor (floor 100: T5)
+# The Fouille roll is compared to 5 + floor / 5:
+#   below → tier − 1 (min T1)
+#   at least difficulty + great_margin → one extra item (same tier rules)
+great_margin: 10
+
+# % chance that the item is a piece of equipment rather than a consumable
+equipment_chance: 25
+boss_equipment_chance: 60

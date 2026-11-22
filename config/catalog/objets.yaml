@@ -2,12 +2,14 @@
 # effect_type: heal | restore_mana | cure_status | damage | combat_buff | enemy_status | escape | xp | passive | utility
 # Combat-only types (damage, combat_buff, enemy_status, escape) can't be used outside a fight.
 # hidden: true = kept in the catalog but not sold yet (waiting for an exploration mode).
+# tier: loot tier in the tower (config/catalog/butin.yml); items without a tier never drop.
 items:
   consumables:
 
     # --- Soins ---
     - key: potion_healing_minor
       name: "Potion de soin mineure"
+      tier: 1
       category: "consumable"
       vendor: "apothecary"
       price: 15
@@ -20,6 +22,7 @@ items:
 
     - key: potion_healing
       name: "Potion de soin"
+      tier: 2
       category: "consumable"
       vendor: "apothecary"
       price: 40
@@ -32,6 +35,7 @@ items:
 
     - key: potion_healing_major
       name: "Potion de soin majeure"
+      tier: 3
       category: "consumable"
       vendor: "apothecary"
       price: 100
@@ -44,6 +48,7 @@ items:
 
     - key: potion_healing_supreme
       name: "Potion de soin suprême"
+      tier: 4
       category: "consumable"
       vendor: "apothecary"
       price: 220
@@ -56,6 +61,7 @@ items:
 
     - key: potion_mana_minor
       name: "Potion de mana mineure"
+      tier: 1
       category: "consumable"
       vendor: "apothecary"
       price: 20
@@ -68,6 +74,7 @@ items:
 
     - key: potion_mana_major
       name: "Potion de mana majeure"
+      tier: 3
       category: "consumable"
       vendor: "apothecary"
       price: 70
@@ -81,6 +88,7 @@ items:
     # --- Remèdes ---
     - key: antidote
       name: "Antidote"
+      tier: 1
       category: "consumable"
       vendor: "apothecary"
       price: 15
@@ -92,6 +100,7 @@ items:
 
     - key: smelling_salts
       name: "Sels revigorants"
+      tier: 1
       category: "consumable"
       vendor: "apothecary"
       price: 30
@@ -103,6 +112,7 @@ items:
 
     - key: remedy_universal
       name: "Remède universel"
+      tier: 2
       category: "consumable"
       vendor: "apothecary"
       price: 70
@@ -115,6 +125,7 @@ items:
     # --- Élixirs de combat (statut positif) ---
     - key: elixir_vigor
       name: "Élixir de vigueur"
+      tier: 2
       category: "consumable"
       vendor: "apothecary"
       price: 40
@@ -127,6 +138,7 @@ items:
 
     - key: elixir_dexterity
       name: "Élixir de rapidité"
+      tier: 2
       category: "consumable"
       vendor: "apothecary"
       price: 40
@@ -139,6 +151,7 @@ items:
 
     - key: elixir_intelligence
       name: "Élixir d’intelligence"
+      tier: 2
       category: "consumable"
       vendor: "apothecary"
       price: 40
@@ -152,6 +165,7 @@ items:
     # --- Objets de combat ---
     - key: explosive_vial
       name: "Fiole explosive"
+      tier: 2
       category: "consumable"
       vendor: "apothecary"
       price: 50
@@ -165,6 +179,7 @@ items:
 
     - key: blinding_bomb
       name: "Bombe aveuglante"
+      tier: 2
       category: "consumable"
       vendor: "apothecary"
       price: 45
@@ -177,6 +192,7 @@ items:
 
     - key: smoke_bomb
       name: "Fumigène"
+      tier: 1
       category: "consumable"
       price: 35
       effect_type: "escape"
@@ -187,6 +203,7 @@ items:
 
     - key: teleport_stone
       name: "Pierre de téléportation"
+      tier: 3
       category: "consumable"
       price: 80
       effect_type: "escape"
@@ -266,6 +283,7 @@ items:
 
     - key: knowledge_scroll
       name: "Parchemin de savoir"
+      tier: 4
       category: "special"
       price: 450
       effect_type: "xp"
@@ -275,6 +293,7 @@ items:
 
     - key: experience_crystal
       name: "Cristal d’expérience"
+      tier: 5
       category: "special"
       price: 900
       effect_type: "xp"
