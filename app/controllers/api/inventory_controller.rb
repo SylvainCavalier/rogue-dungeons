@@ -62,6 +62,10 @@ module Api
         return render json: { error: "Cet objet n'est pas consommable" }, status: :unprocessable_entity
       end
 
+      if CombatService::COMBAT_ONLY_ITEM_EFFECTS.include?(catalog["effect_type"])
+        return render json: { error: "#{catalog['name']} ne s'utilise qu'en combat" }, status: :unprocessable_entity
+      end
+
       result = apply_item_effect(catalog)
 
       if item.quantity > 1
@@ -108,10 +112,6 @@ module Api
       when "cure_status"
         char.update!(status: nil, status_duration: 0)
         { message: "Statuts négatifs retirés" }
-      when "damage"
-        { message: "Fiole utilisée (effet en combat uniquement)" }
-      when "buff"
-        { message: "Buff appliqué : #{catalog['notes']}" }
       when "xp"
         char.update!(xp: char.xp + catalog["value"].to_i)
         { message: "Vous gagnez #{catalog['value']} points d'expérience" }

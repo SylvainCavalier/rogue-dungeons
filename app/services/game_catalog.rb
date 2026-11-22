@@ -114,12 +114,13 @@ class GameCatalog
       all_equipment
     end
 
+    # Items with `hidden: true` stay in the catalog but are not sold (no use yet).
     def shop_items
-      all_items.reject { |i| i["vendor"] == "apothecary" }
+      all_items.reject { |i| i["vendor"] == "apothecary" || i["hidden"] }
     end
 
     def apothecary_items
-      all_items.select { |i| i["vendor"] == "apothecary" }
+      all_items.select { |i| i["vendor"] == "apothecary" && !i["hidden"] }
     end
 
     def magics_for_element(element)

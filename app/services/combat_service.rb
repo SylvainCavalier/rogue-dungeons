@@ -1,5 +1,7 @@
 class CombatService
-  COMBAT_ITEM_EFFECTS = %w[heal restore_mana cure_status damage].freeze
+  COMBAT_ITEM_EFFECTS = %w[heal restore_mana cure_status damage combat_buff enemy_status escape].freeze
+  # Item effects that only make sense in a fight (refused, not consumed, outside of one).
+  COMBAT_ONLY_ITEM_EFFECTS = %w[damage combat_buff enemy_status escape].freeze
 
   # Parry is easier to succeed than a dodge, but a successful parry still lets
   # PARRY_CHIP_DAMAGE through. A successful dodge avoids everything.
@@ -62,7 +64,13 @@ class CombatService
     roll_initiative!
     @state[:turn] = 1
     start_round_log!
-    end_turn_with { resolve_enemy_turns(faster_enemies) }
+    end_turn_with do
+      if faster_enemies.any? && (compass = character.passive_item("no_ambush"))
+        @log << "#{compass['name']} : vous évitez l'embuscade, les ennemis plus rapides n'agissent pas avant vous."
+      else
+        resolve_enemy_turns(faster_enemies)
+      end
+    end
   end
 
   def player_action(action_type, params = {})
@@ -85,6 +93,7 @@ class CombatService
         resolve_magic(params[:key])
       when "item"
         resolve_item(params[:item_id])
+        return finish_combat(:fled) if @escaped
       when "analyze"
         resolve_analyze(params)
       else
@@ -419,13 +428,16 @@ class CombatService
     when "cure_status"
       resolve_item_cure(item_data)
     when "damage"
-      target = living_enemies.first
-      if target
-        dmg = DiceRoller.roll(item_data["damage_mastery"] || 1, item_data["damage_bonus"] || 0)[:total]
-        target[:hp] = [target[:hp] - dmg, 0].max
-        @log << "Vous lancez #{item_data["name"]} sur #{target[:name]} : #{dmg} dégâts ! (#{target[:hp]}/#{target[:max_hp]} PV)"
-        @log << "#{target[:name]} est vaincu !" if target[:hp] <= 0
-      end
+      resolve_item_damage(item_data)
+    when "combat_buff"
+      apply_status_to_player(item_data["status"], item_data["status_duration"] || 3)
+      @log << "Vous buvez #{item_data["name"]} : vous êtes #{item_data["status"]} (#{item_data["status_duration"] || 3} tours)."
+    when "enemy_status"
+      targets = item_data["target"] == "all_enemies" ? living_enemies : living_enemies.first(1)
+      targets.each { |t| apply_status_to_enemy(t, item_data["status"], item_data["status_duration"] || 2) }
+      @log << "Vous lancez #{item_data["name"]} : #{targets.map { |t| t[:name] }.join(', ')} #{targets.size > 1 ? 'sont' : 'est'} #{item_data["status"]} !"
+    when "escape"
+      return unless resolve_item_escape(item_data)
     end
 
     if inv_item.quantity > 1
@@ -435,10 +447,44 @@ class CombatService
     end
   end
 
+  # Fire/elemental damage from a thrown item, on one or every enemy (elemental resistances apply).
+  def resolve_item_damage(item_data)
+    targets = item_data["target"] == "all_enemies" ? living_enemies : living_enemies.first(1)
+    @log << "Vous lancez #{item_data["name"]} !"
+    targets.each do |target|
+      raw = DiceRoller.roll(item_data["damage_mastery"] || 1, item_data["damage_bonus"] || 0)[:total]
+      mod = apply_target_resistance(raw, target, :magical, item_data["element"])
+      dmg = mod[:immune] ? 0 : [mod[:damage], 1].max
+      target[:hp] = [target[:hp] - dmg, 0].max
+      @log << "#{target[:name]} subit #{dmg} dégâts#{mod[:descriptor]} (#{target[:hp]}/#{target[:max_hp]} PV)"
+      @log << "#{target[:name]} est vaincu !" if target[:hp] <= 0
+    end
+  end
+
+  # Guaranteed flee. Returns false (item kept) when it can't work here.
+  def resolve_item_escape(item_data)
+    floor = @state[:floor].to_i
+    if floor.zero?
+      @log << "#{item_data["name"]} : impossible de fuir pendant un siège."
+      return false
+    end
+    if !item_data["works_on_boss"] && GameCatalog.floor(floor)&.dig("boss")
+      @log << "#{item_data["name"]} est sans effet face à un boss."
+      return false
+    end
+
+    @log << "Vous utilisez #{item_data["name"]} et disparaissez du combat !"
+    @escaped = true
+  end
+
   def resolve_item_cure(item_data)
     wanted = item_data["status_removed"]
     statuses = @state[:player_statuses] || []
-    cured = statuses.select { |s| wanted == "any_negative" ? status_is_negative?(s[:name]) : s[:name] == wanted }
+    cured = statuses.select do |s|
+      if wanted == "any_negative" then status_is_negative?(s[:name])
+      else Array(wanted).include?(s[:name])
+      end
+    end
     @state[:player_statuses] = statuses - cured
     @log << if cured.any?
               "Vous utilisez #{item_data['name']} : statuts retirés (#{cured.pluck(:name).join(', ')})."
@@ -1101,6 +1147,7 @@ class CombatService
   def resolve_enemy_technique_ability(enemy, tech)
     att_m = enemy[:attack][:mastery]
     att_b = enemy[:attack][:bonus] + (tech["accuracy_bonus"] || 0)
+    apply_enemy_status_mods_attack(enemy, att_m, att_b) => { mastery: att_m, bonus: att_b }
     def_m, def_b = player_defense_vs(enemy)
 
     hit = DiceRoller.opposed_roll(att_m, att_b, def_m, def_b)
@@ -1132,8 +1179,7 @@ class CombatService
   end
 
   def resolve_enemy_magic_ability(enemy, magic)
-    acc_m = enemy[:attack][:mastery]
-    acc_b = enemy[:attack][:bonus]
+    apply_enemy_status_mods_attack(enemy, enemy[:attack][:mastery], enemy[:attack][:bonus]) => { mastery: acc_m, bonus: acc_b }
 
     case magic["type"]
     when "heal"
@@ -1197,6 +1243,7 @@ class CombatService
     if MENTAL_STATUSES.include?(status_name)
       skill = character.skills.find_by(name: "Sang-Froid")
       mastery, bonus = skill ? [skill.mastery, skill.bonus] : [character.perception, 0]
+      bonus += character.passive_item("sang_froid_bonus")&.dig("value").to_i
       own = DiceRoller.roll(mastery, bonus)[:total]
       against = DiceRoller.roll(enemy[:attack][:mastery], enemy[:attack][:bonus])[:total]
       label = "Sang-Froid (#{DiceRoller.notation(mastery, bonus)}) : #{own} vs #{against}"

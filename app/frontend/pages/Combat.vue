@@ -270,7 +270,7 @@ const logContainer = ref(null)
 const learnedTechniques = ref([])
 const learnedMagics = ref([])
 const usableItems = ref([])
-const COMBAT_ITEM_EFFECTS = ['heal', 'restore_mana', 'cure_status', 'damage']
+const COMBAT_ITEM_EFFECTS = ['heal', 'restore_mana', 'cure_status', 'damage', 'combat_buff', 'enemy_status', 'escape']
 const weaponType = ref(null)
 
 const isFinished = computed(() =>

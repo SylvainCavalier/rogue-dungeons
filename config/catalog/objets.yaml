@@ -1,131 +1,227 @@
+# Items sold at the shop and the apothecary (vendor: "apothecary").
+# effect_type: heal | restore_mana | cure_status | damage | combat_buff | enemy_status | escape | xp | passive | utility
+# Combat-only types (damage, combat_buff, enemy_status, escape) can't be used outside a fight.
+# hidden: true = kept in the catalog but not sold yet (waiting for an exploration mode).
 items:
   consumables:
 
+    # --- Soins ---
     - key: potion_healing_minor
       name: "Potion de soin mineure"
       category: "consumable"
       vendor: "apothecary"
-      price: 25
+      price: 15
       effect_type: "heal"
       value: 1
       heal_mastery: 1
       target: "self"
       consumable: true
-      notes: "Rend 1D6 + 1 PV."
+      notes: "Rend 1D+1 PV."
+
+    - key: potion_healing
+      name: "Potion de soin"
+      category: "consumable"
+      vendor: "apothecary"
+      price: 40
+      effect_type: "heal"
+      value: 2
+      heal_mastery: 2
+      target: "self"
+      consumable: true
+      notes: "Rend 2D+2 PV."
 
     - key: potion_healing_major
       name: "Potion de soin majeure"
       category: "consumable"
       vendor: "apothecary"
-      price: 90
+      price: 100
       effect_type: "heal"
-      value: 3
-      heal_mastery: 2
+      value: 2
+      heal_mastery: 4
       target: "self"
       consumable: true
-      notes: "Rend 2D6 + 3 PV."
+      notes: "Rend 4D+2 PV."
+
+    - key: potion_healing_supreme
+      name: "Potion de soin suprême"
+      category: "consumable"
+      vendor: "apothecary"
+      price: 220
+      effect_type: "heal"
+      value: 4
+      heal_mastery: 6
+      target: "self"
+      consumable: true
+      notes: "Rend 6D+4 PV."
 
     - key: potion_mana_minor
       name: "Potion de mana mineure"
       category: "consumable"
       vendor: "apothecary"
-      price: 35
+      price: 20
       effect_type: "restore_mana"
       value: 1
       heal_mastery: 1
       target: "self"
       consumable: true
-      notes: "Rend 1D6 + 1 mana."
+      notes: "Rend 1D+1 mana."
 
+    - key: potion_mana_major
+      name: "Potion de mana majeure"
+      category: "consumable"
+      vendor: "apothecary"
+      price: 70
+      effect_type: "restore_mana"
+      value: 2
+      heal_mastery: 3
+      target: "self"
+      consumable: true
+      notes: "Rend 3D+2 mana."
+
+    # --- Remèdes ---
     - key: antidote
       name: "Antidote"
       category: "consumable"
       vendor: "apothecary"
-      price: 20
+      price: 15
       effect_type: "cure_status"
-      status_removed: "Empoisonné"
+      status_removed: ["Empoisonné", "Saignement"]
       target: "self"
       consumable: true
-      notes: "Retire le statut Empoisonné."
+      notes: "Retire Empoisonné et Saignement."
+
+    - key: smelling_salts
+      name: "Sels revigorants"
+      category: "consumable"
+      vendor: "apothecary"
+      price: 30
+      effect_type: "cure_status"
+      status_removed: ["Étourdi", "Paralysé", "Terrorisé", "Confus", "Aveuglé"]
+      target: "self"
+      consumable: true
+      notes: "Retire les statuts mentaux (Étourdi, Paralysé, Terrorisé, Confus, Aveuglé)."
 
     - key: remedy_universal
       name: "Remède universel"
       category: "consumable"
       vendor: "apothecary"
-      price: 120
+      price: 70
       effect_type: "cure_status"
       status_removed: "any_negative"
       target: "self"
       consumable: true
       notes: "Retire tous les statuts négatifs."
 
+    # --- Élixirs de combat (statut positif) ---
     - key: elixir_vigor
       name: "Élixir de vigueur"
       category: "consumable"
       vendor: "apothecary"
-      price: 150
-      effect_type: "buff"
-      stat: "vigueur"
-      value: 1
-      duration_days: 3
+      price: 40
+      effect_type: "combat_buff"
+      status: "Protégé"
+      status_duration: 3
       target: "self"
       consumable: true
-      notes: "+1 Vigueur pendant 3 jours."
-
-    - key: elixir_intelligence
-      name: "Élixir d’intelligence"
-      category: "consumable"
-      vendor: "apothecary"
-      price: 150
-      effect_type: "buff"
-      stat: "intelligence"
-      value: 1
-      duration_days: 3
-      target: "self"
-      consumable: true
-      notes: "+1 Intelligence pendant 3 jours."
+      notes: "En combat : Protégé pendant 3 tours (+1D de réduction des dégâts)."
 
     - key: elixir_dexterity
       name: "Élixir de rapidité"
       category: "consumable"
       vendor: "apothecary"
-      price: 150
-      effect_type: "buff"
-      stat: "dexterite"
-      value: 1
-      duration_days: 3
+      price: 40
+      effect_type: "combat_buff"
+      status: "Accéléré"
+      status_duration: 3
       target: "self"
       consumable: true
-      notes: "+1 Dextérité pendant 3 jours."
+      notes: "En combat : Accéléré pendant 3 tours (+1 en défense)."
 
-    - key: smoke_bomb
-      name: "Fumigène"
+    - key: elixir_intelligence
+      name: "Élixir d’intelligence"
       category: "consumable"
-      price: 60
-      effect_type: "utility"
-      utility_type: "escape_bonus"
-      value: 2
+      vendor: "apothecary"
+      price: 40
+      effect_type: "combat_buff"
+      status: "Concentré"
+      status_duration: 3
       target: "self"
       consumable: true
-      notes: "Bonus de +2 pour fuir un combat."
+      notes: "En combat : Concentré pendant 3 tours (+1D en précision)."
 
+    # --- Objets de combat ---
     - key: explosive_vial
       name: "Fiole explosive"
       category: "consumable"
       vendor: "apothecary"
-      price: 80
+      price: 50
       effect_type: "damage"
-      damage_mastery: 1
-      damage_bonus: 2
-      target: "enemy"
+      damage_mastery: 2
+      damage_bonus: 0
+      element: "feu"
+      target: "all_enemies"
       consumable: true
-      notes: "Inflige 1D6 + 2 dégâts directs."
+      notes: "En combat : 2D dégâts de feu à tous les ennemis."
+
+    - key: blinding_bomb
+      name: "Bombe aveuglante"
+      category: "consumable"
+      vendor: "apothecary"
+      price: 45
+      effect_type: "enemy_status"
+      status: "Aveuglé"
+      status_duration: 2
+      target: "all_enemies"
+      consumable: true
+      notes: "En combat : tous les ennemis sont Aveuglés pendant 2 tours (-2D en précision)."
+
+    - key: smoke_bomb
+      name: "Fumigène"
+      category: "consumable"
+      price: 35
+      effect_type: "escape"
+      works_on_boss: false
+      target: "self"
+      consumable: true
+      notes: "En combat : fuite garantie (sauf contre un boss, ni pendant un siège)."
+
+    - key: teleport_stone
+      name: "Pierre de téléportation"
+      category: "consumable"
+      price: 80
+      effect_type: "escape"
+      works_on_boss: true
+      target: "self"
+      consumable: true
+      notes: "En combat : fuite garantie, même face à un boss (pas pendant un siège)."
 
   utilities:
 
+    # --- Objets passifs : agissent tant qu'ils sont dans l'inventaire ---
+    - key: compass_enchanted
+      name: "Boussole enchantée"
+      category: "utility"
+      price: 120
+      effect_type: "passive"
+      passive: "no_ambush"
+      consumable: false
+      notes: "Passif : les ennemis plus rapides ne peuvent plus agir avant votre premier tour."
+
+    - key: protective_talisman
+      name: "Talisman protecteur"
+      category: "utility"
+      price: 100
+      effect_type: "passive"
+      passive: "sang_froid_bonus"
+      value: 2
+      consumable: false
+      notes: "Passif : +2 au Sang-Froid contre les statuts mentaux."
+
+    # --- Exploration (masqués tant que le mode n'existe pas) ---
     - key: torch
       name: "Torche"
       category: "utility"
+      hidden: true
       price: 10
       effect_type: "utility"
       utility_type: "reveal_hidden"
@@ -136,59 +232,42 @@ items:
     - key: rope
       name: "Corde solide"
       category: "utility"
+      hidden: true
       price: 15
       effect_type: "utility"
       utility_type: "exploration_bonus"
       value: 1
       consumable: false
-      notes: "Peut débloquer certains passages."
+      notes: "Peut débloquer certains passages (Escalade)."
 
     - key: lockpick
       name: "Crochet de voleur"
       category: "utility"
+      hidden: true
       price: 25
       effect_type: "utility"
       utility_type: "unlock_bonus"
       value: 2
       consumable: false
-      notes: "Bonus pour ouvrir des coffres."
+      notes: "Bonus pour ouvrir des coffres (Discrétion)."
 
-    - key: teleport_stone
-      name: "Pierre de téléportation"
+    - key: incomplete_map
+      name: "Carte incomplète"
       category: "utility"
-      price: 300
+      hidden: true
+      price: 60
       effect_type: "utility"
-      utility_type: "return_town"
-      consumable: true
-      notes: "Permet de quitter la tour instantanément."
-
-    - key: compass_enchanted
-      name: "Boussole enchantée"
-      category: "utility"
-      price: 180
-      effect_type: "utility"
-      utility_type: "navigation_bonus"
-      value: 2
-      consumable: false
-      notes: "Réduit les risques d’embuscade."
-
-    - key: protective_talisman
-      name: "Talisman protecteur"
-      category: "utility"
-      price: 220
-      effect_type: "buff"
-      stat: "resistance"
+      utility_type: "reduce_unknown_event"
       value: 1
-      duration_days: 5
-      consumable: true
-      notes: "+1 résistance pendant 5 jours."
+      consumable: false
+      notes: "Réduit les risques d’événements aléatoires dangereux."
 
   special:
 
-    - key: soul_fragment
-      name: "Fragment d’âme"
+    - key: knowledge_scroll
+      name: "Parchemin de savoir"
       category: "special"
-      price: 500
+      price: 450
       effect_type: "xp"
       value: 50
       consumable: true
@@ -206,7 +285,8 @@ items:
     - key: mysterious_key
       name: "Clé mystérieuse"
       category: "special"
-      price: 200
+      hidden: true
+      price: 150
       effect_type: "utility"
       utility_type: "unlock_special"
       consumable: false
@@ -215,17 +295,8 @@ items:
     - key: ancient_relic
       name: "Relique ancienne"
       category: "special"
-      price: 1200
+      hidden: true
+      price: 400
       effect_type: "special"
       consumable: false
       notes: "Objet rare utilisé dans certains événements."
-
-    - key: incomplete_map
-      name: "Carte incomplète"
-      category: "special"
-      price: 150
-      effect_type: "utility"
-      utility_type: "reduce_unknown_event"
-      value: 1
-      consumable: false
-      notes: "Réduit les risques d’événements aléatoires dangereux."

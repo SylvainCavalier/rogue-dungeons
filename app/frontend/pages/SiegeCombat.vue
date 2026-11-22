@@ -246,7 +246,8 @@ const logContainer = ref(null)
 const learnedTechniques = ref([])
 const learnedMagics = ref([])
 const usableItems = ref([])
-const COMBAT_ITEM_EFFECTS = ['heal', 'restore_mana', 'cure_status', 'damage']
+// Escape items don't work during a siege
+const COMBAT_ITEM_EFFECTS = ['heal', 'restore_mana', 'cure_status', 'damage', 'combat_buff', 'enemy_status']
 const weaponType = ref(null)
 
 const siegePending = computed(() => {

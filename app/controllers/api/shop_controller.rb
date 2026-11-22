@@ -19,7 +19,7 @@ module Api
       quantity = (params[:quantity] || 1).to_i
       item_type = params[:item_type]
       catalog = item_type == "equipment" ? GameCatalog.equipment(key) : GameCatalog.item(key)
-      unless catalog
+      unless catalog && !catalog["hidden"]
         return render json: { error: "Objet inconnu" }, status: :not_found
       end
 

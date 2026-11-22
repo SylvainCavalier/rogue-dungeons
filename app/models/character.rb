@@ -224,6 +224,14 @@ class Character < ApplicationRecord
     equipped_weapon&.enchantment_effect
   end
 
+  # Passive item (effect_type "passive") carried in the inventory, e.g. "no_ambush".
+  def passive_item(passive_key)
+    inventory_items.where(item_type: "item").find do |item|
+      data = catalog_for(item)
+      data && data["effect_type"] == "passive" && data["passive"] == passive_key
+    end&.then { |item| catalog_for(item) }
+  end
+
   # Sum of a catalog field over equipped items (esquive_bonus, parade_bonus, flee_bonus, speed_bonus…).
   def equipment_bonus(field)
     inventory_items.where(equipped: true).sum { |item| catalog_for(item)&.dig(field).to_i }

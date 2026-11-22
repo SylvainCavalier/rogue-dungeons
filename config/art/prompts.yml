@@ -189,13 +189,18 @@ groups:
     output_width: 256
     items:
       potion_healing_minor: a small round glass flask of bright red healing potion, cork stopper
+      potion_healing: a medium round glass bottle of deep red healing potion, cork stopper tied with twine
+      potion_healing_supreme: a tall majestic crystal flask of radiant ruby healing potion with golden light swirling inside, ornate golden stopper
       potion_healing_major: a large ornate glass bottle of glowing crimson healing potion, wax-sealed with gold filigree
       potion_mana_minor: a small round glass flask of glowing blue mana potion, cork stopper
+      potion_mana_major: a large ornate glass bottle of glowing deep blue mana potion, silver filigree and wax seal
       antidote: a slim vial of green antidote liquid with a leaf tied to its neck by string
+      smelling_salts: a small open silver box of pale crystalline smelling salts, faint white vapor rising
       remedy_universal: an ornate crystal vial of shimmering golden remedy with a silver cap
       elixir_vigor: a tall flask of thick orange-red elixir with a bull emblem on its label-less glass
       elixir_intelligence: a tall elegant flask of violet elixir with swirling sparkles inside
       elixir_dexterity: a slim tall flask of bright yellow-green elixir with a feather tied to it
+      blinding_bomb: a round glass bomb filled with glowing white powder, short fuse, bright flash sparkling inside
       smoke_bomb: a round clay smoke bomb with a short fuse, wisps of grey smoke
       explosive_vial: a glass vial of bubbling orange alchemical liquid with a lit fuse, sparks
       torch: a wooden torch wrapped in oiled cloth, burning with a warm flame
@@ -204,7 +209,7 @@ groups:
       teleport_stone: a smooth polished stone engraved with a glowing teal teleportation rune
       compass_enchanted: an enchanted brass compass with a glowing blue needle and arcane symbols
       protective_talisman: a protective talisman amulet of silver with a blue gem on a leather cord
-      soul_fragment: a floating shard of ghostly pale blue soul energy, ethereal wisps
+      knowledge_scroll: a rolled parchment scroll of ancient knowledge tied with a red ribbon, faint golden runes glowing on the visible edge
       experience_crystal: a radiant golden crystal cluster glowing with inner light
       mysterious_key: an ornate ancient black iron key with a glowing purple gem in its bow
       ancient_relic: an ancient ornate golden reliquary casket encrusted with gems and strange glyphs, faint magical glow seeping from its lid
@@ -234,6 +239,7 @@ groups:
 # Not read by art:generate (outside `groups`).
 archived:
   items:
+    soul_fragment: a floating shard of ghostly pale blue soul energy, ethereal wisps
     club_primitive: a primitive wooden club studded with rough stones and bone shards, shown diagonally from bottom-left to top-right filling the frame
     hammer_arms: a massive steel war hammer with a square head and a long iron-banded handle, shown diagonally from bottom-left to top-right filling the frame
     sling: a simple leather sling with a smooth stone in its pouch, shown diagonally from bottom-left to top-right filling the frame

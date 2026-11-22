@@ -104,7 +104,12 @@ export function useCombatFx() {
       const item = ctx.items.find(i => i.id === params.item_id)
       const effect = item?.data?.effect_type || item?.data?.effect || ''
       if (effect === 'restore_mana' || effect === 'mana') return { kind: 'mana', scope: 'self' }
-      if (effect.startsWith('damage')) return { kind: 'explosion', scope: 'target' }
+      if (effect.startsWith('damage')) {
+        return { kind: 'explosion', scope: item?.data?.target === 'all_enemies' ? 'all' : 'target', element: item?.data?.element }
+      }
+      if (effect === 'enemy_status') return { kind: 'light', scope: 'all', silent: true }
+      if (effect === 'combat_buff') return { kind: 'shield', scope: 'self' }
+      if (effect === 'escape') return null
       return { kind: 'heal', scope: 'self' }
     }
 
