@@ -1,13 +1,12 @@
 class WorkService
-  # A day of work earns `roll × GOLD_PER_POINT` gold. Each workplace uses its own skill
-  # (see Character#work_roll) and suffers -30% when its building is damaged.
-  GOLD_PER_POINT = 5
+  # A day of work earns `roll × gold_per_point` gold (set per workplace). Each workplace
+  # uses its own skill (see Character#work_roll) and suffers -30% when its building is damaged.
   DAMAGED_MULTIPLIER = 0.7
 
   WORKPLACES = {
-    "forge" => { skill: "Forge", damaged: "forge endommagée",
+    "forge" => { skill: "Forge", gold_per_point: 3, damaged: "forge endommagée",
                  destroyed: "La forge est détruite, réparez-la d'abord" },
-    "apothecary" => { skill: "Alchimie", damaged: "apothicaire endommagé",
+    "apothecary" => { skill: "Alchimie", gold_per_point: 3, damaged: "apothicaire endommagé",
                       destroyed: "L'apothicaire est détruit, réparez-le d'abord" }
   }.freeze
 
@@ -15,8 +14,9 @@ class WorkService
   def self.info(character, place)
     mastery, bonus = character.work_roll(place)
     damage_level = character.building_damage[place].to_i
-    min_gold = (mastery + bonus) * GOLD_PER_POINT
-    max_gold = ((mastery * 6) + bonus) * GOLD_PER_POINT
+    per_point = WORKPLACES.dig(place, :gold_per_point)
+    min_gold = (mastery + bonus) * per_point
+    max_gold = ((mastery * 6) + bonus) * per_point
     if damage_level == 1
       min_gold = (min_gold * DAMAGED_MULTIPLIER).ceil
       max_gold = (max_gold * DAMAGED_MULTIPLIER).ceil
@@ -25,6 +25,7 @@ class WorkService
     {
       notation: DiceRoller.notation(mastery, bonus),
       skill: WORKPLACES.dig(place, :skill),
+      gold_per_point: per_point,
       min_gold: min_gold,
       max_gold: max_gold,
       damage_level: damage_level,
@@ -48,7 +49,7 @@ class WorkService
 
     mastery, bonus = @character.work_roll(@place)
     roll = DiceRoller.roll(mastery, bonus)
-    gold_earned = roll[:total] * GOLD_PER_POINT
+    gold_earned = roll[:total] * workplace[:gold_per_point]
     gold_earned = (gold_earned * DAMAGED_MULTIPLIER).ceil if damage_level == 1
 
     @character.update!(gold: @character.gold + gold_earned)

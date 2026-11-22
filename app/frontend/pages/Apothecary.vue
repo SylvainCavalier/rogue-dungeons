@@ -112,7 +112,7 @@
               {{ workInfo?.min_gold || 0 }} – {{ workInfo?.max_gold || 0 }} or
             </p>
             <p class="text-stone-500 text-xs mt-1">
-              Jet d'Alchimie ({{ workInfo?.notation || '1D' }}) × 5 or
+              Jet d'Alchimie ({{ workInfo?.notation || '1D' }}) × {{ workInfo?.gold_per_point || 0 }} or
               <span v-if="workInfo?.damage_level === 1" class="text-red-400">(apothicaire endommagé : -30%)</span>
             </p>
           </div>

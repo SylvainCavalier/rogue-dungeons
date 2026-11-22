@@ -82,8 +82,8 @@ Each character gets every skill of `Character::SKILLS_MAP` at creation, with `ma
 
 | Skill (category) | Used for | Where |
 |---|---|---|
-| Forge (Vigueur) | Gold earned working at the forge (roll × 5 gold) | `WorkService`, `Character#forge_roll`, `ForgeController` |
-| Alchimie (Intelligence) | Gold earned working at the apothecary (roll × 5 gold) | `WorkService`, `Character#alchemy_roll`, `ApothecaryController` |
+| Forge (Vigueur) | Gold earned working at the forge (roll × 3 gold) | `WorkService`, `Character#forge_roll`, `ForgeController` |
+| Alchimie (Intelligence) | Gold earned working at the apothecary (roll × 3 gold) | `WorkService`, `Character#alchemy_roll`, `ApothecaryController` |
 | Arc (Dextérité) | Accuracy with `arme_a_distance` (all ranged weapons are `two_handed` for the shield rule, but keep using Arc) | `CombatService#weapon_skill_name` |
 | Arme à une main (Dextérité) | Accuracy with one-handed melee (and default) | same |
 | Arme à deux mains (Dextérité) | Accuracy with `two_handed: true` melee (can't be equipped with a shield: equipping one unequips the other, `InventoryController#free_hands_for`) | same |
@@ -142,7 +142,7 @@ Applied as `{ name, remaining }` on the player or an enemy; re-applying refreshe
 
 ## Town, time and siege
 
-- Work (`WorkService`, `POST /api/town/work` with `place`): a day at the forge (Forge skill) or the apothecary (Alchimie skill) earns `roll × 5` gold. Add a workplace in `WorkService::WORKPLACES` + `Character#work_roll`.
+- Work (`WorkService`, `POST /api/town/work` with `place`): a day at the forge (Forge skill) or the apothecary (Alchimie skill) earns `roll × gold_per_point` gold (forge 3, apothecary 3). Add a workplace in `WorkService::WORKPLACES` + `Character#work_roll`.
 - Shops: the apothecary sells catalog items with `vendor: "apothecary"` (`GameCatalog.apothecary_items`), the shop sells the other items; both buy/sell through `ShopController`.
 - Time: `Character#advance_day` (7 days/week, 4 weeks/month, 12 months). Working, the inn, learning days and entering the tower (once per tower session) each cost a day. A new week triggers a pending **siege** (`siege_state`).
 - Buildings (`SiegeService::BUILDINGS`: `shop academy guild forge watchtower workshop apothecary`) can be damaged (penalties: −30% forge gold, +2 learning days) or destroyed (unusable) by sieges; repaired with gold.
