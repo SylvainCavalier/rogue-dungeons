@@ -22,6 +22,9 @@ cost:
   gold_per_tier: 40
   soul_stones_per_tier: 1
 
+# Resale: half the catalog price, + this % of the catalog price per enchantment level
+sell_bonus_percent_per_level: 10
+
 # Soul stones dropped by monsters (tower and siege victories)
 soul_stones:
   drop_chance_percent: 10 # per defeated monster

@@ -47,6 +47,8 @@ Rails.application.routes.draw do
     get "town/status", to: "town#status"
     post "town/work", to: "town#work"
     post "town/inn", to: "town#inn"
+    get "town/tavern", to: "tavern#index"
+    post "town/tavern/play", to: "tavern#play"
     post "town/academy/start", to: "town#academy_start"
     post "town/academy/advance", to: "town#academy_advance"
     post "town/guild/start", to: "town#guild_start"

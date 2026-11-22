@@ -112,6 +112,11 @@ class Character < ApplicationRecord
     siege_triggered
   end
 
+  # Days elapsed since the start of the game (1 = first day), used for daily limits.
+  def absolute_day
+    ((((year - 1) * MONTHS_PER_YEAR * WEEKS_PER_MONTH) + ((month - 1) * WEEKS_PER_MONTH) + (week - 1)) * DAYS_PER_WEEK) + day
+  end
+
   def formatted_date
     "Jour #{day}, Semaine #{week}, Mois #{month}, Année #{year}"
   end

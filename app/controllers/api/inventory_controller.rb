@@ -131,6 +131,7 @@ module Api
         equipped: inv_item.equipped,
         slot: inv_item.slot,
         enchantment: inv_item.enchantment_effect,
+        sell_price: inv_item.sell_price,
         data: catalog
       }
     end

@@ -26,6 +26,15 @@ class InventoryItem < ApplicationRecord
     equipped
   end
 
+  # Price paid by the shop/forge for one unit: half the catalog price, plus
+  # `sell_bonus_percent_per_level`% of the catalog price per enchantment level.
+  def sell_price
+    price = catalog_data&.dig("price").to_i
+    level = enchantment_effect&.dig(:level).to_i
+    bonus = price * level * GameCatalog.enchantments_data["sell_bonus_percent_per_level"].to_i / 100.0
+    (price / 2.0).ceil + bonus.ceil
+  end
+
   # Resolved enchantment ({ key, name, level, ladder, mastery, bonus, percent, label })
   # from the stored { "effect", "level" } and the current catalog values.
   def enchantment_effect

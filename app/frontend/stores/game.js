@@ -12,6 +12,7 @@ export const useGameStore = defineStore('game', {
     apothecary: { items: [], work: null },
     availableMagics: {},
     availableTechniques: {},
+    tavern: { games: [] },
     enchantments: { items: [], thresholds: [], soul_stones: 0 },
     townStatus: null,
     towerInfo: null,
@@ -258,6 +259,27 @@ export const useGameStore = defineStore('game', {
           this.character.date = data.date
         }
         this.notify(data.message, 'success')
+        return data
+      } catch (e) {
+        this.notify(e.response?.data?.error || 'Erreur', 'error')
+        throw e
+      }
+    },
+
+    async fetchTavern() {
+      const { data } = await apiClient.get('/town/tavern')
+      this.tavern = data
+      return data
+    },
+
+    async playTavernGame(game) {
+      try {
+        const { data } = await apiClient.post('/town/tavern/play', { game })
+        const tone = { victory: 'success', defeat: 'error' }[data.outcome] || 'info'
+        this.notify(data.message, tone)
+        if (this.character) this.character.gold = data.gold
+        const idx = this.tavern.games.findIndex(g => g.key === game)
+        if (idx !== -1) this.tavern.games[idx] = data.game
         return data
       } catch (e) {
         this.notify(e.response?.data?.error || 'Erreur', 'error')

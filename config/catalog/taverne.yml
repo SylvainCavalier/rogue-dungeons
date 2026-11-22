@@ -1,0 +1,44 @@
+# Tavern games at the inn (TavernService). Each game can be played once per day
+# and does not make time pass. Opposed roll: player skill vs opponent dice.
+# Win → reward, loss → the stake is lost, tie → nothing changes.
+# Each win raises the opponent by +1 bonus (3 bonus = +1D, like a skill upgrade).
+difficulty:
+  base_mastery: 1
+  base_bonus: 0
+  bonus_per_win: 1
+
+reward:
+  base_gold: 15
+  gold_per_win: 5
+
+stake:
+  base_gold: 5
+  gold_per_win: 2
+
+games:
+  arm_wrestling:
+    name: "Bras de fer"
+    skill: "Bras de fer"
+    description: "Coudes sur la table, le premier qui plie le bras de l'autre empoche la mise."
+    opponents:
+      - "Bertil le palefrenier"
+      - "Hilda la meunière"
+      - "Torvald le bûcheron"
+      - "Brok le forgeron"
+      - "Sergente Maud, de la garde"
+      - "Ragnar le mercenaire"
+      - "Grumm le demi-ogre"
+      - "Le champion de la taverne"
+  drinking:
+    name: "Concours de boisson"
+    skill: "Résistance à l'alcool"
+    description: "Chope après chope, le dernier debout gagne. L'aubergiste garde les comptes."
+    opponents:
+      - "Le vieux Tom"
+      - "Mère Agathe"
+      - "Frère Anselme, moine brasseur"
+      - "Dorn le nain"
+      - "Capitaine Mira"
+      - "Olaf le marin"
+      - "Gorbag l'orque"
+      - "Le tonneau vivant"

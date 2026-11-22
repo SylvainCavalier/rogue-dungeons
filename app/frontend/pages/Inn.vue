@@ -45,6 +45,46 @@
           Or insuffisant.
         </p>
       </div>
+
+      <!-- Tavern games -->
+      <h2 class="text-lg font-semibold text-amber-400 mt-8 mb-1 animate-fade-in-up stagger-2">Jeux de taverne</h2>
+      <p class="text-stone-500 text-sm mb-4 animate-fade-in-up stagger-2">
+        Une partie par jour pour chaque jeu, sans faire passer le temps. Chaque victoire attire un adversaire un peu plus coriace.
+      </p>
+      <div class="grid md:grid-cols-2 gap-4">
+        <div v-for="(game, i) in gameStore.tavern.games" :key="game.key"
+          class="card p-5 flex flex-col animate-fade-in-up" :class="`stagger-${i + 3}`">
+          <h3 class="text-amber-300 font-semibold">{{ game.name }}</h3>
+          <p class="text-stone-500 text-xs mt-1 mb-4 leading-snug">{{ game.description }}</p>
+
+          <div class="bg-stone-800 rounded-lg p-3 text-sm space-y-1.5 mb-4">
+            <div class="flex justify-between gap-2">
+              <span class="text-stone-400">Vous ({{ game.skill }})</span>
+              <span class="text-stone-200 font-semibold">{{ game.notation }}</span>
+            </div>
+            <div class="flex justify-between gap-2">
+              <span class="text-stone-400 truncate">{{ game.opponent }}</span>
+              <span class="text-red-300 font-semibold flex-shrink-0">{{ game.opponent_notation }}</span>
+            </div>
+            <div class="flex justify-between gap-2 text-xs pt-1 border-t border-stone-700">
+              <span class="text-green-400">Gain : {{ game.reward }} or</span>
+              <span class="text-red-400">Mise perdue : {{ game.stake }} or</span>
+            </div>
+          </div>
+
+          <p class="text-stone-600 text-xs mb-3">Adversaires battus : {{ game.wins }}</p>
+          <p v-if="lastResults[game.key]" class="text-xs mb-3 leading-snug"
+            :class="{ victory: 'text-green-400', defeat: 'text-red-400', draw: 'text-stone-300' }[lastResults[game.key].outcome]">
+            {{ lastResults[game.key].message }}
+          </p>
+
+          <button @click="play(game)"
+            :disabled="game.played_today || playing === game.key || (gameStore.character?.gold || 0) < game.stake"
+            class="mt-auto bg-amber-700 hover:bg-amber-600 text-white font-medium px-4 py-2 rounded-lg transition disabled:opacity-40 disabled:cursor-not-allowed active:scale-95">
+            {{ game.played_today ? 'Revenez demain' : (playing === game.key ? 'En cours...' : 'Défier') }}
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- Confirmation modal -->
@@ -88,6 +128,21 @@ const router = useRouter()
 const showModal = ref(false)
 const sleeping = ref(false)
 
+const playing = ref(null)
+const lastResults = ref({})
+
+async function play(game) {
+  playing.value = game.key
+  try {
+    const result = await gameStore.playTavernGame(game.key)
+    lastResults.value = { ...lastResults.value, [game.key]: result }
+  } catch {
+    // error already notified by the store
+  } finally {
+    playing.value = null
+  }
+}
+
 const canAfford = computed(() => (gameStore.character?.gold || 0) >= INN_COST)
 const canSleep = computed(() => canAfford.value && !gameStore.isBusy)
 
@@ -97,6 +152,7 @@ async function confirmSleep() {
     const result = await gameStore.sleepAtInn()
     showModal.value = false
     if (result?.siege_pending) router.push('/siege')
+    else await gameStore.fetchTavern()
   } finally {
     sleeping.value = false
   }
@@ -104,5 +160,6 @@ async function confirmSleep() {
 
 onMounted(async () => {
   if (!gameStore.character) await gameStore.fetchCharacter()
+  await gameStore.fetchTavern()
 })
 </script>

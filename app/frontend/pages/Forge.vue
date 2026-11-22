@@ -79,6 +79,7 @@
           <div class="flex-1 min-w-0">
             <span class="text-stone-200 text-sm font-medium">{{ item.name }}</span>
             <span v-if="item.quantity > 1" class="text-stone-500 text-xs ml-1">x{{ item.quantity }}</span>
+            <span v-if="item.enchantment" class="text-violet-400 text-xs ml-2">{{ item.enchantment.label }}</span>
             <p v-if="itemStats(item.data).length" class="flex flex-wrap gap-x-3 text-xs mt-0.5">
               <span v-for="stat in itemStats(item.data)" :key="stat.label" :class="stat.class">
                 {{ stat.label }} <span class="font-semibold">{{ stat.value }}</span>
@@ -211,8 +212,9 @@ const sellableItems = computed(() =>
   gameStore.inventory.filter(i => !i.equipped && i.item_type === 'equipment')
 )
 
+// Computed by the server (enchanted items sell for more)
 function sellPrice(item) {
-  return Math.ceil((item.data?.price || 0) / 2)
+  return item.sell_price ?? Math.ceil((item.data?.price || 0) / 2)
 }
 
 async function buy(item) {

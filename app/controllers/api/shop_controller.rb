@@ -73,7 +73,7 @@ module Api
         return render json: { error: "Déséquipez l'objet avant de le vendre" }, status: :unprocessable_entity
       end
 
-      sell_price = ((catalog&.dig("price") || 0) / 2.0).ceil * quantity
+      sell_price = item.sell_price * quantity
       current_character.update!(gold: current_character.gold + sell_price)
 
       if item.quantity > quantity
